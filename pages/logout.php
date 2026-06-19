@@ -17,16 +17,15 @@
  * The page to log out and show that the logout was successful.
  */
 
+namespace tfyh\pages;
+
 use tfyh\control\Menu;
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $runner->sessions->sessionClose("logout");
 $runner->menu = new Menu("public");

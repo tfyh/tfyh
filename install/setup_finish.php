@@ -18,25 +18,25 @@
 use tfyh\util\I18n;
 use tfyh\util\Language;
 
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
+include_once "../Util/I18n.php";
+include_once "../Util/Language.php";
 
 // remove install file from root folder
-unlink("../install.php");
+unlink("../../install.php");
 $i18n = I18n::getInstance();
 $i18n->loadResource(Language::DE);
 
 // === PAGE OUTPUT ===================================================================
 // page heading
-echo file_get_contents('../Config/snippets/page_01_start');
-echo file_get_contents('../Config/snippets/page_02_nav_to_body');
+echo file_get_contents('../../Config/snippets/page_01_start');
+echo file_get_contents('../../Config/snippets/page_02_nav_to_body');
 
 echo "<h3>". $i18n->t("sVDlYy|Application setup") . "</h3>";
 echo "</div><div class='w3-container'><h3>" . $i18n->t("Kmj5St|The setup is completed.") . "</h3>";
 echo "<p>" . $i18n->t("bM4Hxy|The file °install.php° w...") . "</p>";
 echo "<p>" . $i18n->t("NI7Bvs|You can get started now.") . "</p>";
-echo "<h4><a href='../_forms/login.php' target='_blank'>" .  $i18n->t("s8LPqe|To the application login...") . "</a>";
-echo " ... <a href='../public/index.php'>" . $i18n->t("mWcht6|or to the homepage") . "</a></h4></div></body></html>";
+echo "<h4><a href='../../tfyh/forms/login.php' target='_blank'>" .  $i18n->t("s8LPqe|To the application login...") . "</a>";
+echo " ... <a href='../../index.php'>" . $i18n->t("mWcht6|or to the homepage") . "</a></h4></div></body></html>";
 // block access to install folder
-file_put_contents("../_install/.htaccess", "deny for all");
-chmod("../_install", 0700);
+file_put_contents("../tfyh/install/.htaccess", "Require all denied");
+chmod("../tfyh/install", 0700);

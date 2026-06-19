@@ -14,25 +14,19 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/Item.php";
-include_once "../_Data/Parser.php";
-include_once "../_Data/Property.php";
-include_once "../_Data/PropertyName.php";
-include_once "../_Data/Record.php";
-include_once "../_Data/Type.php";
-include_once "../_Data/ParserConstraints.php";
+
+use DateTimeZone;
+
+include_once '../../tfyh/Data/Item.php';
+include_once '../../tfyh/Data/ParserConstraints.php';
+include_once '../../tfyh/Data/Property.php';
+include_once '../../tfyh/Data/Type.php';
+include_once '../../tfyh/Util/Language.php';
 
 use tfyh\control\Logger;
 use tfyh\control\LoggerSeverity;
-include_once "../_Control/Logger.php";
-include_once "../_Control/LoggerSeverity.php";
 
 use tfyh\util\Language;
-include_once "../_Util/Language.php";
-
-use DateTimeZone;
 
 const DEFAULT_TIME_ZONE = "Europe/Berlin";
 
@@ -98,8 +92,8 @@ class Config
         foreach (self::$allSettingsDirs as $settingsDir) {
             foreach (self::$allSettingsFiles as $settingsFile) {
                 $fName = "Config/$settingsDir/$settingsFile";
-                if (file_exists("../$fName"))
-                    $modified .= "\n" . $fName . "=" . filemtime("../$fName");
+                if (file_exists("../../$fName"))
+                    $modified .= "\n" . $fName . "=" . filemtime("../../$fName");
             }
         }
         return substr($modified, 1);
@@ -130,7 +124,7 @@ class Config
     private function __construct() {
         // while monitor and runner share the same session type logger, the configuration errors and warnings
         // get a different one because they will reissue the same warnings on every page.
-        $this->logger = new Logger("../Log/config.log");
+        $this->logger = new Logger("../../var/Log/config.log");
     }
 
     /**
@@ -211,8 +205,8 @@ class Config
         ParserConstraints::init();
 
         // initialise the Type object
-        $descriptorCsv = file_get_contents("../Config/packaged/descriptor");
-        $typesCsv = file_get_contents("../Config/packaged/types");
+        $descriptorCsv = file_get_contents("../../Config/packaged/descriptor");
+        $typesCsv = file_get_contents("../../Config/packaged/types");
         Type::init($descriptorCsv, $typesCsv);
 
         // Initialise the root and invalid item. They have no configuration file entry.
@@ -225,19 +219,19 @@ class Config
         foreach (Config::$allSettingsDirs as $settingsDir) {
             $this->settingsCsv[$settingsDir] = [];
             foreach (Config::$allSettingsFiles as $settingsFile)
-                if (file_exists("../Config/$settingsDir/$settingsFile"))
-                    $this->settingsCsv[$settingsDir][$settingsFile] = file_get_contents("../Config/$settingsDir/$settingsFile");
+                if (file_exists("../../Config/$settingsDir/$settingsFile"))
+                    $this->settingsCsv[$settingsDir][$settingsFile] = file_get_contents("../../Config/$settingsDir/$settingsFile");
         }
 
         // set tables and language
         $loadTime = microtime(true);
         Record::copyCommonFields();
-        file_put_contents("../Log/tablesInitTimes.log", microtime(true) - $loadTime . "\n", FILE_APPEND);
+        file_put_contents("../../var/Log/tablesInitTimes.log", microtime(true) - $loadTime . "\n", FILE_APPEND);
         $languageString = $this->getItem(".app.user_preferences.language")->valueCsv();
         $this->language = Language::valueOfOrDefault(strtoupper($languageString));
         $this->appName = $this->getItem(".framework.app.name")->valueCsv();
         $this->appUrl = $this->getItem(".framework.app.url")->valueCsv();
-        $this->appVersion = file_get_contents("../public/version");
+        $this->appVersion = file_get_contents("../../version");
 
         // initialise the locale settings for parser and formatter (JavaScript code: see main loader.)
         $this->logger->setLocale($this->language);

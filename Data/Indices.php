@@ -6,16 +6,9 @@ use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
 use tfyh\control\Users;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-include_once "../_Control/Users.php";
-
 // internationalisation support on needed to translate the missingNotice
 use tfyh\util\I18n;
 use tfyh\util\ListHandlerKernel;
-include_once "../_Util/I18n.php";
-include_once "../_Util/ListHandlerKernel.php";
 
 /**
  * Class responsible for managing indices stored in the $_SESSION super-global to enhance performance throughout a session.

@@ -13,13 +13,13 @@
  * the License.
  */
 
+namespace tfyh\forms;
+
 use tfyh\control\Runner;
 use tfyh\util\I18n;
-include_once "../_Control/Runner.php";
-include_once "../_Util/I18n.php";
 
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 
 $runner = Runner::getInstance();
 $i18n = I18n::getInstance();

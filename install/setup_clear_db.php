@@ -23,27 +23,15 @@
 use tfyh\control\Monitor;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
-include_once "../_Control/Monitor.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\DatabaseSetup;
 use tfyh\data\Findings;
 use tfyh\data\Ids;
 use tfyh\data\Validator;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/DatabaseSetup.php";
-include_once "../_Data/Findings.php";
-include_once "../_Data/Ids.php";
-include_once "../_Data/Validator.php";
-
 use tfyh\util\I18n;
 use tfyh\util\Language;
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
+include_once "../includeAll.php";
 
 // redirect error reporting
 $cwd = getcwd();
@@ -96,8 +84,8 @@ $userFieldsInputType["adminPassword"] = "password";
 $userFieldsInputType["adminPasswordConfirm"] = "password";
 
 // === PAGE OUTPUT ===================================================================
-echo file_get_contents('../Config/snippets/page_01_start');
-echo file_get_contents('../Config/snippets/page_02_nav_to_body');
+echo file_get_contents('../../Config/snippets/page_01_start');
+echo file_get_contents('../../Config/snippets/page_02_nav_to_body');
 
 // page heading, identical for all workflow steps
 

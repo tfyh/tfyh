@@ -16,8 +16,6 @@
 namespace tfyh\util;
 
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Codec;
 use tfyh\data\Config;
 use tfyh\data\Findings;
@@ -32,19 +30,6 @@ use tfyh\data\PropertyName;
 use tfyh\data\Record;
 use tfyh\data\Type;
 use tfyh\data\Validator;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Config.php";
-include_once "../_Data/Findings.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/Indices.php";
-include_once "../_Data/Item.php";
-include_once "../_Data/Parser.php";
-include_once "../_Data/ParserName.php";
-include_once "../_Data/ParserConstraints.php";
-include_once "../_Data/Property.php";
-include_once "../_Data/PropertyName.php";
-include_once "../_Data/Type.php";
-include_once "../_Data/Validator.php";
 
 /**
  * This class provides a form segment for a web file. <p>The definition must be a CSV-file, all entries

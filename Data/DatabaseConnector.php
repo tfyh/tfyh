@@ -14,25 +14,17 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Formatter.php";
+
+use Exception;
+use mysqli;
+use mysqli_result;
 
 use tfyh\control\Logger;
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
-include_once "../_Control/Logger.php";
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-
 // the internationalisation support is needed to translate setup error messages for the admin user.
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
-
-use Exception;
-use mysqli;
-use mysqli_result;
 use tfyh\util\Language;
 
 /**
@@ -137,7 +129,7 @@ class DatabaseConnector
     {
         $this->cfg = [];
         // Read database settings
-        $settingsDb = "../Config/db";
+        $settingsDb = "../../Config/db";
         if (file_exists($settingsDb)) {
             // read database connection configuration first
             $cfgStrBase64 = file_get_contents($settingsDb);
@@ -545,8 +537,8 @@ class DatabaseConnector
         if ($userId > 0) {
             $timestamp = strval(microtime(true));
             $directory = ($isWrite) ? "lastWriteAccess" : "lastReadAccess";
-            file_put_contents("../Run/$directory/" . Sessions::getInstance()->userId(), $timestamp);
-            file_put_contents("../Run/$directory/any", $timestamp);
+            file_put_contents("../../var/Run/$directory/" . Sessions::getInstance()->userId(), $timestamp);
+            file_put_contents("../../var/Run/$directory/any", $timestamp);
         }
     }
 

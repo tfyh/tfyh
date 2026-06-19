@@ -13,27 +13,18 @@
  * the License.
  */
 
+namespace tfyh\forms;
+
 use JetBrains\PhpStorm\NoReturn;
 
 use tfyh\api\ResultForTransaction;
-include_once "../_Api/ResultForTransaction.php";
-
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Codec;
 use tfyh\data\Config;
 use tfyh\data\Findings;
 use tfyh\data\Validator;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Config.php";
-include_once "../_Data/Findings.php";
-include_once "../_Data/Validator.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 /**
  * The response page to any form post. Provides configuration and data insert, update, and delete
@@ -60,12 +51,12 @@ include_once "../_Util/I18n.php";
     $settingsFContents = $topBranch->branchToCsv(99, $isBasic);
     $success = file_put_contents($settingsFName, $settingsFContents);
     if ($success) {
-        Runner::getInstance()->logger->log(LoggerSeverity::INFO, "_forms/jsPost.php",
+        Runner::getInstance()->logger->log(LoggerSeverity::INFO, "tfyh/forms/jsPost.php",
         "Executed configuration change on $changedPath. Mode: " . $_POST["mode"] . ", change: " . $_POST["csv"]);
         return_result(ResultForTransaction::REQUEST_SUCCESSFULLY_PROCESSED->value, $response);
     }
     else {
-        Runner::getInstance()->logger->log(LoggerSeverity::INFO, "_forms/jsPost.php",
+        Runner::getInstance()->logger->log(LoggerSeverity::INFO, "tfyh/forms/jsPost.php",
             "Failed configuration change on $changedPath. Mode: " . $_POST["mode"] . ", reason: " . $success);
         return_result(ResultForTransaction::TRANSACTION_FAILED->value, $i18n->t("8tmTMH|%1 file write failed.", $topBranchName));
     }
@@ -73,15 +64,13 @@ include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $config = Config::getInstance();
-$runner = Runner::getInstance();
 
 $txForbidden = ResultForTransaction::TRANSACTION_FORBIDDEN->value;
 $txInvalid = ResultForTransaction::TRANSACTION_INVALID->value;
 $txFailed = ResultForTransaction::TRANSACTION_FAILED->value;
-$txSuccess = ResultForTransaction::REQUEST_SUCCESSFULLY_PROCESSED->value;
 
 // === APPLICATION LOGIC ==============================================================
 $mode = intval($_POST["mode"]);

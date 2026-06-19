@@ -13,12 +13,13 @@
  * the License.
  */
 
-// ===== initialize
+namespace tfyh\pages;
+
 use tfyh\control\Runner;
 use tfyh\data\Config;
 use tfyh\util\I18n;
 use tfyh\util\ListHandler;
-include_once "../_Data/Config.php";
+include_once "../../tfyh/Data/Config.php";
 
 // ===== public information is returned without any further checking.
 // get all last modifications. Quite a frequent call
@@ -28,15 +29,14 @@ if (strcasecmp($info, "modified") == 0) {
     exit();
 }
 
-include_once "../_Control/Runner.php";
-include_once "../_Util/I18n.php";
-include_once "../_Util/ListHandler.php";
+include_once "../../tfyh/Control/Runner.php";
+include_once "../../tfyh/Util/I18n.php";
+include_once "../../tfyh/Util/ListHandler.php";
 
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
-$i18n = I18n::getInstance();
-$config = Config::getInstance();
+$runner->startScript($userRequestedFile);
 
 $set = (isset($_GET["set"])) ? $_GET["set"] : "";
 $listName = (isset($_GET["list_name"])) ? $_GET["list_name"] : "";
@@ -60,7 +60,7 @@ if (($userId <= 0) || (strcasecmp($runner->sessions->userRole(), $runner->users-
 // ===== configuration read
 // ===== return a configuration file
 if ((strlen($info) > 0) && (strlen($set) == 0)) {
-    $configFileContents = file_get_contents("../" . $info);
+    $configFileContents = file_get_contents("../../" . $info);
     if ($configFileContents !== false)
         echo $configFileContents;
     $runner->endScript(false);
@@ -68,7 +68,7 @@ if ((strlen($info) > 0) && (strlen($set) == 0)) {
 
 // cancel progress information
 if (strcasecmp($info, "executionCancel") == 0) {
-    unlink("../Run/executionProgress." . session_id());
+    unlink("../../var/Run/executionProgress." . session_id());
     $runner->endScript(false);
 }
 

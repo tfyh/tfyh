@@ -13,23 +13,17 @@
  * the License.
  */
 
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
+namespace tfyh\pages;
 
+use ZipArchive;
+
+use tfyh\control\Runner;
 use tfyh\data\Audit;
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Formatter;
-include_once "../_Data/Audit.php";
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Formatter.php";
-
 use tfyh\util\FileHandler;
 use tfyh\util\I18n;
-include_once "../_Util/FileHandler.php";
-include_once "../_Util/I18n.php";
-
 
 /**
  * The application software upgrade page.
@@ -37,7 +31,7 @@ include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $dbc = DatabaseConnector::getInstance();
 $i18n = I18n::getInstance();
@@ -59,7 +53,7 @@ if (! isset($_GET["upgrade"])) {
     echo "<p>" . $i18n->t("ZC5KSz|Currently installed:") . " <b>" . $versionInstalled . "</b><br>" .
         $i18n->t("qC9XHB|Installed on:") . " <b>" . Formatter::microTimeToString(
             floatval($versionInstalledOn), $config->language()) . "</b></p>";
-    echo "<p>" . $i18n->t("6hVh0p|Current version at dilbo...") . " <b>" . $currentVersion . "</b></p>";
+    echo "<p>" . $i18n->t("Current version at server") . " <b>" . $currentVersion . "</b></p>";
     echo "<p>" . $i18n->t("9dBgWW|An upgrade cannot be und...") . "</p>";
     echo "<p>" . $i18n->t("d0xnMU|Please note: the process...") . "</p>";
     echo "<form action='?upgrade=1' method='post'>\n <input type='submit' class='formButton' value='" .
@@ -67,7 +61,8 @@ if (! isset($_GET["upgrade"])) {
 } else {
     
     $upgradePath = $config->getItem(".framework.app.upgrade_url")->valueStr();
-    $appSourcePath =  $upgradePath . "/dilbo_server.zip";
+    $appName = $config->appName;
+    $appSourcePath =  $upgradePath . "/$appName.zip";
 
     // check loaded modules
     // ==============================================================================================
@@ -170,20 +165,20 @@ if (! isset($_GET["upgrade"])) {
     // Set directory access rights and audit the upgrade result.
     // ==============================================================================================
     $audit = new Audit();
-    $audit->set_dirs_access_rights();
-    $audit->run_audit();
+    $audit->setDirectoriesAccessRights();
+    $audit->runAudit();
     echo "<h5>" . $i18n->t("RHFSbA|Checking the result") . "</h5>";
     echo "<p>" . $i18n->t("RGjcvy|Done. For the audit prot...") . '</p>';
 
     // update the installation timestamp
     // ==============================================================================================
-    file_put_contents("../_install/lastUpgrade", Formatter::microTimeToString(microtime(true)));
+    file_put_contents("../tfyh/install/lastUpgrade", Formatter::microTimeToString(microtime(true)));
     
     // ==============================================================================================
     // initialize the version, if the respective script is available.
     // ==============================================================================================
-    if (file_exists("../_Control/initVersion.php")) {
-        include "../_Control/initVersion.php";
+    if (file_exists("../tfyh/Control/initVersion.php")) {
+        include "../tfyh/Control/initVersion.php";
     }
 }
 $runner->endScript();

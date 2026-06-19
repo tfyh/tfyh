@@ -16,17 +16,16 @@
 /**
  * An overview on all accesses currently granted.
  */
+
+namespace tfyh\pages;
+
 use tfyh\control\Menu;
 use tfyh\control\Runner;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $runner = Runner::getInstance();
 
@@ -40,7 +39,6 @@ echo "<p>" . $i18n->t("3Ju6sc|An overview of the curre...") . "</p>";
 echo $runner->users->getAllAccesses();
 
 echo "<h4>" . $i18n->t("VCcc4J|Permissions per role") . "</h4>";
-$menu_file_path = "../Config/access/menuForUser";
 $audit_menu = new Menu("identified");
 echo $audit_menu->getAllowanceProfileHtml();
 

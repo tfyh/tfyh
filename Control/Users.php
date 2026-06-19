@@ -20,15 +20,10 @@ use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Ids;
 use tfyh\data\ParserConstraints;
-include_once '../_Data/Codec.php';
-include_once '../_Data/Config.php';
-include_once '../_Data/DatabaseConnector.php';
-include_once '../_Data/Ids.php';
-include_once '../_Data/ParserConstraints.php';
 
 // internationalisation support on needed to translate user access and services information provided at the UI
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
+include_once "../../tfyh/Util/I18n.php";
 
 /**
  * A utility class to hold the user profile management functions which do not depend on the application.
@@ -57,7 +52,7 @@ class Users
 
     /**
      * Roles may include other roles. Expansion provides the role plus the respective included roles in an
-     * array. The role_hierarchy is read from the file "../Config/access/role_hierarchy", which must contain
+     * array. The role_hierarchy is read from the file "../../Config/access/role_hierarchy", which must contain
      * per role a line "role=role1,role2,...".
      */
     public array $includedRoles;
@@ -90,7 +85,7 @@ class Users
 
     /**
      * Set all included roles based on the role hierarchy. The role hierarchy is read from the file
-     * "../Config/access/role_hierarchy", which must contain per role a line "role=role1,role2,..."
+     * "../../Config/access/role_hierarchy", which must contain per role a line "role=role1,role2,..."
      * @return void
      */
     public function setIncludedRoles(): void
@@ -207,7 +202,6 @@ class Users
         $concessions = $sessions->userConcessions();
         // else it must match one of the roles in the hierarchy.
         $includedRoles = $this->includedRoles[$accessingRole];
-
         // now check permissions. This will for every permissions entry check allowance and display.
         $permissionsArray = explode(",", $permission);
         // the $allowed_or_hidden integer carries the result as 0-3 reflecting two bits:
@@ -258,7 +252,7 @@ class Users
                 $allPrivileged = DatabaseConnector::getInstance()->findAll($this->userTableName, ["role" => $role], 500);
                 if ($allPrivileged)
                     foreach ($allPrivileged as $privileged) {
-                        $user_reference = (isset($privileged["transactionId"])) ? "<a href='../_forms/changeUser.php?id=" .
+                        $user_reference = (isset($privileged["transactionId"])) ? "<a href='../../tfyh/forms/changeUser.php?id=" .
                             $privileged["transactionId"] . "'>" . $privileged[$this->userIdFieldName] . "</a>" : $privileged[$this->userIdFieldName];
                         $html .= "&nbsp;&nbsp;#" . $user_reference . ": " .
                             ((isset($privileged["Titel"])) ? $privileged["Titel"] : "") . " " .
@@ -355,7 +349,7 @@ class Users
                 $auditLog .= $title . " - " . $countOfServiceUsers . "; ";
                 if (!$countOnly && is_array($serviceUsers))
                     foreach ($serviceUsers as $serviceUser)
-                        $servicesList .= "<a href='../_forms/changeServices.php?type=" . strtolower($fieldName) .
+                        $servicesList .= "<a href='../../tfyh/forms/changeServices.php?type=" . strtolower($fieldName) .
                             "&id=" . $serviceUser["transactionId"] . "'>#" . $serviceUser[$this->userIdFieldName] .
                             "</a>: " . ((isset($serviceUser["title"])) ? $serviceUser["Titel"] : "") .
                             " " . $serviceUser[$this->userFirstNameFieldName] . " " .
@@ -383,12 +377,12 @@ class Users
     public function getUserServices(string $type, string $key, string $value): string
     {
         $i18n = I18n::getInstance();
-        $servicesSet = Codec::csvFileToMap("../Config/access/$type");
+        $servicesSet = Codec::csvFileToMap("../../Config/access/$type");
         $servicesList = "[" . $value . "] ";
         foreach ($servicesSet as $service)
             if ((intval($value) & intval($service["Flag"])) > 0)
                 $servicesList .= $i18n->t($service["Titel"]) . ", ";
-        $change_link = (strcasecmp($type, "subscriptions") == 0) ? "<br><a href='../_forms/changeServices.php'> &gt; " .
+        $change_link = (strcasecmp($type, "subscriptions") == 0) ? "<br><a href='../../tfyh/forms/changeServices.php'> &gt; " .
             $i18n->t("08PFcm|change") . "</a>" : "";
         return "<tr><td><b>" . $key . "</b>&nbsp;&nbsp;&nbsp;</td><td>" . $servicesList . $change_link .
             "</td></tr>\n";

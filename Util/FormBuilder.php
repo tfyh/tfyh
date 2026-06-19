@@ -5,10 +5,6 @@ namespace tfyh\util;
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-
 use tfyh\data\Codec;
 use tfyh\data\Config;
 use tfyh\data\Findings;
@@ -18,14 +14,6 @@ use tfyh\data\Parser;
 use tfyh\data\ParserName;
 use tfyh\data\ParserConstraints;
 use tfyh\data\Validator;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Config.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/Item.php";
-include_once "../_Data/Parser.php";
-include_once "../_Data/ParserName.php";
-include_once "../_Data/ParserConstraints.php";
-include_once "../_Data/Validator.php";
 
 /**
  * This class provides a form segment for a web file. <p>The definition must be a CSV-file, all entries
@@ -144,7 +132,7 @@ class FormBuilder
      */
     private function expandService(string $serviceName, array $fieldDefinition, string $identifier): void
     {
-        $servicesSet = Codec::csvFileToMap("../Config/access/" . $serviceName);
+        $servicesSet = Codec::csvFileToMap("../../Config/access/" . $serviceName);
         foreach ($servicesSet as $service) {
             $fieldDefinitionService = $fieldDefinition;
             // replace in all field definition values all workflow keys by their workflow

@@ -50,7 +50,7 @@ enum ParserName: String {
     case STRING = "string"; // native String. No parsing, no formatting applied
     case STRING_LIST = "string_list"; // native String. No parsing, no formatting applied
     case NONE = "none"; // no value accepted will always parse to ""
-    // case NONE is used within the descriptor definition to reference to the value parser as
+    // case NONE: is used within the descriptor definition to reference to the value parser as
     // parser for the properties default_value, value_min, and value_max which is not fix
     // like the parser for all other properties.
 

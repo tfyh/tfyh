@@ -16,18 +16,12 @@
 namespace tfyh\api;
 
 use JetBrains\PhpStorm\NoReturn;
+
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Monitor;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
 use tfyh\data\Codec;
-
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Monitor.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-
-include_once "../_Data/Codec.php";
 
 /**
  * A singleton class to handle the transaction container.
@@ -295,7 +289,7 @@ class Container
     private function logContentSize(int $requestSize, int $responseSize, int $userId): void
     {
         // create a new directory for a new client, if necessary
-        $sizeFilename = "../Run/contentSize";
+        $sizeFilename = "../../var/Run/contentSize";
         if (!file_exists($sizeFilename))
             mkdir($sizeFilename);
         $sizeFilename .= "/" . $userId;

@@ -23,18 +23,18 @@
 // ===== initialize toolbox
 use tfyh\control\Monitor;
 use tfyh\control\Runner;
-include_once "../_Control/Monitor.php";
-include_once "../_Control/Runner.php";
+include_once "../Control/Monitor.php";
+include_once "../Control/Runner.php";
 
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
+include_once "../Data/Config.php";
+include_once "../Data/DatabaseConnector.php";
 
 use tfyh\util\I18n;
 use tfyh\util\Language;
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
+include_once "../Util/I18n.php";
+include_once "../Util/Language.php";
 
 // redirect error reporting
 $cwd = getcwd();
@@ -81,8 +81,8 @@ $dbAccessFieldInputType["user"] = "text";
 $dbAccessFieldInputType["pwd"] = "password";
 
 // === PAGE OUTPUT ===================================================================
-echo file_get_contents('../Config/snippets/page_01_start');
-echo file_get_contents('../Config/snippets/page_02_nav_to_body');
+echo file_get_contents('../../Config/snippets/page_01_start');
+echo file_get_contents('../../Config/snippets/page_02_nav_to_body');
 
 // page heading, identical for all workflow steps
 echo "<h3>" . $i18n->t("AAbSwk|Configure the database ...") . "</h3>";

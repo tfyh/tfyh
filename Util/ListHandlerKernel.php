@@ -12,23 +12,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+
 namespace tfyh\util;
 
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Sessions;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Sessions.php";
-
 use tfyh\data\Codec;
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Item;
 use tfyh\data\Record;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Item.php";
-include_once "../_Data/Record.php";
 
 /**
  * This class provides a list segment for a web file. <p>The definition must be a CSV-file, all entries
@@ -38,7 +31,7 @@ include_once "../_Data/Record.php";
  * are<ul><li>sort=[-]column[.[-]column]: order by the respective column in ascending or descending (-)
  * order</li><li>filter=column.value: filter the column for the given value, always using the LIKE operator
  * with '*' before and after the value</li><li>link=[link]: link the first column to the given url e.g.
- * '../_forms/changeUser.php?id=id' replacing the column name at the end (here: id) by the respective
+ * '../../tfyh/forms/changeUser.php?id=id' replacing the column name at the end (here: id) by the respective
  * value.</li></ul></p> <p>The list is always displayed as a table grid. It will show the default sorting if
  * no sorting option is provided.</p>
  */
@@ -195,7 +188,7 @@ class ListHandlerKernel
 
     /**
      * Parse the options' String containing the sort and filter options, e.g. "sort=-name&filter=doe" or
-     * "sort=ID&link=id=../forms/changePlace.php?id=". Sets: oSortsList, oFilter, oFValue, firstOfBlock,
+     * "sort=ID&link=id=../../tfyh/forms/changePlace.php?id=". Sets: oSortsList, oFilter, oFValue, firstOfBlock,
      * maxRows
      * @param string $optionsList the options String to parse
      * @return void

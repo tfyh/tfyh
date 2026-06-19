@@ -16,20 +16,17 @@
 /**
  * A page to audit the complete database.
  */
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
 
+namespace tfyh\pages;
+
+use tfyh\control\Runner;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\DatabaseSetup;
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/DatabaseSetup.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $runner = Runner::getInstance();
 $dbc = DatabaseConnector::getInstance();
@@ -70,7 +67,7 @@ if ($dbLayoutVerified) {
     $optimizationNeeded = true;
     $verificationResult .= $i18n->t("1Pq6VT|NOT OK.") . "</li><li>" . str_replace("\n", "</li><li>",
             str_replace($i18n->t("DQYc1I|Verification failed"), "<b>" . $i18n->t("P1TqTx|Verification failed") . "</b>",
-                    file_get_contents("../Log/sys_db_audit.log")));
+                    file_get_contents("../../var/Log/sys_db_audit.log")));
 }
 $verificationResult .= "</li></ul>";
 

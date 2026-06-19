@@ -15,23 +15,15 @@
 
 namespace tfyh\control;
 
-use tfyh\api\Transactions;
-include_once "../_Api/Transactions.php";
+use DateTimeImmutable;
 
+use tfyh\api\Transactions;
 use tfyh\util\ListHandler;
 use tfyh\util\Pdf;
-include_once "../_Util/ListHandler.php";
-
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Formatter;
 use tfyh\data\ParserName;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/ParserName.php";
-
-use DateTimeImmutable;
 
 /**
  * Class file for the security concept generation. The security concept may be used for privacy and security audits.
@@ -55,7 +47,7 @@ class SecurityMonitor
         // provided by the application
         $this->variables["printedOn"] = Formatter::format(new DateTimeImmutable("now"), ParserName::DATETIME);
         $this->variables["hostUrl"] = $_SERVER['HTTP_HOST'];
-        $this->variables["dilboVersion"] = $config->appVersion;
+        $this->variables["appVersion"] = $config->appVersion;
 
         // tenant information and session control shall be added directly from the configuration
 
@@ -135,7 +127,7 @@ class SecurityMonitor
             str_replace("  ", " &nbsp;",
                 str_replace(">", "&gt;",
                     str_replace("<", "&lt;",
-                        str_replace("&", "&amp;", file_get_contents("../Log/app_audit.log"))))));
+                        str_replace("&", "&amp;", file_get_contents("../../var/Log/app_audit.log"))))));
     }
 
     /**
@@ -146,7 +138,9 @@ class SecurityMonitor
     {
         $this->prepareVariables();
         $template = "security_concept";
-        $templatePath = "../Templates/" . Config::getInstance()->language()->value . "/" . $template . ".html";
+        $appName = Config::getInstance()->appName;
+        $language = Config::getInstance()->language()->value;
+        $templatePath = "../../$appName/Templates/$language/$template.html";
         $templateHtml = file_get_contents($templatePath);
         if ($templateHtml === false)
             return "Template for security concept not found in $templatePath";
@@ -174,7 +168,7 @@ class SecurityMonitor
      */
     public function create_PDF(): string
     {
-        include_once "../_Util/Pdf.php";
+        include_once "../Util/Pdf.php";
         $pdf = new Pdf();
         $templateHtml = $this->create_HTML();
         $savedOn = $pdf->createPdfFromHtml($templateHtml, "Security Concept", "Security Concept");

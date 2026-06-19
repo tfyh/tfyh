@@ -14,11 +14,11 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/ParserName.php";
 
 use DateTimeImmutable;
+
+include_once '../../tfyh/Data/PropertyName.php';
+
 use tfyh\util\I18n;
 
 /**

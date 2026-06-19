@@ -16,19 +16,17 @@
 /**
  * A page to create a security concept for security-auditing purposes
  */
+
+namespace tfyh\pages;
+
 use tfyh\control\Runner;
 use tfyh\control\SecurityMonitor;
-include_once "../_Control/Runner.php";
-include_once "../_Control/SecurityMonitor.php";
-
 use tfyh\util\FileHandler;
 use tfyh\util\I18n;
-include_once "../_Util/FileHandler.php";
-include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $i18n = I18n::getInstance();
 

@@ -13,22 +13,14 @@
  * the License.
  */
 
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
+namespace tfyh\forms;
 
+use tfyh\control\Runner;
 use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
 use tfyh\data\PropertyName;
 use tfyh\data\WordIndex;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/PropertyName.php";
-include_once "../_Data/WordIndex.php";
-
 use tfyh\util\Form;
 use tfyh\util\I18n;
-include_once "../_Util/Form.php";
-include_once "../_Util/I18n.php";
 
 /**
  * The form to find an arbitrary record. Based on the Tfyh_form class, please read instructions there to
@@ -36,10 +28,9 @@ include_once "../_Util/I18n.php";
  */
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $config = Config::getInstance();
-$dbc = DatabaseConnector::getInstance();
 $runner = Runner::getInstance();
 $todo = ($runner->done == 0) ? 1 : $runner->done;
 $formErrors = "";
@@ -94,7 +85,7 @@ if ($todo < 2) {
     else {
         echo $i18n->t("c8I94h|The following configurat...");
         echo "<ul>";
-        $linkPrefix = "<a href='../_pages/configureApp.php?mode=inspect&top=";
+        $linkPrefix = "<a href='../../tfyh/pages/configureApp.php?mode=inspect&top=";
         foreach($findResult as $path => $found) {
             $pathElements = explode(".", $path);
             $last = $pathElements[count($pathElements) - 1];

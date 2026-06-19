@@ -13,28 +13,17 @@
  * the License.
  */
 
+namespace tfyh\forms;
+
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-include_once "../_Control/LoggerSeverity.php";
-
 use tfyh\data\Codec;
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Record;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Record.php";
-
 use tfyh\util\Form;
 use tfyh\util\I18n;
-use tfyh\util\FormBuilder;
 use tfyh\util\Language;
-include_once "../_Util/Form.php";
-include_once "../_Util/I18n.php";
-include_once "../_Util/FormBuilder.php";
-include_once "../_Util/Language.php";
 
 /**
  * The form for user profile editing. Based on the Form class, please read instructions there to
@@ -43,8 +32,7 @@ include_once "../_Util/Language.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
-$i18n = I18n::getInstance();
+include_once "../../tfyh/init/init.php";
 $dbc = DatabaseConnector::getInstance();
 $config = Config::getInstance();
 $runner = Runner::getInstance();
@@ -76,7 +64,6 @@ if (! isset($_SESSION["get_parameters"][$runner->fsId]["uid"]) || (strlen($_SESS
     $runner->displayError($i18n->t("jA4eJf|Not allowed"), $i18n->t("NiYUV5|You have to provide the ..."),
             $userRequestedFile);
 
-$now = microtime(true);
 if (strcasecmp($_SESSION["get_parameters"][$runner->fsId]["uid"], "new") != 0) {
     // get the user record. technically there may be multiple, because of versioning.
     $matching = ["uid" => $_SESSION["get_parameters"][$runner->fsId]["uid"]
@@ -159,7 +146,6 @@ if ($runner->done > 0) {
             $changes = 0;
             if (strlen($formErrors) == 0) {
                 // log the changes for user display
-                $todo = $done + 1;
                 foreach ($userUpdated as $key => $value) {
                     $changes++;
                     if (strcmp($key, "password_hash") == 0)
@@ -230,9 +216,9 @@ if ($todo == 1) { // step 1. No special texts for output
 } else {
     echo "<p><b>" . $i18n->t("gvvK8s|The data change is %1per...", (($formErrors) ? $i18n->t("rT8wtF|not") : "")) . "</b> ";
     echo (($formErrors) ? "" : $i18n->t("9mww2x|The following changes ha...") . "<br />" . $formResult);
-    echo "<p><a href='../_pages/viewRecord.php?table=persons&uid=" . $userToUpdate["uid"] . "'>" .
+    echo "<p><a href='../../tfyh/pages/viewRecord.php?table=persons&uid=" . $userToUpdate["uid"] . "'>" .
              $i18n->t("CHVtwP|Display changed profile ...") . "</a>";
-    echo "<br /><a href='../_forms/changeUser.php?uid=" . $userToUpdate["uid"] . "'>" .
+    echo "<br /><a href='../../tfyh/forms/changeUser.php?uid=" . $userToUpdate["uid"] . "'>" .
              $i18n->t("gcFhev|Continue to edit user.") . "</a></p>";
 }
 echo "</div>";

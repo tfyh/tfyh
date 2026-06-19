@@ -13,32 +13,21 @@
  * the License.
  */
 
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
+namespace tfyh\forms;
 
-use tfyh\data\Config;
+use tfyh\control\Runner;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Formatter;
 use tfyh\data\ParserName;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/ParserName.php";
-
 use tfyh\util\Form;
 use tfyh\util\FormBuilder;
 use tfyh\util\I18n;
 use tfyh\util\ListHandler;
-include_once "../_Util/Form.php";
-include_once "../_Util/FormBuilder.php";
-include_once "../_Util/I18n.php";
-include_once "../_Util/ListHandler.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
-$config = Config::getInstance();
 $dbc = DatabaseConnector::getInstance();
 $runner = Runner::getInstance();
 $todo = ($runner->done == 0) ? 1 : $runner->done;
@@ -56,7 +45,6 @@ if ($runner->done > 0) {
     $formFilled = new FormBuilder();
     $formFilled->read_entered();
     $formErrors = $formFilled->checkValidity();
-    $enteredData = $formFilled->getEntered();
     // application logic, step by step
     if (strlen($formErrors) == 0) { // do nothing if form errors occurred.
         if ($runner->done == 1) {

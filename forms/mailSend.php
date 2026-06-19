@@ -13,32 +13,21 @@
  * the License.
  */
 
+namespace tfyh\forms;
+
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-
 use tfyh\util\Form;
 use tfyh\util\FormBuilder;
 use tfyh\util\I18n;
 use tfyh\util\ListHandler;
 use tfyh\util\MailHandler;
-use tfyh\util\TokenHandler;
-include_once "../_Util/Form.php";
-include_once "../_Util/FormBuilder.php";
-include_once "../_Util/I18n.php";
-include_once "../_Util/ListHandler.php";
-include_once "../_Util/MailHandler.php";
-include_once "../_Util/TokenHandler.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $config = Config::getInstance();
 $dbc = DatabaseConnector::getInstance();
@@ -127,7 +116,6 @@ if ($runner->done > 0) {
             // create mails to users. Prepare.
             $mailHandler = new MailHandler($config->getItem(".app.mailer"));
             $successes = 0;
-            $i = 0;
             $userFullName = $runner->sessions->userFullName();
             $mailFrom = $userFullName . " " . $mailHandler->mailSubjectAcronym . " <" .
                 $mailHandler->systemMailSender . ">";
@@ -147,19 +135,6 @@ if ($runner->done > 0) {
                     $salutation .= $userMailto[$runner->users->userFirstNameFieldName] . " " .
                         $userMailto[$runner->users->userLastNameFieldName];
                     $message = str_replace("{#salutation#}", $salutation, $message);
-                }
-                if (str_contains($message, "{#LoginToken+")) {
-                    $messageParts = explode("{#LoginToken+", $message);
-                    $tokenParams = explode("#}", $messageParts[1])[0];
-                    $messageEnd = explode("#}", $messageParts[1])[1];
-                    $plusDays = intval(explode("+", $tokenParams)[0]);
-                    $deepLink = (count(explode("+", $tokenParams)) > 1) ? explode("+", $tokenParams)[1] : "../pages/webApp.php";
-                    $loginToken =  TokenHandler::createLoginToken($userMailto["EMail"], $plusDays, $deepLink);
-                    // add a line feed to ensure that the link itself will not be broken by line feed
-                    // insertion (998 characters limit rule).
-                    $message = $messageParts[0] . "\n<a href='" . $runner->appRoot .
-                        "/_forms/login.php?token=" . urlencode($loginToken) . "'>" . $i18n->t(
-                            "ZNvHsT|direct access") . "</a>" . $messageEnd;
                 }
                 foreach ($userMailto as $key => $value) {
                     if (str_contains($message, "{#" . $key . "#}"))

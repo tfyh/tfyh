@@ -14,7 +14,6 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/XmlTag.php";
 
 /**
  * class file for simple XML reading without library support.

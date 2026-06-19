@@ -14,15 +14,12 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/ParserConstraints.php";
-include_once "../_Data/Config.php";
-
-use tfyh\util\Language;
-include_once "../_Util/Language.php";
 
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
+
+use tfyh\util\Language;
 
 /**
  * The Parser class provides methods for cleansing and normalising date, time, and datetime strings

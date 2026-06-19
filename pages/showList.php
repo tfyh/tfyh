@@ -17,28 +17,19 @@
  * List display page. Shows either a list of a set or a list itself.
  */
 
+namespace tfyh\pages;
+
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-
-use tfyh\data\DatabaseConnector;
-include_once "../_Data/DatabaseConnector.php";
-
 use tfyh\util\FileHandler;
 use tfyh\util\I18n;
 use tfyh\util\ListHandler;
 use tfyh\util\PivotTable;
-include_once "../_Util/FileHandler.php";
-include_once "../_Util/I18n.php";
-include_once "../_Util/ListHandler.php";
-include_once "../_Util/PivotTable.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
-$dbc = DatabaseConnector::getInstance();
 $i18n = I18n::getInstance();
 
 if (isset($_GET["set"]))

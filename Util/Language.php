@@ -14,7 +14,7 @@
  */
 namespace tfyh\util;
 
-include_once "../_Util/LanguageSettings.php";
+include_once '../../tfyh/Util/LanguageSettings.php';
 
 enum Language: string
 {

@@ -1,8 +1,8 @@
 <?php
 /**
- * dilbo - digital logbook for Rowing and Canoeing
- * https://www.dilbo.org
- * Copyright:  2023-2025  Martin Glade
+ * tools-for-your-hobby
+ * https://www.tfyh.org
+ * Copyright  2023-2025  Martin Glade
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,22 +16,17 @@
 /**
  * a form to request application support by the support team
  */
-// ===== initialize
+
+namespace tfyh\forms;
+
 use tfyh\control\Logger;
 use tfyh\control\Runner;
-include_once "../_Control/Logger.php";
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Config;
-include_once "../_Data/Config.php";
-
 use tfyh\util\Form;
 use tfyh\util\I18n;
-include_once "../_Util/Form.php";
-include_once "../_Util/I18n.php";
 
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $config = Config::getInstance();
 $runner = Runner::getInstance();
@@ -39,7 +34,6 @@ $todo = ($runner->done == 0) ? 1 : $runner->done;
 $formErrors = "";
 $postResult = "";
 
-$i18n = I18n::getInstance();
 $formDefinition = [
     1 => "R;*support_token,club_name;\n" . "R;*full_name;\n" . "r;*reply_to;\n" . "r;include_logs;\n" . "r;request;\n" .
         "R;submit;" . $i18n->t("FVQVIW|Send"),
@@ -60,7 +54,7 @@ if ($runner->done > 0) {
         // do nothing. This avoids any change if form errors occurred.
         if ($runner->done == 1) {
             if (isset($validatedEntries["include_logs"]) && (strlen($validatedEntries["include_logs"]) > 0)) {
-                $logsZip = "../Log/" . Logger::zipLogs(["web", "config", "api"]);
+                $logsZip = "../../var/Log/" . Logger::zipLogs(["web", "config", "api"]);
                 $validatedEntries["logs_zip"] = str_replace("=", "_",
                     str_replace("/", "-",
                         str_replace("+", "*", base64_encode(file_get_contents($logsZip)))));
@@ -105,7 +99,7 @@ echo $runner->pageStart();
 echo "<h3>" . $i18n->t("wzM12X|Send support request or ...") . "</h3>";
 echo Form::formErrorsToHtml($formErrors);
 
-// ======== start with the display of either the next form, or the error messages.
+// ======== start with the display of either the next form or the error messages.
 if ($todo == 1) {
     echo "<p>" . $i18n->t("JjAfRD|Please let me know your ...") . "</p>";
     echo "<p>" . $i18n->t("RZZubx|I am also happy to recei...") . "</p>";

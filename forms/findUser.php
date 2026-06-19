@@ -13,32 +13,24 @@
  * the License.
  */
 
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
+namespace tfyh\forms;
 
+use tfyh\control\Runner;
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-
 use tfyh\util\Form;
 use tfyh\util\I18n;
-include_once "../_Util/Form.php";
-include_once "../_Util/I18n.php";
 
 /**
  * Find a user record.
  */
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
-$i18n = I18n::getInstance();
-$config = Config::getInstance();
+include_once "../../tfyh/init/init.php";
 $dbc = DatabaseConnector::getInstance();
 $runner = Runner::getInstance();
 $todo = ($runner->done == 0) ? 1 : $runner->done;
 $formErrors = "";
-$formResult = "";
 
 $usersToShowHtml = "";
 $id = (isset($_SESSION["get_parameters"][$runner->fsId]["id"])) ? intval($_SESSION["get_parameters"][$runner->fsId]["id"]) : 0;
@@ -167,7 +159,7 @@ echo $runner->pageStart();
 
 // limit the form width
 echo "<div style='max-width: 25em; padding-top: 1em'>";
-echo "<h3>" . $i18n->t("6M8iob|Find a dilbo person") . "</h3>";
+echo "<h3>" . $i18n->t("Find a user") . "</h3>";
 echo "<p>" . $i18n->t("c7f8JL|Here you can find a clou...");
 echo "<br><b>" . $i18n->t("ruWtay|This page is the entry p...") . "</b> " . $i18n->t("6PGNEG|The display and editing ...");
 echo "</p>\n";

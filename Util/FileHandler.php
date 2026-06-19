@@ -2,11 +2,10 @@
 
 namespace tfyh\util;
 
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
 use JetBrains\PhpStorm\NoReturn;
 use ZipArchive;
+
+use tfyh\control\Runner;
 
 /**
  * FileHandler is a static class providing file handling functions.
@@ -265,19 +264,19 @@ class FileHandler
                 if (! in_array($value, array(".",".."
                 ))) {
                     if (is_dir($dir . DIRECTORY_SEPARATOR . $value)) {
-                        $result .= "<tr class=flist><td><img alt='folder' src='../resources/drive_folder-20px.png' title='" .
+                        $result .= "<tr class=flist><td><img alt='folder' src='../../tfyh/resources/drive_folder-20px.png' title='" .
                             $i18n->t("hX0dDX|Directory") . "' /></td>" . "<td><a href='?cdir=" . $dir . "/" .
                             $value . "'>" . $value . "</a>&nbsp;&nbsp;&nbsp;&nbsp;</td>" .
                             "<td><a href='?xdir=" . $dir . "/" . $value .
-                            "'><img alt='delete' src='../resources/delete_file-20px.png' title='" .
+                            "'><img alt='delete' src='../../tfyh/resources/delete_file-20px.png' title='" .
                             $i18n->t("MyjroH|delete directory, if emp...") . "' /></a>" . "</td></tr>\n";
                     } else {
-                        $result .= "<tr class=flist><td><img alt='file' src='../resources/drive_file-20px.png' title='" .
+                        $result .= "<tr class=flist><td><img alt='file' src='../../tfyh/resources/drive_file-20px.png' title='" .
                             $i18n->t("wdLerX|File") . "' /></td>" . "<td>" . $value .
                             "&nbsp;&nbsp;&nbsp;&nbsp;</td><td><a href='?dfile=" . $dir . "/" . $value .
-                            "'><img alt='download' src='../resources/download_file-20px.png' title='" .
+                            "'><img alt='download' src='../../tfyh/resources/download_file-20px.png' title='" .
                             $i18n->t("cmjKme|Download file") . "' /></a>" . "<a href='?xfile=" . $dir . "/" .
-                            $value . "'><img alt='delete' src='../resources/delete_file-20px.png' title='" .
+                            $value . "'><img alt='delete' src='../../tfyh/resources/delete_file-20px.png' title='" .
                             $i18n->t("c32XmM|Delete file") . "' /></a>" . "</td></tr>\n";
                     }
                     $items ++;
@@ -290,7 +289,7 @@ class FileHandler
         // the topmost offered parent directory is the "uploads" folder to ensure
         // entry into the application files hierarchy is not possible.
         if (count(explode("/", $parentDir)) > $level_of_top)
-            $result .= "<tr class=flist><td><img alt='file' src='../resources/drive_file-20px.png' title='" .
+            $result .= "<tr class=flist><td><img alt='file' src='../../tfyh/resources/drive_file-20px.png' title='" .
                 $i18n->t("CBxZVW|One level higher") . "' /></td><td><a href='?cdir=" . $parentDir . "'>" .
                 $parentDir . "</a></td></tr>";
         $result .= "</table>";

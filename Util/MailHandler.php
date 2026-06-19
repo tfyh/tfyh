@@ -15,7 +15,6 @@
 namespace tfyh\util;
 
 use tfyh\data\Item;
-include_once "../_Data/Item.php";
 
 /**
  * This class provides a mail handler for sending mails. It is a wrapper around the php native mailing function.
@@ -284,7 +283,7 @@ class MailHandler
             $fName = date("Ymd_His") . "mail.txt";
             $mail_text = $mailToEncoded . "\n\n" . $mailHeadersEncoded . "\n\n" . $qpSubject . "\n\n" .
                 $body_mixed . "\n\n";
-            $mailSent = file_put_contents("../all_mails_localhost/" . $fName, $mail_text) !== false;
+            $mailSent = file_put_contents("../../var/all_mails_localhost/" . $fName, $mail_text) !== false;
         } else {
             // Send action
             $mailSent = @mail($mailToEncoded, $qpSubject, $body_mixed, $mailHeadersEncoded);

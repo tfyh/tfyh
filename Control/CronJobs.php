@@ -17,9 +17,6 @@ namespace tfyh\control;
 
 use tfyh\data\Codec;
 use tfyh\data\Audit;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Audit.php";
-
 
 /**
  * Static class container file for a daily jobs routine. It may be triggered by whatever, and then checks whether it was
@@ -34,13 +31,13 @@ class CronJobs
     public static function runDailyJobs(): bool
     {
         // Check whether a day went by.
-        $timeLastRun = (file_exists("../Log/cronJobsLastDay")) ? file_get_contents(
-            "../Log/cronJobsLastDay") : 0;
+        $timeLastRun = (file_exists("../../var/Log/cronJobsLastDay")) ? file_get_contents(
+            "../../var/Log/cronJobsLastDay") : 0;
         $today = date("Y-m-d");
         if (strcmp($timeLastRun, $today) == 0)
             return false;
 
-        $cronLog = "../Log/cronJobs.log";
+        $cronLog = "../../var/Log/cronJobs.log";
         $cronStarted = time();
         $lastStepEnded = $cronStarted;
         file_put_contents($cronLog,
@@ -51,10 +48,10 @@ class CronJobs
         $monitor = Monitor::getInstance();
         $activitiesToTableArray = $monitor->activitiesToTableArray();
         $runner = Runner::getInstance();
-        // "../Log/tmp" is the usual test file name. Maybe some remainder is still there.
-        if (file_exists("../Log/tmp"))
-            unlink("../Log/tmp");
-        file_put_contents("../Run/activities.csv", Codec::encodeCsvTable($activitiesToTableArray));
+        // "../../var/Log/tmp" is the usual test file name. Maybe some remainder is still there.
+        if (file_exists("../../var/Log/tmp"))
+            unlink("../../var/Log/tmp");
+        file_put_contents("../../var/Run/activities.csv", Codec::encodeCsvTable($activitiesToTableArray));
         file_put_contents($cronLog,
             date("Y-m-d H:i:s") . " +" . (time() - $lastStepEnded) .
             ": Log rotation and analysis completed\n", FILE_APPEND);
@@ -62,16 +59,16 @@ class CronJobs
 
         // refresh timer as first action, to avoid duplicate triggering by
         // different users.
-        file_put_contents("../Log/cronJobsLastDay", $today);
+        file_put_contents("../../var/Log/cronJobsLastDay", $today);
         $runner->logger->log(LoggerSeverity::INFO, "CronJobs->runDailyJobs", "Starting daily jobs.");
 
         // check for updates
-        file_put_contents("../Log/currentApplicationVersion",
+        file_put_contents("../../var/Log/currentApplicationVersion",
             $runner->getCurrentApplicationVersion("CronJobs.php"));
 
         // run audit
         $audit = new Audit();
-        $audit->run_audit();
+        $audit->runAudit();
         file_put_contents($cronLog,
             date("Y-m-d H:i:s") . " +" . (time() - $lastStepEnded) . ": " . "Audit completed\n", FILE_APPEND);
 

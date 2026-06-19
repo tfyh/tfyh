@@ -13,20 +13,14 @@
  * the License.
  */
 
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
+namespace tfyh\forms;
 
+use tfyh\control\Runner;
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\WordIndex;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/WordIndex.php";
-
 use tfyh\util\Form;
 use tfyh\util\I18n;
-include_once "../_Util/Form.php";
-include_once "../_Util/I18n.php";
 
 /**
  * The form to find an arbitrary record. Based on the Tfyh_form class, please read instructions there to
@@ -34,10 +28,9 @@ include_once "../_Util/I18n.php";
  */
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $config = Config::getInstance();
-$dbc = DatabaseConnector::getInstance();
 $runner = Runner::getInstance();
 $todo = ($runner->done == 0) ? 1 : $runner->done;
 $formErrors = "";
@@ -82,7 +75,7 @@ if ($runner->done > 0) {
                 $findResultHtml .= "<h5>" . $tableLabel . "</h5><ol>";
                 foreach ($records as $uid => $record) {
                     $findResultHtml .= "<li>" . $record["@short"] . "</br>";
-                    $findResultHtml .= "<a target='_blank' href='../_pages/viewRecord.php?uid=" . $uid . "&table=" .
+                    $findResultHtml .= "<a target='_blank' href='../../tfyh/pages/viewRecord.php?uid=" . $uid . "&table=" .
                         $tableName . "'>";
                     $findResultHtml .= $record["@in_fields"] . "</a> - " . $record["@bold_where_is"] . "</li>";
                     $r ++;

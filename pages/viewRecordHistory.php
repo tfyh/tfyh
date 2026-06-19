@@ -13,14 +13,12 @@
  * the License.
  */
 
+namespace tfyh\pages;
+
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
-use tfyh\data\Config;use tfyh\data\DatabaseConnector;
-include_once "../_Data/DatabaseConnector.php";
-
+use tfyh\data\Config;
+use tfyh\data\DatabaseConnector;
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 /**
  * Display the record history in a human-readable form.
@@ -28,7 +26,7 @@ include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $dbc = DatabaseConnector::getInstance();
 $i18n = I18n::getInstance();

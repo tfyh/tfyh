@@ -1,17 +1,24 @@
 <?php
-
+/**
+ * tools-for-your-hobby
+ * https://www.tfyh.org
+ * Copyright  2023-2025  Martin Glade
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
 namespace tfyh\util;
 
 use tfyh\control\Users;
-include_once "../_Control/Users.php";
-
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Formatter;
 use tfyh\data\ParserName;
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/ParserName.php";
 
 /**
  * Container to hold the audit class. Shall be run by the cron jobs.
@@ -68,7 +75,7 @@ class AppStatistics
         // Check accesses logged.
         $days_to_log = 14;
         $html .= "<h4>" . $i18n->t("UU8ZrV|Accesses last %1 days", strval($days_to_log)) . "</h4>\n";
-        file_put_contents("../Log/server_statistics.csv",
+        file_put_contents("../../var/Log/server_statistics.csv",
                 $this->pivotTimestamps(86400, $days_to_log));
         $html .= "<table><tr><th>" . $i18n->t("zOZlkQ|User number") . "</th><th>" . $i18n->t("aCa6RR|User name") .
                  "</th><th>" . $i18n->t("8N2N5h|Count of accesses") . "</th></tr>\n";
@@ -91,9 +98,9 @@ class AppStatistics
      */
     public function pivotTimestamps (int $period, int $count): string
     {
-        $timestampsFile = file_get_contents("../Log/sys_timestamps.log");
+        $timestampsFile = file_get_contents("../../var/Log/sys_timestamps.log");
         $timestampsFileWithoutHeader = explode("\n", $timestampsFile, 2)[1];
-        $timestampsPreviousFile = file_get_contents("../Log/sys_timestamps.log.previous");
+        $timestampsPreviousFile = file_get_contents("../../var/Log/sys_timestamps.log.previous");
         $timestampsAll = $timestampsPreviousFile . "\n" . $timestampsFileWithoutHeader;
         $timestampsLines = explode("\n", $timestampsAll);
         $timestampsPivot = [];

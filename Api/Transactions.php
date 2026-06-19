@@ -15,7 +15,10 @@
 
 namespace tfyh\api;
 
-use app\DilboCronJobs;
+// TODO: normalisieren!
+include_once "../../dilbo/App/DilboCronJobs.php";
+use dilbo\app\DilboCronJobs;
+
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
@@ -27,20 +30,6 @@ use tfyh\data\Record;
 use tfyh\util\I18n;
 use tfyh\util\Language;
 use tfyh\util\ListHandler;
-
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/Record.php";
-
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
-include_once "../_Util/ListHandler.php";
-
 
 /**
  * Class file for the handling of API transactions. The API is a simple text-based protocol, which is used to exchange
@@ -72,9 +61,9 @@ class Transactions
         $dbc = DatabaseConnector::getInstance();
         $i18n = I18n::getInstance();
         $activeClients = "";
-        if (!file_exists("../Run/contentSize"))
-            mkdir("../Run/contentSize");
-        $clientDirs = scandir("../Run/contentSize");
+        if (!file_exists("../../var/Run/contentSize"))
+            mkdir("../../var/Run/contentSize");
+        $clientDirs = scandir("../../var/Run/contentSize");
         foreach ($clientDirs as $clientDir) {
             if (is_numeric($clientDir)) {
                 $clientRecord = $dbc->find("persons", "user_id", $clientDir);
@@ -83,9 +72,9 @@ class Transactions
                         $clientRecord["last_name"];
                     $activeClient = $clientNames[$clientDir] . " (#" . $clientRecord["user_id"] . ", " .
                         $clientRecord["role"] . ")";
-                    if (file_exists("../Run/lastReadAccess/" . $clientDir))
+                    if (file_exists("../../var/Run/lastReadAccess/" . $clientDir))
                         $activeClient .= ", " . $i18n->t("z1kw92|last activity:") . " " .
-                            Formatter::microTimeToString(floatval(file_get_contents("../Run/lastReadAccess/" . $clientDir)));
+                            Formatter::microTimeToString(floatval(file_get_contents("../../var/Run/lastReadAccess/" . $clientDir)));
                     else
                         $activeClient .= ", " . $i18n->t("4fsAVc|last activity not known");
                 } else {
@@ -169,7 +158,7 @@ class Transactions
      * Load a configuration branch using the API syntax and return the result.
      * @param string $listName The list name is either ".modified" to
      *  get the file modification times of the configuration files, or ".actuals" to get the actual values of the
-     *  configuration items, or a relative path to a configuration file, e.g. "../Config/packaged/app"
+     *  configuration items, or a relative path to a configuration file, e.g. "../../Config/packaged/app"
      * @return string the contents of the configuration file, or an error message.
      */
     public function apiCfgList(string $listName): string
@@ -184,7 +173,7 @@ class Transactions
             Config::getInstance()->rootItem->getActualValues($csv);
             return $okPrefix . $csv;
         }
-        $csv = file_get_contents("../$settingsFilePath");
+        $csv = file_get_contents("../../Config/$settingsFilePath");
         if ($csv === false)
             return ResultForTransaction::TRANSACTION_FAILED->value . ";" . $i18n->t("3cuTrK|Failed to read ../%1", $settingsFilePath);
         return $okPrefix . $csv;
@@ -211,7 +200,7 @@ class Transactions
         $runner = Runner::getInstance();
         $runner->logger->log(LoggerSeverity::INFO, "Transactions->apiHousekeeping",
             "Executing housekeeping request.");
-        unlink("../Log/cronJobsLastDay");
+        unlink("../../var/Log/cronJobsLastDay");
         DilboCronJobs::runDailyJobs();
         return ResultForTransaction::REQUEST_SUCCESSFULLY_PROCESSED->value . ";ok.";
     }
@@ -270,7 +259,7 @@ class Transactions
 
         // add the server welcome message
         $username = $runner->sessions->userFullName() . " (" . $runner->sessions->userRole() . ")";
-        $version = (file_exists("../public/version")) ? file_get_contents("../public/version") : "";
+        $version = (file_exists("../../version")) ? file_get_contents("../../version") : "";
         $acronym = $config->getItem(".app.club.acronym");
         $welcome_message = "app Server of '" . $acronym->value() . "'. Version '" . $version . "'//" .
             $i18n->t("BN4UxH|Connected as") . " '" . $username . "'.";

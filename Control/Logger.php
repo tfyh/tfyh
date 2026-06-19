@@ -23,14 +23,9 @@ use tfyh\data\Codec;
 use tfyh\data\Formatter;
 use tfyh\data\ParserName;
 use const tfyh\data\DEFAULT_TIME_ZONE;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/ParserName.php";
-
 use tfyh\util\FileHandler;
 use tfyh\util\Language;
-include_once "../_Util/FileHandler.php";
-include_once "../_Util/Language.php";
+
 /**
  * Log file size limit. If exceeded, it is copied to a previous log file, and a new log file is created.
  */
@@ -53,8 +48,9 @@ class Logger
             if (!file_exists($logDir))
                 mkdir($logDir, 0777, true);
         }
-        $this->timeZone = new DateTimeZone(DEFAULT_TIME_ZONE);
-     }
+        // do not Use DEFAULT_TIME_ZONE constant to avoid the need for the data/config loading here.
+        $this->timeZone = new DateTimeZone("Europe/Berlin");
+    }
 
     public function setLocale(Language $language, DateTimeZone $timeZone = null): void
     {
@@ -91,7 +87,7 @@ class Logger
 
     /**
      * Zip all logs into the monitoring report. Returns the monitoring report file name "logs.zip", which sits in the
-     * "../Log/" directory
+     * "../../var/Log/" directory
      * @param array $loggerNames the names of the log-files to zip
      * @return string the name of the zip file
      */
@@ -99,7 +95,7 @@ class Logger
     {
         $logNames = [];
         $cwd = getcwd();
-        chdir("../Log");
+        chdir("../../var/Log");
         foreach ($loggerNames as $loggerName) {
             if (file_exists($loggerName . ".log"))
                 $logNames[] = $loggerName . ".log";

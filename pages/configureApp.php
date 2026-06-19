@@ -17,17 +17,15 @@
  * An overview on all accesses currently granted.
  */
 
-include_once "../_Control/Runner.php";
+namespace tfyh\pages;
 
+use tfyh\control\Runner;
 use tfyh\data\Config;
-include_once "../_Data/Config.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $runner = Runner::getInstance();
 
@@ -36,7 +34,7 @@ $top = (isset($_GET["top"])) ? $_GET["top"] : ".";
 $topItem = Config::getInstance()->getItem($top);
 $parentPath = $topItem->parent()->getPath();
 $parentLink = ($topItem->parent() !== $topItem)
-    ? "<a href='../_pages/configureApp.php?mode=$mode&top=" . $parentPath . "'>" . $parentPath . " ▲</a>" : "";
+    ? "<a href='../../tfyh/pages/configureApp.php?mode=$mode&top=" . $parentPath . "'>" . $parentPath . " ▲</a>" : "";
 $refreshLink = "<a href='#'><span class='cfg-button' style='font-size:2em;' id='tfyhCfgPanel_refresh_all'>↺</span></a>";
 // ===== start page output
 echo $runner->pageStart();

@@ -14,9 +14,8 @@
  */
 
 namespace tfyh\data;
-use tfyh\util\Language;
 
-include_once "../_Data/Validator.php";
+use tfyh\util\Language;
 
 /**
  * Class file to maintain a word index, referencing to database records. The index itself is a database
@@ -67,13 +66,13 @@ class WordIndex
      */
     private array $words;
 
-    private string $indexDir = "../Run/index";
+    private string $indexDir = "../../var/Run/index";
 
-    private string $buildLog = "../Run/index/word_index.log";
+    private string $buildLog = "../../var/Run/index/word_index.log";
 
-    private string $wordsFile = "../Run/index/words";
+    private string $wordsFile = "../../var/Run/index/words";
 
-    private string $uidsFile = "../Run/index/uids";
+    private string $uidsFile = "../../var/Run/index/uids";
 
     public function __construct() {}
 
@@ -148,7 +147,6 @@ class WordIndex
                 $res = DatabaseConnector::getInstance()->customQuery($sql, $this);
                 if (isset($res->num_rows) && (intval($res->num_rows) > 0))
                     $row = $res->fetch_row();
-
                 $c = 0;
                 $toParse = [];
                 foreach ($columns as $column)
@@ -381,7 +379,7 @@ class WordIndex
                     "\n" . $recordItem->name() . " completed. $r records analysed. Words so far: " . count($this->words) .
                     "\n", FILE_APPEND);
             } else
-                file_put_contents($this->buildLog, date("Y-m-d H:i:s") . ": Skipping $recordItem->name().\n",
+                file_put_contents($this->buildLog, date("Y-m-d H:i:s") . ": Skipping " . $recordItem->name() . "\n",
                     FILE_APPEND);
         }
 

@@ -13,21 +13,14 @@
  * the License.
  */
 
+namespace tfyh\pages;
 
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Record;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Record.php";
-
 use tfyh\util\I18n;
 use tfyh\util\Language;
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
 
 /**
  * Generic record display file.
@@ -35,7 +28,7 @@ include_once "../_Util/Language.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $dbc = DatabaseConnector::getInstance();
 $i18n = I18n::getInstance();
@@ -63,7 +56,7 @@ if ($uid && $tableName) {
 }
 $record = new Record($recordItem);
 $record->parse($dbRecord, Language::SQL);
-$occurrencesLink = ($recordItem->hasChild("uuid")) ? "<a href='../_pages/whereIs.php?uuid=" .
+$occurrencesLink = ($recordItem->hasChild("uuid")) ? "<a href='../../tfyh/pages/whereIs.php?uuid=" .
     $dbRecord["uuid"] . "'>" : "";
 
 // ===== start page output
@@ -74,7 +67,7 @@ echo "<h3>" . $i18n->t("Zc1xZ8|Record of table %1 for %...", $recordItem->name()
 echo "<p>" . $i18n->t("lwuYMn|Summary") . ": " . $record->recordToTemplate("full") . " - ";
 if (strlen($occurrencesLink) > 0)
     echo $occurrencesLink . $i18n->t("twKTVn|Find occurrences") . "</a> - ";
-echo "<a href='../_forms/editRecord.php?table=$tableName&uid=" . $dbRecord["uid"] . "'>" . $i18n->t("LY4vGp|Edit record") . "</a></p>";
+echo "<a href='../../tfyh/forms/editRecord.php?table=$tableName&uid=" . $dbRecord["uid"] . "'>" . $i18n->t("LY4vGp|Edit record") . "</a></p>";
 
 echo $record->toHtmlTable($config->language());
 echo "</div>";

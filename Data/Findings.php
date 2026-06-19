@@ -17,7 +17,6 @@ namespace tfyh\data;
 
 // internationalisation support needed to translate warning and error messages
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 /**
  * The Findings class is responsible for managing and categorising findings such as errors and warnings.

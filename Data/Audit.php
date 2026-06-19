@@ -16,7 +16,6 @@
 namespace tfyh\data;
 
 use tfyh\control\Users;
-include_once "../_Control/Users.php";
 
 /**
  * Audit the application for security and housekeeping purposes
@@ -26,123 +25,54 @@ class Audit
 
     private string $auditLog;
 
-    private string $auditWarnings;
-
     /**
      * Public Constructor. Constructing the Audit class will rn all standard audit tasks
      */
     public function __construct() {}
 
     /**
-     * Scan the top level path and set the forbidden directories to be those which are not
-     * configured to be forbidden.
-     * @param bool $getPublicInstead If true, the public directories will be returned instead of the forbidden ones.
-     * @return array of forbidden directories.
+     * Set the access rights for all directories at the top level and one level below and put or remove a .htaccess file
+     * accordingly. Directories '.' and '..' will not be touched. A directory may be accessed if its file name starts
+     * with a lower case letter. It must be forbidden if the first letter is the upper case.
+     * @param String $dir the directory to check.
+     * @param int $level the level of recursion.
+     * @param bool $reportStatus if true, the status of the audit is reported to the audit log.
+     * @return void
      */
-    private function get_forbidden_dirs(bool $getPublicInstead = false): array
+    public function setDirectoriesAccessRights(String $dir, int $level, bool $reportStatus): void
     {
-        $forbiddenDirs = [];
-        $publicDirs = [];
-        $topLevelDirs = scandir("..");
-        foreach ($topLevelDirs as $topLevelDir) {
-            // skip "." and ".", and all unix hidden directories such as ".idea" ore ".git-ignore"
-            if (!str_starts_with($topLevelDir, ".")) {
-                $isForbidden = (strcmp(strtolower($topLevelDir), $topLevelDir) != 0);
-                if ($isForbidden)
-                    $forbiddenDirs[] = $topLevelDir;
-                else
-                    $publicDirs[] = $topLevelDir;
+        if ($level > 1)
+            return;
+        $dirFiles = scandir($dir);
+        foreach ($dirFiles as $dirFile) {
+            if ((is_dir("$dir/$dirFile"))
+                && (strcmp($dirFile, ".") != 0)
+                && (strcmp($dirFile, "..") != 0))
+            {
+                $firstLetter = substr($dirFile, 0, 1);
+                $forbid = strcmp($firstLetter, strtoupper($firstLetter) == 0);
+                $isProtected = (fileperms("$dir/$dirFile") == 0700) || file_exists("$dir/$dirFile/.htaccess");
+                // Change of permission required
+                if (($forbid && !$isProtected) || (!$forbid && $isProtected)) {
+                    if ($reportStatus)
+                        $this->auditLog .= "    file permissions for $dir/$dirFile: " .
+                            self::permissionsString(fileperms("../$dir/$dirFile")) . ".\n";
+                    $permissions = ($forbid) ? 0700 : 0755;
+                    chmod("$dir/$dirFile", $permissions);
+                    if ($forbid)
+                        file_put_contents("$dir/$dirFile/.htaccess", "Require all denied");
+                    else if (file_exists("$dir/$dirFile/.htaccess"))
+                        unlink("$dir/$dirFile/.htaccess");
+                }
+                $this->setDirectoriesAccessRights("$dir/$dirFile", $level + 1, $reportStatus);
             }
         }
-        return ($getPublicInstead) ? $publicDirs : $forbiddenDirs;
-    }
+   }
 
     /**
-     * Scan the top level path and get the directories which are not forbidden except "." and "..".
+     * Execute the full audit and log the result to "../../var/Log/audit.log"
      */
-    private function get_public_dirs(): array
-    {
-        return $this->get_forbidden_dirs(true);
-    }
-
-    /**
-     * Set the access rights for all top level directories and put or remove a .htaccess file
-     * accordingly. Directories '.' and '..' will not be touched.
-     */
-    public function set_dirs_access_rights(): void
-    {
-        $forbiddenDirs = $this->get_forbidden_dirs();
-        $publicDirs = $this->get_forbidden_dirs(true);
-        foreach ($forbiddenDirs as $topLevelDir) {
-            chmod("../$topLevelDir", 0700);
-            file_put_contents("../$topLevelDir/.htaccess", "deny for all");
-        }
-        foreach ($publicDirs as $topLevelDir) {
-            chmod("../$topLevelDir", 0755);
-            $contained = false;
-            if (is_dir("../$topLevelDir"))
-                $contained = scandir("../$topLevelDir");
-            if ($contained !== false)
-                foreach ($contained as $file)
-                    chmod("../$topLevelDir/$file", 0755);
-            if (file_exists("../$topLevelDir/.htaccess"))
-                unlink("../$topLevelDir/.htaccess");
-        }
-    }
-
-    /**
-     * Check the access rights for all top level directories and write the result to the audit log
-     * and audit warnings. Directories '.' and '..' will not be checked.
-     */
-    private function check_dirs_access_rights(): int
-    {
-        $corrections_needed = 0;
-        $forbidden_dirs = $this->get_forbidden_dirs();
-        $this->auditLog .= "Forbidden directories access check\n";
-        foreach ($forbidden_dirs as $forbidden_dir) {
-            if ((strcmp($forbidden_dir, ".") != 0) && (strcmp($forbidden_dir, "..") != 0)) {
-                $forbidden_dir = trim($forbidden_dir); // line breaks in settings_tfyh may cause
-                // blank
-                // insertion
-                $is_valid_dir = (strlen($forbidden_dir) > 0) && file_exists("../" . $forbidden_dir);
-                $is_unprotected_dir = (fileperms("../" . $forbidden_dir) != 0700);
-                if ($is_valid_dir && $is_unprotected_dir) {
-                    $this->auditLog .= "    file permissions for " . $forbidden_dir . ": " .
-                        self::permissions_string(fileperms("../" . $forbidden_dir)) . ".\n";
-                    $corrections_needed++;
-                }
-                $htaccess_filename = "../" . $forbidden_dir . "/.htaccess";
-                if ($is_valid_dir && !file_exists($htaccess_filename)) {
-                    $corrections_needed++;
-                    $this->auditWarnings .= "    " .
-                        "Missing .htaccess file." . "\n";
-                }
-            }
-        }
-        // Open access to publicly available directories
-        $this->auditLog .= "Publicly available directories\n";
-        $public_dirs = $this->get_public_dirs();
-        foreach ($public_dirs as $public_dir) {
-            if ((strcmp($public_dir, ".") != 0) && (strcmp($public_dir, "..") != 0)) {
-                if ((fileperms("../" . $public_dir) % 0755) != 0) {
-                    $this->auditLog .= "    file permissions for " . $public_dir .
-                        ": " . self::permissions_string(fileperms("../" . $public_dir)) . ".\n";
-                    $corrections_needed++;
-                }
-                $htaccess_filename = "../" . $public_dir . "/.htaccess";
-                if (file_exists($htaccess_filename)) {
-                    $corrections_needed++;
-                    $this->auditWarnings .= "    Extra .htaccess file removed.\n";
-                }
-            }
-        }
-        return $corrections_needed;
-    }
-
-    /**
-     * Execute the full audit and log the result to "../Log/audit.log"
-     */
-    public function run_audit(): void
+    public function runAudit(): void
     {
         $config = Config::getInstance();
         // Header
@@ -153,13 +83,11 @@ class Audit
 
         // Check web server directory access settings
         $this->auditLog .= "Starting audit at: " . date("Y-m-d H:i:s") . "\n";
-        $this->auditWarnings = "";
+        $auditWarnings = "";
 
-        // Check access to forbidden directories
+        // Check and adjust access to forbidden directories
         $this->auditLog .= "Directory access right check ...\n";
-        $corrections_needed = $this->check_dirs_access_rights();
-        if ($corrections_needed > 0)
-            $this->set_dirs_access_rights();
+        $this->setDirectoriesAccessRights("../..", 0, true);
 
         // reflect settings for support cases
         $this->auditLog .= "Framework configuration ...\n";
@@ -199,11 +127,11 @@ class Audit
         // Finish
         $this->auditLog .= "Audit completed.\n";
 
-        file_put_contents("../Log/app_audit.log", $this->auditLog);
-        if (strlen($this->auditWarnings) > 0)
-            file_put_contents("../Log/audit.warnings", $this->auditWarnings);
-        elseif (file_exists("../Log/audit.warnings"))
-            unlink("../Log/audit.warnings");
+        file_put_contents("../../var/Log/app_audit.log", $this->auditLog);
+        if (strlen($auditWarnings) > 0)
+            file_put_contents("../../var/Log/audit.warnings", $auditWarnings);
+        elseif (file_exists("../../var/Log/audit.warnings"))
+            unlink("../../var/Log/audit.warnings");
     }
 
     /**
@@ -213,7 +141,7 @@ class Audit
      * @param int $perms permissions as integer
      * @return string permissions as string
      */
-    public static function permissions_string(int $perms): string
+    public static function permissionsString(int $perms): string
     {
         $info = match ($perms & 0xF000) {
             0xC000 => 's',

@@ -13,32 +13,22 @@
  * the License.
  */
 
+namespace tfyh\forms;
+
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-
 use tfyh\util\Form;
 use tfyh\util\FormBuilder;
 use tfyh\util\I18n;
 use tfyh\util\MailHandler;
 use tfyh\util\TokenHandler;
-include_once "../_Util/Form.php";
-include_once "../_Util/FormBuilder.php";
-include_once "../_Util/I18n.php";
-include_once "../_Util/MailHandler.php";
-include_once "../_Util/TokenHandler.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
-$config = Config::getInstance();
 $dbc = DatabaseConnector::getInstance();
 $runner = Runner::getInstance();
 $todo = ($runner->done == 0) ? 1 : $runner->done;
@@ -75,7 +65,7 @@ if ($runner->done > 0) {
                 // user has no permanent password, send a token.
                 $userToUpdateId = $userToUpdate[$runner->users->userIdFieldName];
                 $mailUser = MailHandler::stripAddressPrefix($enteredData["Account"]);
-                $tokenHandler = new TokenHandler("../Run/OmeTimePasswords.txt");
+                $tokenHandler = new TokenHandler("../../var/Run/OmeTimePasswords.txt");
                 $token = $tokenHandler->getNewToken($userToUpdateId);
                 $mailHandler = new MailHandler(Config::getInstance()->getItem(".app.mailer"));
                 // Compile Mail to user.
@@ -101,7 +91,6 @@ if ($runner->done > 0) {
                     $formResult .= "<b>" . $i18n->t("PeJo45|The one-time password wa...", $mailUser) . "</b>";
                     $runner->logger->log(LoggerSeverity::INFO, "resetPassword.php",
                         "One-time password for password reset sent to user " . $userToUpdateId);
-                    $token_sent = true;
                     $_SESSION["Registering_user"] = $userToUpdate;
                     $todo = $runner->done + 1;
                 } else
@@ -109,7 +98,7 @@ if ($runner->done > 0) {
             }
         } elseif ($runner->done === 2) {
             // user has no permanent password, verify token.
-            $tokenHandler = new TokenHandler("../Run/OmeTimePasswords.txt");
+            $tokenHandler = new TokenHandler("../../var/Run/OmeTimePasswords.txt");
             $userId = $tokenHandler->getUserId($enteredData["Token"]);
             if ($userId == -1)
                 $formErrors .= $i18n->t("K7CeYe|The one-time password is...");
@@ -155,7 +144,7 @@ echo $formResult;
 echo Form::formErrorsToHtml($formErrors);
 echo $formToFill->get_html();
 
-// ======== start with the display of either the next form, or the error messages.
+// ======== start with the display of either the next form or the error messages.
 // no special output for steps 1 and 2.
 if ($todo == 3) { // step 3.
     echo $i18n->t("1SeWJN|After deleting the passw...");

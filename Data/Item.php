@@ -18,18 +18,9 @@ namespace tfyh\data;
 use Stringable;
 use DateTimeImmutable;
 
-include_once "../_Data/Findings.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/Validator.php";
-
 use tfyh\control\LoggerSeverity;
-
-include_once "../_Control/LoggerSeverity.php";
-
 use tfyh\util\I18n;
 use tfyh\util\Language;
-
-include_once "../_Util/Language.php";
 
 /**
  * The `Item` class represents a node within a hierarchical structure, containing a name, type, properties, and children.

@@ -13,22 +13,17 @@
  * the License.
  */
 namespace tfyh\util;
-include_once "../_Util/ListHandlerKernel.php";
 
 use DateTimeImmutable;
 use JetBrains\PhpStorm\NoReturn;
 
-use tfyh\control\Sessions;
-include_once "../_Control/Sessions.php";
+include_once "../../tfyh/Util/ListHandlerKernel.php";
 
+use tfyh\control\Sessions;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Formatter;
 use tfyh\data\ParserName;
 use tfyh\data\Validator;
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Formatter.php";
-include_once "../_Data/ParserName.php";
-include_once "../_Data/Validator.php";
 
 /**
  * This class provides a list segment for a web file. <p>The definition must be a CSV-file, all entries
@@ -38,7 +33,7 @@ include_once "../_Data/Validator.php";
  * are<ul><li>sort=[-]column[.[-]column]: order by the respective column in ascending or descending (-)
  * order</li><li>filter=column.value: filter the column for the given value, always using the LIKE operator
  * with '*' before and after the value</li><li>link=[link]: link the first column to the given url e.g.
- * '../_forms/changeUser.php?id=id' replacing the column name at the end (here: id) by the respective
+ * '../../tfyh/forms/changeUser.php?id=id' replacing the column name at the end (here: id) by the respective
  * value.</li></ul></p> <p>The list is always displayed as a table grid. It will show the default sorting if
  * no sorting option is provided.</p>
  */
@@ -51,7 +46,7 @@ class ListHandler extends ListHandlerKernel
     public int $entrySizeLimit = 0;
 
     /**
-     * Build a list set based on the definition provided in the csv file at "../Config/lists/$set". Use the list with
+     * Build a list set based on the definition provided in the csv file at "../../Config/lists/$set". Use the list with
      * name $nameOrDefinition as the current list name or none, if $name = "", or put your complete set definition to
      * $nameOrDefinition and "@dynamic" to $set to generate a list programmatically. Use the count() function to see
      * whether list definitions could be parsed.
@@ -183,7 +178,7 @@ class ListHandler extends ListHandlerKernel
                 // do not display technical ids
                 if (($column != "uid") && ($column != "uuid")) {
                     if ((strlen($uid) > 0) && ($c == 0))
-                        $rowHtml .= "<td><b><a href='../_pages/viewRecord.php?table=" . $this->tableName .
+                        $rowHtml .= "<td><b><a href='../../tfyh/pages/viewRecord.php?table=" . $this->tableName .
                                 "&uid=" . $uid . "'>" . $valueReferenced . "</a></b></td>";
                     else
                         $rowHtml .= "<td>" . $valueReferenced . "</td>";

@@ -13,15 +13,11 @@
  * the License.
  */
 
+namespace tfyh\pages;
+
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Codec;
-use tfyh\data\DatabaseConnector;
-include_once "../_Data/DatabaseConnector.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 /**
  * Page display file. Shows all logs of the application.
@@ -30,14 +26,13 @@ include_once "../_Util/I18n.php";
 // ===== initialize
 
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
-$dbc = DatabaseConnector::getInstance();
 $i18n = I18n::getInstance();
 
 $logName = $_GET["log_name"] ?? "";
 $severity = $_GET["severity"] ?? "";
-$fileName = "../Log/" . $logName . ".log";
+$fileName = "../../var/Log/" . $logName . ".log";
 
 $selection = "<div class='w3-row'>";
 

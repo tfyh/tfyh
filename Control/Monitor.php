@@ -14,17 +14,18 @@
  */
 
 namespace tfyh\control;
-include_once "../_Control/Logger.php";
 
 use DateTime;
 
+include_once '../../tfyh/Control/Logger.php';
+
+include_once '../../tfyh/Data/Codec.php';
+include_once '../../tfyh/Data/Formatter.php';
 use tfyh\data\Codec;
 use tfyh\data\Formatter;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Formatter.php";
 
+include_once '../../tfyh/Util/Language.php';
 use tfyh\util\Language;
-include_once "../_Util/Language.php";
 
 const MONITOR_PERIOD = 1000; // The period to monitor events for load throttling and load warning in seconds.
 const WARNING_INTERVAL = 120; // the minimum period between to overload warning log entries in seconds.
@@ -37,7 +38,7 @@ const WARNING_INTERVAL = 120; // the minimum period between to overload warning 
 class Monitor
 {
     private float $lastTimeStamp;
-    public static function logFilePath(String $sessionType): string { return "../Log/" . $sessionType . ".log"; }
+    public static function logFilePath(String $sessionType): string { return "../../var/Log/" . $sessionType . ".log"; }
 
     private static Monitor $instance;
 
@@ -67,7 +68,7 @@ class Monitor
     public float $scriptStartedOn;
     public bool $scriptCompleted;
     private Logger $logger;
-    private string $monitorDirectory = "../Run/monitor";
+    private string $monitorDirectory = "../../var/Run/monitor";
 
     function getLogger(): Logger { return $this->logger; }
 
@@ -79,7 +80,7 @@ class Monitor
     function startMonitor(): void {
         $now = DateTime::createFromFormat('U.u', microtime(true));
         $this->lastTimeStamp = microtime(true);
-        file_put_contents("../Run/monitor.log", $now->format("m-d-Y H:i:s.u") . ": continued.\n", FILE_APPEND);
+        file_put_contents("../../var/Run/monitor.log", $now->format("m-d-Y H:i:s.u") . ": continued.\n", FILE_APPEND);
     }
     /**
      * Continue temporary performance measurement by logging a time-stamped message.
@@ -91,7 +92,7 @@ class Monitor
         $deltaMs = intval(($nowMicroTime - $this->lastTimeStamp) * 1000);
         $nowMicroTime = DateTime::createFromFormat('U.u', microtime(true));
         $this->lastTimeStamp = microtime(true);
-        file_put_contents("../Run/monitor.log", $nowMicroTime->format("m-d-Y H:i:s.u") . "(+$deltaMs): $message\n", FILE_APPEND);
+        file_put_contents("../../var/Run/monitor.log", $nowMicroTime->format("m-d-Y H:i:s.u") . "(+$deltaMs): $message\n", FILE_APPEND);
     }
 
     /**

@@ -14,7 +14,6 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/ParserName.php";
 
 use DateTimeImmutable;
 use DateTimeZone;
@@ -56,7 +55,7 @@ class ParserConstraints
     public static DateTimeImmutable $DATETIME_MIN;
     public static DateTimeImmutable $DATETIME_MAX;
 
-    // only for the PHP part, because the class initializer cannot handle expressions
+    // only for the PHP part, because the class initialiser cannot handle expressions
     public static function init(): void
     {
         // for setting the limits, the timezone does not matter.

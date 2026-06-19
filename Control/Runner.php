@@ -14,43 +14,39 @@
  */
 
 namespace tfyh\control;
-include_once '../_Control/CronJobs.php';
-include_once '../_Control/Logger.php';
-include_once '../_Control/Menu.php';
-include_once '../_Control/Monitor.php';
-include_once '../_Control/Sessions.php';
-include_once '../_Control/Users.php';
 
 use JetBrains\PhpStorm\NoReturn;
 
+include_once '../../tfyh/Api/Container.php';
+include_once '../../tfyh/Api/ResultForContainer.php';
 use tfyh\api\Container;
 use tfyh\api\ResultForContainer;
-include_once '../_Api/Container.php';
-include_once '../_Api/ResultForContainer.php';
 
-use authentication\AuthProvider;
-include_once '../Authentication/AuthProvider.php';
+include_once '../../tfyh/Authentication/AuthProvider.php';
+use tfyh\authentication\AuthProvider;
 
+include_once '../../tfyh/Data/Codec.php';
+include_once '../../tfyh/Data/Config.php';
+include_once '../../tfyh/Data/DatabaseConnector.php';
+include_once '../../tfyh/Data/Ids.php';
+include_once '../../tfyh/Data/Record.php';
 use tfyh\data\Codec;
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
+use tfyh\data\Formatter;
 use tfyh\data\Ids;
 use tfyh\data\Record;
-include_once '../_Data/Codec.php';
-include_once '../_Data/Config.php';
-include_once '../_Data/DatabaseConnector.php';
-include_once '../_Data/Ids.php';
-include_once '../_Data/Record.php';
 
 // internationalisation support on needed to translate the login workflow messages
+include_once '../../tfyh/Util/I18n.php';
+include_once '../../tfyh/Util/Language.php';
+include_once '../../tfyh/Util/MailHandler.php';
+include_once '../../tfyh/Util/TokenHandler.php';
 use tfyh\util\I18n;
 use tfyh\util\Language;
 use tfyh\util\MailHandler;
 use tfyh\util\TokenHandler;
-include_once '../_Util/I18n.php';
-include_once '../_Util/Language.php';
-include_once '../_Util/MailHandler.php';
-include_once '../_Util/TokenHandler.php';
+
 
 /**
  * The Runner is the main class of the session. It is responsible for the user authentication, session management, Menu
@@ -76,7 +72,6 @@ class Runner
 
     public String $appRoot = "";
     public String $appDomain = "";
-    public String $appSubDirectory = "";
     // in shutdown situations the current working directory may switch to "/"
     public String $workingDirectory = "";
 
@@ -108,8 +103,9 @@ class Runner
     private function checkContext(): void
     {
         // ===== identify the current context, i.e. the parent directory's parent.
-        $context = getcwd();
-        $context = substr($context, 0, strrpos($context, "/"));
+        $cwd = getcwd();
+        $subcontext = substr($cwd, 0, strrpos($cwd, "/"));
+        $context = substr($subcontext, 0, strrpos($subcontext, "/"));
         $i18n = I18n::getInstance();
         if ($this->debugOn) {
             $sessionContextPrev = (isset($_SESSION["context"])) ? $_SESSION["context"] : "[not available]";
@@ -139,25 +135,22 @@ class Runner
         // parse the call parameter for later use
         $filePathElements = explode("/", $userRequestedFile);
         $indexLast = count($filePathElements) - 1;
-        $this->userRequestedAction = $filePathElements[$indexLast - 1] . "/" . $filePathElements[$indexLast];
+        $this->userRequestedAction = $filePathElements[$indexLast - 2] . "/" . $filePathElements[$indexLast - 1] . "/" . $filePathElements[$indexLast];
         $this->userRequestedFile = $filePathElements[$indexLast];
-        $this->isUserRequestForForm = str_ends_with($filePathElements[$indexLast - 1], "forms");
+        $this->isUserRequestForForm = strcmp($filePathElements[$indexLast - 1], "forms") == 0;
 
         // resolve util root URL for use in scripts.
         $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
         $host = $_SERVER['HTTP_HOST'] ?? "localhost";
         $uri = $_SERVER['REQUEST_URI'] ?? $userRequestedFile;
         $this->appDomain = $protocol . "://$host";
-        $appRoot = "$protocol://$host$uri";
-
+        $appRoot = "$protocol://$host$uri"; // e.g. "https://rcwb.de/app/tfyh/forms/login.php"
         // cut off get parameters
         $appRoot = (str_contains($appRoot, "?")) ? substr($appRoot, 0, strrpos($appRoot, "?")) : $appRoot;
-
-        // cut off last two path elements
-        $appRoot = (str_contains($appRoot, "/")) ? substr($appRoot, 0, strrpos($appRoot, "/")) : "http:://noServer/oops";
-        $appRoot = substr($appRoot, 0, strrpos($appRoot, "/")); // e.g.: "https://rcwb.de/dilbo"
-        $this->appSubDirectory = mb_substr($appRoot, mb_strlen($appRoot) + 1); // e.g.: "app"
-        $this->appRoot = $appRoot; // see above
+        // cut off last three path elements
+        $appRoot = substr($appRoot, 0, strrpos($appRoot, "/")); // e.g. "https://rcwb.de/app/tfyh/forms"
+        $appRoot = substr($appRoot, 0, strrpos($appRoot, "/")); // e.g.: "https://rcwb.de/app/tfyh/"
+        $this->appRoot = substr($appRoot, 0, strrpos($appRoot, "/")); // e.g.: "https://rcwb.de/app"
     }
 
     /**
@@ -245,7 +238,7 @@ class Runner
         $mailAddress = MailHandler::stripAddressPrefix($userToLogin[$this->users->userMailFieldName]);
         // user has no permanent password, send token.
         $userId = $userToLogin[$this->users->userIdFieldName];
-        $tokenHandler = new TokenHandler("../Run/tokens.txt");
+        $tokenHandler = new TokenHandler("../../var/Run/tokens.txt");
         $mailHandler = new MailHandler($config->getItem(".app.mailer"));
         $userIsAnonymous = (strcasecmp($userToLogin["role"], $this->users->anonymousRole) == 0);
         $token = ($userIsAnonymous) ? "" : $tokenHandler->getNewToken($userId);
@@ -273,48 +266,6 @@ class Runner
     }
 
     /**
-     * User login with a login token. This will check the login token for existence and whether it is still
-     * valid. If so, the user session is started. Returns an error message on failure and an empty String on success.
-     * @param string $token the login token.
-     * @return string the error message or an empty String.
-     */
-    public function loginByToken(string $token): string
-    {
-        $i18n = I18n::getInstance();
-        $users = Users::getInstance();
-        $plainText = TokenHandler::decodeLoginToken($token);
-        $this->tokenTarget = "";
-        if ($plainText === false) {
-            $errorMessage = $i18n->t("BnxvUl|Unfortunately, this did ...");
-            $this->rejectUser(-2, $errorMessage);
-            return $errorMessage;
-        } else {
-            $dbc = DatabaseConnector::getInstance();
-            // plain_text contains: validity, user mail, deep link (optional), padding
-            $userMail = $plainText[1];
-            $userToLogin = $dbc->find($users->userTableName, "EMail", $userMail);
-            if (!$userToLogin) {
-                $errorMessage = $i18n->t("zxg9i4|Unfortunately, this did ...", $userMail);
-                $this->rejectUser(-2, $errorMessage);
-                return $errorMessage;
-            } else {
-                $userRole = $userToLogin["role"];
-                if (Users::getInstance()->isPrivilegedRole[$userRole]) {
-                    $errorMessage = $i18n->t("FE2u7P|Privileged roles must us...");
-                    $this->rejectUser(-2, $errorMessage);
-                    return $errorMessage;
-                }
-                // Verification successful. Refresh all user data.
-                $userId = intval($userToLogin[$runner->users->userIdFieldName] ?? -1);
-                $this->loginUser($userId);
-                // set the login target
-                $this->tokenTarget = (count($plainText) < 3) ? "../pages/webApp.php" : $plainText[2];
-                return "";
-            }
-        }
-    }
-
-    /**
      * User login with a one-time password. This will check the one-time password for existence and whether it is still
      * valid. If so, the user session is started. Returns an error message on failure and an empty String on success.
      * @param String $oneTimePassword the one-time password.
@@ -322,7 +273,7 @@ class Runner
      */
     public function loginByOneTimePassword(String $oneTimePassword):String {
         $i18n = I18n::getInstance();
-        $tokenHandler = new TokenHandler("../Run/tokens.txt");
+        $tokenHandler = new TokenHandler("../../var/Run/tokens.txt");
         $userId = $tokenHandler->getUserId($oneTimePassword);
         if ($userId == -1) {
             $errorMessage = $i18n->t("1HuxvX|The one-time password is...");
@@ -447,10 +398,10 @@ class Runner
      * Return the page start including the correct html lang attribute and the user menu.
      */
     public function pageStart(): String {
-        $html = file_get_contents('../Config/snippets/page_01_start');
+        $html = file_get_contents('../../Config/snippets/page_01_start');
         $html = str_replace("{lang}", Config::getInstance()->language()->value, $html);
         $html .= $this->menu->getMenu();
-        $html .= file_get_contents('../Config/snippets/page_02_nav_to_body');
+        $html .= file_get_contents('../../Config/snippets/page_02_nav_to_body');
         return $html;
     }
 
@@ -558,7 +509,7 @@ class Runner
         $this->checkContext();
 
         // ===== control the form sequence, except for calls of the jsGet.php page or the api.
-        $isJsGet = $this->userRequestedAction === "_pages/jsGet.php";
+        $isJsGet = $this->userRequestedAction === "tfyh/pages/jsGet.php";
         if (! $isJsGet) {
             if (!$this->isUserRequestForForm && ($userId == -1)) {
                 // drop web session if an anonymous user requests anything different from a form.
@@ -612,7 +563,7 @@ class Runner
     #[NoReturn] function endScript (bool $addFooter = true): void
     {
         if ($addFooter)
-            echo file_get_contents('../Config/snippets/page_03_footer');
+            echo file_get_contents('../../Config/snippets/page_03_footer');
         DatabaseConnector::getInstance()->close();
         if ($this->debugOn)
             $this->logger->log(LoggerSeverity::DEBUG, "endScript","script closed at " . date("Y-m-d H:i:s"));
@@ -643,10 +594,10 @@ class Runner
                 $get_params .= $key . "=" . $value . "&";
             $get_params = mb_substr($get_params, 0, mb_strlen($get_params) - 1);
         }
-        file_put_contents("../Run/lastError.txt",
+        file_put_contents("../../var/Run/lastError.txt",
             explode(";", $callingPage)[0] . ";" . $errorHeadline . ";" . $errorText . ";" . $get_params);
         Monitor::getInstance()->monitorActivity(Sessions::getInstance()->userId(), "error");
-        header("Location: ../_pages/error.php");
+        header("Location: ../../tfyh/pages/error.php");
         // if the header statement above fails, display plain error.
         echo "<h1>Error:</h1><h2>" . $errorHeadline . "</h2><p>" . $errorText . "</p>";
         exit(); // really exit. No test case left over.

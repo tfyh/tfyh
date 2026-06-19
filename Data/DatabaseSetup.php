@@ -19,16 +19,9 @@ use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
 use tfyh\control\Users;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-include_once "../_Control/Users.php";
-
 // internationalisation support needed to translate setup error messages for the admin user.
 use tfyh\util\I18n;
 use tfyh\util\Language;
-
-include_once "../_Util/I18n.php";
 
 /**
  * Class file to adjust the database layout to the version required by the current configuration.
@@ -38,7 +31,7 @@ class DatabaseSetup
     /**
      * Log path for specific database audit logging
      */
-    private static string $dbAuditLog = "../Log/sys_db_audit.log";
+    private static string $dbAuditLog = "../../var/Log/sys_db_audit.log";
 
     /**
      * The ADD command to add missing table columns (way #2. Start with adding missing columns, adjust null to

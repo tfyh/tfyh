@@ -13,16 +13,12 @@
  * the License.
  */
 
+namespace tfyh\pages;
+
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Config;
-include_once "../_Data/Config.php";
-
 use tfyh\util\I18n;
 use tfyh\util\ListHandler;
-include_once "../_Util/I18n.php";
-include_once "../_Util/ListHandler.php";
 
 /**
  * Page display file. lists available for data analysis
@@ -31,7 +27,7 @@ include_once "../_Util/ListHandler.php";
 // ===== initialize
 
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $i18n = I18n::getInstance();
 $config = Config::getInstance();
@@ -45,15 +41,15 @@ foreach ($analyse->getAllListDefinitions() as $l) {
         $tableName = $l["table"];
         $recordItem = $config->getItem(".tables." . $tableName);
         $tableLabel = $recordItem->label();
-        $linkListRecords = "<a href='../_pages/showList.php?name=$listName&set=analyse'>" .
+        $linkListRecords = "<a href='../../tfyh/pages/showList.php?name=$listName&set=analyse'>" .
             $i18n->t("tIUwtU|show") . "</a>";
-        $linkAddRecord = "<a href='../_forms/editRecord.php?table=$tableName&uid=new'>" .
+        $linkAddRecord = "<a href='../../tfyh/forms/editRecord.php?table=$tableName&uid=new'>" .
             $i18n->t("DBX9sP|new") . "</a>";
-        $linkShowTrash = "<a href='../_pages/showList.php?set=moved&name=trash&listparameter=$tableName'>" .
+        $linkShowTrash = "<a href='../../tfyh/pages/showList.php?set=moved&name=trash&listparameter=$tableName'>" .
             $i18n->t("KX00ye|waste basket") . "</a>";
-        $linkShowChanges = "<a href='../_pages/showList.php?set=moved&name=changes&listparameter=$tableName'>" .
+        $linkShowChanges = "<a href='../../tfyh/pages/showList.php?set=moved&name=changes&listparameter=$tableName'>" .
             $i18n->t("g4L7FG|changed") . "</a>";
-        $linkShowArchived = "<a href='../_pages/showList.php?set=moved&name=archive&listparameter=$tableName'>" .
+        $linkShowArchived = "<a href='../../tfyh/pages/showList.php?set=moved&name=archive&listparameter=$tableName'>" .
             $i18n->t("F5yg2s|archived") . "</a>";
         $selection .= "<li><b>$tableLabel</b> ($tableName)<br> " . $i18n->t("uRHqUh|actions") .
             ": $linkListRecords | $linkAddRecord | $linkShowTrash | $linkShowChanges | $linkShowArchived</li>\n";

@@ -13,33 +13,21 @@
  * the License.
  */
 
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
+namespace tfyh\forms;
 
+use tfyh\control\Runner;
 use tfyh\data\Codec;
 use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
 use tfyh\data\Findings;
 use tfyh\data\Record;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Findings.php";
-include_once "../_Data/Record.php";
-
 use tfyh\util\Form;
 use tfyh\util\FormBuilder;
 use tfyh\util\I18n;
-include_once "../_Util/Form.php";
-include_once "../_Util/FormBuilder.php";
-include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
-$config = Config::getInstance();
-$dbc = DatabaseConnector::getInstance();
 $runner = Runner::getInstance();
 $todo = ($runner->done == 0) ? 1 : $runner->done;
 $formErrors = "";
@@ -53,14 +41,12 @@ if ($runner->done > 0) {
     $formErrors = $formFilled->checkValidity();
     $enteredData = $formFilled->getEntered();
     $tableName = ($runner->done == 1) ? $enteredData["table_name"] : $_SESSION["io_table"];
-    $columnNames = $dbc->columnNames($tableName);
-    $temporaryFilePath = "../Run/io/" . $_SESSION["io_file"];
+    $temporaryFilePath = "../../var/Run/io/" . $_SESSION["io_file"];
 
     function modify(String $tableName, String $temporaryFilePath, bool $verifyOnly): string
     {
         // the following statement application specific. A record class which implements a
-        // modifyRecord function like in dilbo needs to be implemented in all apps that are using this
-        // form.
+        // modifyRecord function like needs to be implemented in all apps that are using this form.
         $r = 0;
         $allOk = true;
         $importResult = "";
@@ -85,7 +71,6 @@ if ($runner->done > 0) {
 
     // application logic, step by step
     if (strlen($formErrors) == 0) { // do nothing if form errors occurred.
-        $usersFound = [];
         if ($runner->done == 1) {
             $_SESSION["io_table"] = $tableName;
             // step 1 form was filled. Values were valid

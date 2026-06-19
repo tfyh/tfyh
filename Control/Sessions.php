@@ -14,19 +14,15 @@
  */
 
 namespace tfyh\control;
-include_once '../_Control/LoggerSeverity.php';
 
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Ids;
-include_once '../_Data/Config.php';
-include_once '../_Data/DatabaseConnector.php';
-include_once '../_Data/Ids.php';
 
 /**
  * Class to handle an application sessions pool to manage concurrency and throttle load. Two sorts of sessions
  * exist: Web-sessions for web access which are managed by the PHP session framework and only mirrored into
- * the application sessions pool and api-sessions for API access. Both are pooled in the "../Run/sessions"
+ * the application sessions pool and api-sessions for API access. Both are pooled in the "../../var/Run/sessions"
  * directory, each type represented by a session file, named with its session's ID. The session file starts
  * with three numbers: started at (Unix timestamp, seconds - float); refreshed at (Unix timestamp, seconds -
  * float); user ID (integer) - all terminated by a ";". Sessions have a keep-alive limit and a lifetime. If a
@@ -82,7 +78,7 @@ class Sessions
      */
     private static int $gracePeriod = 60;
 
-    private static string $sessionsDir = "../Run/sessions/";
+    private static string $sessionsDir = "../../var/Run/sessions/";
 
     private static Sessions $instance;
 
@@ -459,7 +455,7 @@ class Sessions
      */
     private function cleanseAndCountSessions(): int
     {
-        $sessionFiles = scandir("../Run/sessions");
+        $sessionFiles = scandir(self::$sessionsDir);
         $openSessionsCount = 0;
         foreach ($sessionFiles as $sessionFile) {
             if (!str_starts_with($sessionFile, ".") && ($sessionFile != "php_security.log")) {
@@ -490,7 +486,7 @@ class Sessions
     private function getApiSessionId(int $userId): string
     {
         // collect all API sessions for this user and detect the maximum lifetime
-        $sessionFiles = scandir("../Run/sessions");
+        $sessionFiles = scandir(self::$sessionsDir);
         // default is ascending filename order, thus always the same sequence.
         $apiSessionsOfUser = [];
         $maxLifetime = 0;

@@ -16,20 +16,18 @@
 /**
  * A page to reset the complete database.
  */
-use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
 
+namespace tfyh\pages;
+
+use tfyh\control\Runner;
+use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\DatabaseSetup;
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/DatabaseSetup.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $runner = Runner::getInstance();
 $dbc = DatabaseConnector::getInstance();
@@ -59,7 +57,8 @@ if ($doReset) {
     echo "<br><b>" . $i18n->t("ceLd6k|If You go for it the dat...");
     echo "</b><br>" . $i18n->t("dQ3PQG|Administrators are also ...", $userFullName);
     echo $i18n->t("DA6MeJ|The process can take 10-...") . "</p>";
-    echo "<h4>" . $i18n->t("MOvHFw|I don°t really know.") . " &gt;&gt; <a href='../pages/webApp.php'>" . $i18n->t("zD9aCz|Abort now.") . "</a></h4>";
+    $appName = Config::getInstance()->appName;
+    echo "<h4>" . $i18n->t("MOvHFw|I don°t really know.") . " &gt;&gt; <a href='../../$appName/pages/webApp.php'>" . $i18n->t("zD9aCz|Abort now.") . "</a></h4>";
     echo "<p>" . $i18n->t("CxPfCd|I am sure and I know wha...") . " &gt;&gt; <b>";
     echo "<a href='?do_reset=full'>" . $i18n->t("yu9T3e|Delete database °%1° at...", $dbc->dbName(), $runner->appRoot) .
              "</a></p>";

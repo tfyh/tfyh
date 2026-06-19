@@ -14,15 +14,13 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/Type.php";
-
-use tfyh\util\Language;
-include_once "../_Util/Language.php";
 
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
 use Exception;
+
+use tfyh\util\Language;
 
 /**
  * Handles the formatting of various data types and structures for storage or display
@@ -271,6 +269,39 @@ class Formatter
         }
         $styledHtml .= $c1;
         return $styledHtml;
+    }
+
+    /**
+     * Print an array as html - for debugging
+     *
+     * @param array $a
+     *            any array
+     * @param String $indent
+     *            the current indentation for recursive calls, never to be used when calling from outside.
+     * @return string the html representation
+     */
+    public static function arrayToHtml (array $a, String $indent = ""): string
+    {
+        $html = (strlen($indent) == 0) ? "<span style=\"font-family: 'Courier New', monospace; font-size:0.9rem;\">" : "";
+        $n = 0;
+        foreach ($a as $key => $value) {
+            if (is_array($value)) {
+                $html .= "$indent<b>$key:</b><br>";
+                $html .= self::arrayToHtml($value, $indent . "&nbsp;&nbsp;");
+            } else {
+                $disp = (is_null($value)) ? "<span style=\"color:#008;\">NULL</span>" : ((is_bool($value)) ? ("<span style=\"color:#808;\">" .
+                    (($value) ? "true" : "false") . "</span>") : ((is_string($value)) ? ("<span style=\"color:#088;\">\"" .
+                    htmlspecialchars($value) . "\"</span>") : ((is_object($value)) ? ("<span style=\"color:#088;\">\"object: " .
+                    get_class($value) . "\"</span>") : $value)));
+                $html .= "$indent$key: $disp<br>";
+            }
+            $n ++;
+        }
+        if ($n == 0)
+            $html .= $indent . "[]<br>";
+        if (strlen($indent) == 0)
+            $html .= "</span>";
+        return $html;
     }
 
 }

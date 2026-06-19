@@ -13,11 +13,10 @@
  * the License.
  */
 
+namespace tfyh\forms;
+
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Formatter;
@@ -26,23 +25,16 @@ use tfyh\data\Indices;
 use tfyh\data\Parser;
 use tfyh\data\ParserName;
 use tfyh\data\Record;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Record.php";
-
 use tfyh\util\Form;
 use tfyh\util\I18n;
 use tfyh\util\Language;
-include_once "../_Util/Form.php";
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
 
 /**
  * The form to edit an arbitrary record. This is the generic container, while the form is provided by the Form class.
  */
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $i18n = I18n::getInstance();
 $config = Config::getInstance();
 $dbc = DatabaseConnector::getInstance();
@@ -58,7 +50,6 @@ $insert = false;
 
 $rowSql = [];
 $recordItem = $config->getItem(".tables")->getChild($tableName);
-$formLayout = "";  // shall be filled with the recordEditForm later
 
 // check table name and exit on errors
 if (strlen($tableName) == 0)
@@ -73,7 +64,6 @@ if (strlen($uid) == 0)
     $runner->displayError($i18n->t("QrQ9UO|Missing record uid"),
         $i18n->t("Nbl5vE|Please provide the uniqu...", $tableName), $userRequestedFile);
 elseif ($uid === "new") {
-    $rowSql = [];
     foreach ($recordItem->getChildren() as $column)
         $rowSql[$column->name()] = Formatter::format($column->defaultValue(), $column->type()->parser(), Language::SQL);
     $rowSql["uid"] = ($runner->done == 1) ? Indices::getInstance()->getNewUid() : "new";
@@ -203,10 +193,10 @@ if ($todo == 1) { // step 1. No special texts for output
         echo "<p><b>" . $i18n->t("H3YhVM|The record has been chan...") . "</b></p>";
     echo "<p>$formResult</p>";
     $uid = strval($record->value("uid"));
-    echo "<p><a href='../_pages/viewRecord.php?table=$tableName&uid=$uid'>" .
+    echo "<p><a href='../../tfyh/pages/viewRecord.php?table=$tableName&uid=$uid'>" .
         $i18n->t("Bz2C2z|View record") . "</a></p>";
     if ($newPeriod)
-        echo "<p><a href='../_forms/editRecord.php?table=$tableName&uid=$uid'>" .
+        echo "<p><a href='../../tfyh/forms/editRecord.php?table=$tableName&uid=$uid'>" .
             $i18n->t("0U5jy1|Edit record for new peri...") . "</a></p>";
 }
 echo $runner->user2js();

@@ -13,15 +13,10 @@
  * the License.
  */
 namespace tfyh\util;
-include_once "../_Util/Pdf.php";
-include_once "../_Util/PdfAdapted.php";
 
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Formatter;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Formatter.php";
 
 /**
  * A class to produce a pdf based on the html layout and a set of data from the database.
@@ -42,17 +37,18 @@ class Pdf
     public function createPdf(string $templateName, string $subject, int $id,
                               array  $directValues = array()): string
     {
-        $templatePath = "../Templates/" . $templateName . ".html";
+        $appName = Config::getInstance()->appName;
+        $templatePath = "../../$appName/Templates/$templateName.html";
         $html = $this->fillHtmlTemplate($templatePath, $id, $directValues);
         // vvv for debugging purposes, if the PDF is empty.
-        // file_put_contents("../Pdfs/" . $template_name . "_" . $id . ".html", $html);
+        // file_put_contents("../../var/Pdfs/" . $template_name . "_" . $id . ".html", $html);
         // ^^^ for debugging purposes, if the PDF is empty.
-        $pdfPath = "../Pdfs/" . $templateName . "_" . $id . ".pdf";
+        $pdfPath = "../../var/Pdfs/" . $templateName . "_" . $id . ".pdf";
         $this->convertHtmlToPdf($html, $pdfPath, $templateName, $subject);
         chmod($pdfPath, 0766);
         // vvv for debugging purposes, if the PDF is empty.
         // copy($pdfPath, $pdfPath . ".tmp");
-        // ^^^ for debugging purposes, if the PDF is empty.
+        // ^^^ for debugging purpose if the PDF is empty.
         return $pdfPath;
     }
 
@@ -66,14 +62,14 @@ class Pdf
     public function createPdfFromHtml(string $html, string $title, string $subject): string
     {
         // vvv for debugging purposes, if the PDF is empty.
-        // file_put_contents("../Pdfs/" . $template_name . "_" . $id . ".html", $html);
+        // file_put_contents("../../var/Pdfs/" . $template_name . "_" . $id . ".html", $html);
         // ^^^ for debugging purposes, if the PDF is empty.
-        $pdfPath = "../Pdfs/" . Formatter::toIdentifier($title) . ".pdf";
+        $pdfPath = "../../var/Pdfs/" . Formatter::toIdentifier($title) . ".pdf";
         $this->convertHtmlToPdf($html, $pdfPath, $title, $subject);
         chmod($pdfPath, 0766);
         // vvv for debugging purposes, if the PDF is empty.
         // copy($pdfPath, $pdfPath . ".tmp");
-        // ^^^ for debugging purposes, if the PDF is empty.
+        // ^^^ for debugging purposes if the PDF is empty.
         return $pdfPath;
     }
 
@@ -83,12 +79,12 @@ class Pdf
      */
     public static function clearAllCreatedFiles(): void
     {
-        if (file_exists("../pdfs")) {
-            $files = scandir("../pdfs");
+        if (file_exists("../../var/Pdfs")) {
+            $files = scandir("../../var/Pdfs");
             if ($files !== false)
                 foreach ($files as $file)
                     if (strcmp(substr($file, 0, 1), ".") != 0)
-                        unlink("../Pdfs/$file");
+                        unlink("../../var/Pdfs/$file");
         }
     }
 
@@ -110,7 +106,7 @@ class Pdf
         $pdf->footerText = $config->getItem(".framework.pdf.footer_text")->value();
 
         // load TCPDF library
-        require_once('../Tcpdf/tcpdf.php');
+        require_once('../../Tcpdf/tcpdf.php');
 
         // add document information
         $pdf->SetCreator(PDF_CREATOR);

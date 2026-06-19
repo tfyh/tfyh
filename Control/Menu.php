@@ -17,12 +17,8 @@ namespace tfyh\control;
 
 use tfyh\data\Config;
 use tfyh\data\Item;
-include_once '../_Data/Config.php';
-include_once '../_Data/Item.php';
-
 // internationalisation support on needed to translate the menu and provide an allowance profile for a role.
 use tfyh\util\I18n;
-include_once '../_Util/I18n.php';
 
 /**
  * Class file for the Menu class. This class reads the menu and returns it as html, filtered to those entries which are
@@ -67,7 +63,7 @@ class Menu
      */
     private string $htmlMenuEnd = '<footer class="w3-small w3-center" id="footer">' .
     "<br><br>##user##<br>##version## (##language##)<br>##copyright##<br><br>".
-    "<img src='../resources/app_logo_64.png' alt='application logo'><br>&nbsp;</footer></div>" . "\n" .
+    "<img src='../../##appName##/resources/app_logo_64.png' alt='application logo'><br>&nbsp;</footer></div>" . "\n" .
     "<!--============================== menu - end ===========================-->" . "\n";
 
     /**
@@ -76,7 +72,7 @@ class Menu
     private array $menuDefArray = [];
 
     /**
-     * will be set to true, if the menu path is not "../Config/access/menuForPublic"
+     * will be set to true, if the menu path is not "../../Config/access/menuForPublic"
      */
     private bool $isNotPublic;
 
@@ -95,8 +91,10 @@ class Menu
         // menu footer: user, version, copyright.
         $sessions = Sessions::getInstance();
         $username = $sessions->userFullName() . " (" . $sessions->userRole() . ")";
-        $this->htmlMenuEnd = str_replace("##user##", $username, $this->htmlMenuEnd);
         $config = Config::getInstance();
+        $appName = $config->appName;
+        $this->htmlMenuEnd = str_replace("##user##", $username,
+            str_replace("##appName##", $appName, $this->htmlMenuEnd));
         $this->htmlMenuEnd = str_replace("##version##", $config->appVersion,
             str_replace("##language##", $config->language()->value,
                 str_replace("##copyright##",$config->getItem(".framework.app.copyright")->valueStr(),
@@ -135,7 +133,7 @@ class Menu
                 // The id is used for event binding if it is an event call.
                 $definition["id"] = "do-" . substr($definition["link"], 6);
             else
-                $definition["href"] = " href='" . $definition["link"] . "'";
+                $definition["href"] = " href='../../" . $definition["link"] . "'";
         } else {
             if ($isLevelOne) {
                 // if the link is empty, open a submenu at level 1

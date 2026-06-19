@@ -1,5 +1,5 @@
 tags;required;name;value;label;type;class;size;maxlength
-<div class='w3-row'><div class='w3-col l1'>;;user_id;;QlQLyw|dilbo user ID - or -;text;;20;250
+<div class='w3-row'><div class='w3-col l1'>;;user_id;;user ID - or -;text;;20;250
 </div></div><div class='w3-row'><div class='w3-col l1'>;;first_name;;TY6MFV|First name - or -;text;;20;250
 </div></div><div class='w3-row'><div class='w3-col l1'>;;last_name;;ydEB3g|Last name;text;;20;250
 </div></div><div class='w3-row'><div class='w3-col l1'>;;SearchAll;;lJpyEt|Full text search;text;;20;250

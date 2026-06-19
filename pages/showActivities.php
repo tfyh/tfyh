@@ -17,16 +17,15 @@
  * Simple display page. Shows all recent activities.
  */
 
+namespace tfyh\pages;
+
 use tfyh\control\Monitor;
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $i18n = I18n::getInstance();
 

@@ -17,25 +17,27 @@
  * A generic error message display page.
  */
 
+namespace tfyh\pages;
+
 use tfyh\control\Logger;
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Monitor;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
-include_once "../_Control/Logger.php";
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Monitor.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
+include_once "../../tfyh/Control/Logger.php";
+include_once "../../tfyh/Control/LoggerSeverity.php";
+include_once "../../tfyh/Control/Monitor.php";
+include_once "../../tfyh/Control/Runner.php";
+include_once "../../tfyh/Control/Sessions.php";
 
 use tfyh\data\Config;
-include_once "../_Data/Config.php";
+include_once "../../tfyh/Data/Config.php";
 
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
+include_once "../../tfyh/Util/I18n.php";
 
 // ===== read error information first
-$lastErrorFile = "../Run/lastError.txt";
+$lastErrorFile = "../../var/Run/lastError.txt";
 $last_error = file_get_contents($lastErrorFile);
 if (($last_error !== false) && (count(explode(";", $last_error)) >= 3)) {
     // "error.php" is called with an error description file provided.
@@ -80,15 +82,13 @@ if ($too_many_sessions) {
     // Return a very short String, no formatting.
     echo "<html lang=''><body><h4>Overload</h4><p>" . $headline . "</p><p>" . $text .
              "</p></body></html>";
-    if (function_exists("end_script"))
-        end_script();
-    exit(); // really exit. No test case left over.
+    Runner::getInstance()->endScript(false);
 }
 
 // Now start the usual page start script
 // ===== initialise
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $i18n = I18n::getInstance();
 
@@ -96,7 +96,7 @@ $i18n = I18n::getInstance();
 // session timeout event).
 if (($runner->sessions->userId() < 0) && (strrpos($source_file, "login.php") === false) &&
          (strrpos($source_file, "no_source") === false))
-    header("Location: " . $runner->appRoot . "/_forms/login.php?onerror=1&goto=" . urlencode($login_goto));
+    header("Location: " . $runner->appRoot . "/../tfyh/forms/login.php?onerror=1&goto=" . urlencode($login_goto));
 
 // ===== start page output
 echo $runner->pageStart();

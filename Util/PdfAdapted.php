@@ -16,7 +16,7 @@
 namespace tfyh\util;
 
 use TCPDF;
-include_once "../Tcpdf/tcpdf.php";
+include_once "../../Tcpdf/tcpdf.php";
 
 /**
  * An extended TCPDF class that provides custom footer functionality for PDF generation.

@@ -13,25 +13,17 @@
  * the License.
  */
 
+namespace tfyh\pages;
 
 use tfyh\control\Runner;
-include_once "../_Control/Runner.php";
-
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Indices;
 use tfyh\data\Item;
 use tfyh\data\Record;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Record.php";
-
 use tfyh\util\I18n;
 use tfyh\util\Language;
 use tfyh\util\ListHandlerKernel;
-
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
 
 /**
  * Generic record display file.
@@ -39,9 +31,8 @@ include_once "../_Util/Language.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
-$dbc = DatabaseConnector::getInstance();
 $i18n = I18n::getInstance();
 $config = Config::getInstance();
 $language = $config->language();
@@ -90,14 +81,13 @@ function createUuidSearchListDefinition(Item $recordItem, String $searchedId): S
             $whereStr .= " OR `" . $columnItem->name() . "` LIKE '%" . $searchedId . "%'";
         } elseif (in_array($columnItem->name(), $nameColumns))
             $selectString .= "," . $columnItem->name();
-    // stop here, if there is not uid/uuid provided, like in system tables (archive, changes, rubbish)
+    // stop here if there is not uid/uuid provided, like in system tables (archive, changes, rubbish)
     if ($selectString == "uid")
         return "";
     $listDefinition .= $selectString . ";$tableName;" . substr($whereStr, 4) . ";";
     return $listDefinition;
 }
 
-$dbc = DatabaseConnector::getInstance();
 $searchResult = [];
 if ($uuid !== false) {
     foreach ($tablesItem->getChildren() as $recordItem) {
@@ -131,7 +121,7 @@ else {
             echo "<h4>" . $tableName . "</h4><ol>";
             foreach($records as $record) {
                 $uid = substr($record, 0, 8);
-                echo "<li><a target='_blank' href='../_pages/viewRecord.php?table=$tableName&uid=$uid'>" . substr($record, 9) . "</a></li>";
+                echo "<li><a target='_blank' href='../../tfyh/pages/viewRecord.php?table=$tableName&uid=$uid'>" . substr($record, 9) . "</a></li>";
             }
             echo "</ol>";
         }

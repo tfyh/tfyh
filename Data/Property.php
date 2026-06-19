@@ -14,15 +14,15 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/Parser.php";
-include_once "../_Data/ParserName.php";
+
+use DateTimeImmutable;
+
+include_once '../../tfyh/Data/ParserName.php';
+include_once '../../tfyh/Data/Parser.php';
 
 // internationalisation support needed to localise property label and description
-use DateTimeImmutable;
 use tfyh\util\I18n;
 use tfyh\util\Language;
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
 
 /**
  * Class representing a property with associated metadata and parsing logic. All properties are defined in the

@@ -15,10 +15,7 @@
 
 namespace tfyh\util;
 
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
 use tfyh\data\Ids;
-use const tfyh\data\base64charsPlus;
 
 /**
  * A utility class to create one-time tokens for user identification.
@@ -26,81 +23,6 @@ use const tfyh\data\base64charsPlus;
 
 class TokenHandler
 {
-
-    private const obfuscator = "jtzOjk6IjEyNy4wLjAuMSI7czoxMToiZGJfYWNjb3VudHMiO2E6MTp7czo0OiJyb290IjtzOjg6IlNmeDFubHAuIjt9czo3OiJkYl9uYW1lIjtzOjU6ImZ2c3NiIjtzO";
-
-    /**
-     * Obfuscate a base64 String by xor-operation with an obfuscating String. Apply the same procedure to restore it.
-     * @param String $plainBase64 the base64 String to obfuscate
-     * @return string
-     */
-    public static function obfuscate (String $plainBase64): string
-    {
-        $bitsForChar64 = [];
-        $charsForBits64 = [];
-        for ($b = 0; $b < 65; $b ++) {
-            $character = substr(base64charsPlus, $b, 1);
-            $charsForBits64[$b] = $character;
-            $bitsForChar64[$character] = $b;
-        }
-        $xor64 = "";
-        // the key must not contain a padding character ('=')
-        $kLen = strlen(self::obfuscator);
-        $pLen = strlen($plainBase64);
-        $k = 0;
-        for ($p = 0; $p < $pLen; $p ++) {
-            $ki = $bitsForChar64[substr(self::obfuscator, $k, 1)];
-            $pi = $bitsForChar64[substr($plainBase64, $p, 1)];
-            // do not xor the padding part.
-            if ($pi == 64)
-                $xor64 .= "=";
-            else
-                $xor64 .= $charsForBits64[$pi ^ $ki];
-            $k ++;
-            if ($k == $kLen)
-                $k = 0;
-        }
-        return $xor64;
-    }
-
-    /**
-     * Encode the timestamp + validity and the user Mail to create a user login token. It will have the user
-     * mail in the middle, braced by two changing parts, the timestamp, and padding. The result will be a
-     * base64 encoded String in which three characters are replaced to be URL-compatible: "=" by "_",
-     * "/" by "-", "+" by "*".
-     * @param String $userMail the user mail address
-     * @param int $validity the validity period in days
-     * @param String $deepLink the deep link to be used for login
-     * @return string the login token
-     */
-    public static function createLoginToken (String $userMail, int $validity, String $deepLink): string
-    {
-        $message = (microtime(true) + $validity * 24 * 3600) . "::" . $userMail . "::" . $deepLink . "::" .
-            substr(str_shuffle(base64charsPlus), 0, 16);
-        Runner::getInstance()->logger->log(LoggerSeverity::INFO, "DilboIds::createLoginToken",
-            "created: " . $message);
-        return str_replace("=", "_",
-            str_replace("/", "-",
-                str_replace("+", "*", self::obfuscate(base64_encode($message)))));
-    }
-
-    /**
-     * Decode the user login token and validate it. Returns an array [valid until, user mail, deep link] or false, if
-     * the token is no longer valid.
-     * @param String $token the login token
-     * @return array|bool the array [valid until, user mail, deep link] or false, if the token is no longer valid.
-     */
-    public static function decodeLoginToken (String $token): array|bool
-    {
-        $plainText = explode("::",
-            base64_decode(
-                self::obfuscate(str_replace("_", "=",
-                    str_replace("-", "/", str_replace("*", "+", $token))))));
-        if (intval($plainText[0]) >= microtime(true))
-            return $plainText;
-        else
-            return false;
-    }
 
     /**
      * file name to which tokens are written

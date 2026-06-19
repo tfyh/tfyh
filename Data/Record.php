@@ -14,31 +14,20 @@
  */
 
 namespace tfyh\data;
-include_once "../_Data/Indices.php";
 
 use DateTimeImmutable;
 
+include_once '../../tfyh/Api/PreModificationCheck.php';
 use tfyh\api\PreModificationCheck;
-
-include_once "../_Api/PreModificationCheck.php";
 
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
 use tfyh\control\Users;
-
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-include_once "../_Control/Users.php";
-
 // internationalisation support needed to reflect validation or database storage errors and for formatting
 // to HTML for user display
 use tfyh\util\I18n;
 use tfyh\util\Language;
-
-include_once "../_Util/I18n.php";
-include_once "../_Util/Language.php";
 
 /**
  * Class Record
@@ -145,7 +134,7 @@ class Record implements PreModificationCheck
     }
 
     /**
-     * Return true, if the record is "owned", i.e. either the session user's user record or a record with the
+     * Return true if the record is "owned", i.e. either the session user's user record or a record with the
      * session user's id in it (uuid or user_id).
      */
     private function isOwn(): bool
@@ -389,7 +378,7 @@ class Record implements PreModificationCheck
         } elseif (strcasecmp($columnName, $historyFieldName) == 0) {
             $tableName = $column->parent()->name();
             $uid = $this->valueCsv("uid");
-            $valueToDisplay = "<a href='../_pages/viewRecordHistory.php?table=$tableName&uid=$uid'>" .
+            $valueToDisplay = "<a href='../../tfyh/pages/viewRecordHistory.php?table=$tableName&uid=$uid'>" .
                 $i18n->t("UcNTLA|show versions") . "</a>";
         } elseif (strlen($reference) > 0) {
             $elements = (is_array($value)) ? $value : [$value];

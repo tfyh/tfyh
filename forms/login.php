@@ -13,41 +13,28 @@
  * the License.
  */
 
+namespace tfyh\forms;
+
 use tfyh\control\LoggerSeverity;
-use tfyh\control\Monitor;
 use tfyh\control\Runner;
 use tfyh\control\Sessions;
-include_once "../_Control/LoggerSeverity.php";
-include_once "../_Control/Runner.php";
-include_once "../_Control/Sessions.php";
-
 use tfyh\data\Codec;
 use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-include_once "../_Data/Codec.php";
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-
 use tfyh\util\Form;
 use tfyh\util\I18n;
-include_once "../_Util/Form.php";
-include_once "../_Util/I18n.php";
 
 /**
  * The login form for all activities on this application except registration.
  */
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
-$i18n = I18n::getInstance();
+include_once "../../tfyh/init/init.php";
 $config = Config::getInstance();
-$dbc = DatabaseConnector::getInstance();
 $runner = Runner::getInstance();
 $fsId = $runner->fsId;
 $todo = ($runner->done == 0) ? 1 : $runner->done;
 $formErrors = "";
 $formResult = "";
-$monitor = Monitor::getInstance();
 
 // ===== Identify the different login options
 // a "goto" parameter indicates the landing page after login. The default is "../pages/webApp.php"
@@ -62,10 +49,6 @@ if (isset($_SESSION["get_parameters"][$fsId]["as"]) && (strlen($_SESSION["get_pa
 $onError = false;
 if (isset($_SESSION["get_parameters"][$fsId]["onerror"]) && (intval($_SESSION["get_parameters"][$fsId]["onerror"]) == 1))
     $onError = true;
-// a login token conveys as GET parameter user authentication information as well as the login credentials.
-$loginToken = "";
-if (isset($_SESSION["get_parameters"][$fsId]["token"])  && (strlen($_SESSION["get_parameters"][$fsId]["token"]) > 0))
-    $loginToken = $_SESSION["get_parameters"][$fsId]["token"];
 
 $i18n = I18n::getInstance();
 $formDefinition = [
@@ -78,16 +61,8 @@ $formDefinition = [
 // === APPLICATION LOGIC ==============================================================
 // if validation fails, the same form will be displayed anew with error messages
 
-// ======== if a login token is provided, try to log in via that token.
-if (strlen($loginToken) > 0) {
-    // a successful token login will always redirect to a start page. This only returns on errors.
-    $formErrors .= $runner->loginByToken($_SESSION["get_parameters"][$fsId]["token"]);
-    if (strlen($formErrors) == 0)
-        $todo = 3;
-}
-
 // ======== else start with form filled in last step: check of the entered values.
-else if ($runner->done > 0) {
+if ($runner->done > 0) {
     $formFilled = new Form(Config::getInstance()->getItem(".tables.persons"),
         $formDefinition[$runner->done]);
     $formFilled->validate();
@@ -139,8 +114,10 @@ else if ($runner->done > 0) {
                 header("Location: ../" . str_replace("%2F", "/", $deeplink));
             elseif (strlen($runner->tokenTarget) > 0)
                 header("Location: ../" . $runner->tokenTarget);
-            else
-                header("Location: ../pages/home.php");
+            else {
+                $appName = Config::getInstance()->appName;
+                header("Location: ../../$appName/pages/home.php");
+            }
         }
     }
 }
@@ -164,13 +141,13 @@ echo "<div style='max-width: 25em; padding-top: 3em'>";
 echo "<h3>" . $i18n->t("XPLjLc|Login for registered use...") . "</h3>";
 // redirection to the login page due to an error. Show the reason.
 if ($onError && ($runner->done == 0))
-    echo Form::formErrorsToHtml(explode(";", file_get_contents("../Run/lastError.txt"))[2]);
+    echo Form::formErrorsToHtml(explode(";", file_get_contents("../../var/Run/lastError.txt"))[2]);
 else
     echo Form::formErrorsToHtml($formErrors);
 echo $formResult;
 echo $formToFill->getHtml();
 
-// ======== start with the display of either the next form, or the error messages.
+// ======== start with the display of either the next form or the error messages.
 if ($todo == 1) { // step 1.
     echo "<p><a href='resetPassword.php'>" .
              $i18n->t("SjwGi5|Password forgotten?") . "</a></p>";

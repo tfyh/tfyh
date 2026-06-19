@@ -14,7 +14,6 @@
  */
 
 namespace tfyh\util;
-include_once "../_Util/Language.php";
 
 class I18n {
     private static I18n $instance;
@@ -35,7 +34,7 @@ class I18n {
     {
         $this->map = [];
         $this->loaded = false;
-        $i18nURI = "../i18n/" . $language->value . ".lrf";
+        $i18nURI = "../../i18n/" . $language->value . ".lrf";
         $lr_file = file_get_contents($i18nURI);
         if (!$lr_file) return;
         $lr_lines = explode("\n", $lr_file);
@@ -77,8 +76,9 @@ class I18n {
         $i18nResource = $args[0];
         if ((strlen($i18nResource) < 7) || (substr($i18nResource, 6, 1) != "|"))
             $text = $i18nResource;
-        elseif (!$this->loaded)
+        elseif (!$this->loaded) {
             $text = substr($i18nResource, 7);
+        }
         else
             $text = $this->map[substr($i18nResource, 0, 6)] ?? substr($i18nResource, 7);
         for ($i = 1; $i < count($args); $i ++)

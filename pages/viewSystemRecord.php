@@ -13,20 +13,13 @@
  * the License.
  */
 
-use tfyh\control\Runner;
-use tfyh\control\Users;
-include_once "../_Control/Runner.php";
-include_once "../_Control/Users.php";
+namespace tfyh\pages;
 
+use tfyh\control\Runner;
 use tfyh\data\Config;
 use tfyh\data\DatabaseConnector;
 use tfyh\data\Record;
-include_once "../_Data/Config.php";
-include_once "../_Data/DatabaseConnector.php";
-include_once "../_Data/Record.php";
-
 use tfyh\util\I18n;
-include_once "../_Util/I18n.php";
 
 /**
  * Rubbish record display file.
@@ -34,7 +27,7 @@ include_once "../_Util/I18n.php";
 
 // ===== initialize
 $userRequestedFile = __FILE__;
-include_once "../_Control/init.php";
+include_once "../../tfyh/init/init.php";
 $runner = Runner::getInstance();
 $dbc = DatabaseConnector::getInstance();
 $i18n = I18n::getInstance();
