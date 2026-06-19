@@ -1,0 +1,10 @@
+tags;required;name;value;label;type;class;size;maxlength
+<div class='w3-row'><div class='w3-col l1'>;;_no_input;;Login to the application;;;;
+</div></div><div class='w3-row'><div class='w3-col l1'>;*;account;;Login account (user Id, mail or account name);text;;20;50
+</div></div><div class='w3-row'><div class='w3-col l1'>;;password;;Password;password;;20;50
+</div></div><div class='w3-row'><div class='w3-col l1'>;;_no_input;;;;;;
+</div></div><div class='w3-row'><div class='w3-col l1'>;;submit;Log in;;submit;formbutton;;
+</div></div>;;_no_input;;;;;;
+<li><span class='helptext'>;;_help_text;;if you leave the password empty, have your mail address registered and no password yet set, a one-time password will be sent to you to log in;;;;
+</span></li><li><span class='helptext'>;;_help_text;;if you have set a password, you will not get a one-time password lo login, but you have to reset the password.;;;;
+</span></li>;;_help_text;;;;;;

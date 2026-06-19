@@ -1,0 +1,11 @@
+tags;required;name;value;label;type;class;size;maxlength
+<div class='w3-row'><div class='w3-col l1'>;;user_id;;QlQLyw|dilbo user ID - or -;text;;20;250
+</div></div><div class='w3-row'><div class='w3-col l1'>;;first_name;;TY6MFV|First name - or -;text;;20;250
+</div></div><div class='w3-row'><div class='w3-col l1'>;;last_name;;ydEB3g|Last name;text;;20;250
+</div></div><div class='w3-row'><div class='w3-col l1'>;;SearchAll;;lJpyEt|Full text search;text;;20;250
+</div></div><div class='w3-row' style='margin-top:20px'><div class='w3-col l1'><div style='float:left'>;;submit;JLWDeX|Find;;submit;formbutton;;
+</div></div></div>;;_no_input;;;;;;
+<li><span class='helptext'>;;_help_text;;KiFMhh|If the user ID (top fiel...;;;;
+</span></li><li><span class='helptext'>;;_help_text;;ysn50P|The entered search texts...;;;;
+</span></li><li><span class='helptext'>;;_help_text;;GCD6OA|The full text search loo...;;;;
+</span></li>;;_help_text;;;;;;

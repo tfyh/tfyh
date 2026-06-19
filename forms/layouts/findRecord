@@ -1,0 +1,4 @@
+tags;required;name;value;label;type;class;size;maxlength
+<div class='w3-row'><div class='w3-col l1'>;;find;;hcFC59|search for;text;;20;250
+</div></div><div class='w3-row' style='margin-top:20px'><div class='w3-col l1'><div style='float:left'>;;submit;JLWDeX|Find;;submit;formbutton;;
+</div></div></div>;;_no_input;;;;;;

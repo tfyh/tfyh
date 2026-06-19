@@ -1,0 +1,8 @@
+tags;required;name;value;label;type;class;size;maxlength
+<tr><td>;;_no_input;;CLnsaZ|Please enter the one-tim...;;;;
+</td></tr><tr><td>;*;one_time_password;;8YgUEl|One-time password;text;20;50
+</td></tr><tr><td>;;submit;KOipdt|Log in;;submit;more_btn;;
+</td></tr>;;;;;;;;
+"<li><span class=""rowtext"">";;_help_text;;14r3x2|If you did not get a one...;;;;
+"</span></li><li><span class=""rowtext"">";;_help_text;;kbMn2a|A * in front of a field ...;;;;
+</span></li>;;_help_text;;;;;;
