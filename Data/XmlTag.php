@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 /**
  * class file for a simple XML tag, supporting the Tfyh_xml class.

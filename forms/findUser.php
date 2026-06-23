@@ -13,13 +13,11 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\util\Form;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\Config;
+use Data\DatabaseConnector;
+use Util\Form;
+use Util\I18n;
 
 /**
  * Find a user record.

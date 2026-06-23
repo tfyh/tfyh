@@ -13,15 +13,13 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\util\Form;
-use tfyh\util\I18n;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Control\Sessions;
+use Data\Codec;
+use Data\Config;
+use Util\Form;
+use Util\I18n;
 
 /**
  * The login form for all activities on this application except registration.

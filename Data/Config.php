@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use DateTimeZone;
 
@@ -23,10 +23,10 @@ include_once '../../tfyh/Data/Property.php';
 include_once '../../tfyh/Data/Type.php';
 include_once '../../tfyh/Util/Language.php';
 
-use tfyh\control\Logger;
-use tfyh\control\LoggerSeverity;
+use Control\Logger;
+use Control\LoggerSeverity;
 
-use tfyh\util\Language;
+use Util\Language;
 
 const DEFAULT_TIME_ZONE = "Europe/Berlin";
 
@@ -184,10 +184,10 @@ class Config
             return;
 
         foreach (Config::$allSettingsDirs as $settingsDir) {
-            $isBasic = ($settingsDir == "packaged");
+            $isPackaged = ($settingsDir == "packaged");
             if (isset($this->settingsCsv[$settingsDir][$branchName])) {
                 $settingsMap = Codec::csvToMap($this->settingsCsv[$settingsDir][$branchName]);
-                $loadingResult = $this->rootItem->readBranch($settingsMap, $isBasic);
+                $loadingResult = $this->rootItem->readBranch($settingsMap, $isPackaged);
                 if (strlen($loadingResult) > 0)
                     $this->logger->log(LoggerSeverity::ERROR, "Config->load",
                         "[$settingsDir]: $loadingResult");

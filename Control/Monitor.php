@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
 use DateTime;
 
@@ -21,11 +21,11 @@ include_once '../../tfyh/Control/Logger.php';
 
 include_once '../../tfyh/Data/Codec.php';
 include_once '../../tfyh/Data/Formatter.php';
-use tfyh\data\Codec;
-use tfyh\data\Formatter;
+use Data\Codec;
+use Data\Formatter;
 
 include_once '../../tfyh/Util/Language.php';
-use tfyh\util\Language;
+use Util\Language;
 
 const MONITOR_PERIOD = 1000; // The period to monitor events for load throttling and load warning in seconds.
 const WARNING_INTERVAL = 120; // the minimum period between to overload warning log entries in seconds.

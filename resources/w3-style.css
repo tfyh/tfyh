@@ -1,0 +1,470 @@
+/* W3.CSS 4.13 June 2019 by Jan Egil and Borge Refsnes. Significantly streamlinednand adapted: tfyh.org, Oct 2019 */
+
+/*
+  Colors: all color definitions need to be done within the util-style.css stylesheet.
+  Fonts: all font definitions likewise
+*/
+
+/* Section formats */
+html {
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
+	box-sizing: border-box;
+	overflow-x: hidden
+}
+
+body {
+	min-height: 10vh;
+} 
+
+footer, header, nav {
+	display: block
+}
+
+/* Element formats */
+h1, h2, h3, h4, h5, h6, input, p, blockquote, code {
+	line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 400;
+	margin: 10px 0
+}
+
+h1 {
+	font-size: 2.25rem; /* 36px@16px=rem */
+}
+
+h2 {
+	font-size: 1.875rem; /* 30px@16px=rem */
+}
+
+h3 {
+	font-size: 1.5rem; /* 24px@16px=rem */
+}
+
+h4 {
+	font-size: 1.25rem; /* 20px@16px=rem */
+}
+
+h5 {
+	font-size: 1.125rem; /* 18px@16px=rem */
+}
+
+h6 {
+	font-size: 1rem; /* 16px@16px=rem */
+}
+
+p, textarea {
+	font-size: 1rem; /* 16px@16px=rem */
+}
+
+a {
+	background-color: transparent;
+	text-decoration: none;
+}
+
+a:active, a:hover {
+	outline-width: 0;
+}
+
+img {
+	vertical-align: middle;
+	border-style: none
+}
+
+/* Font size and position formats */
+small {
+	font-size: 0.8rem;  /* 12.8px@16px=rem */
+}
+
+sub, sup {
+	font-size: 0.75rem;  /* 12px@16px=rem */
+	line-height: 0;
+	position: relative;
+	vertical-align: baseline
+}
+
+sub {
+	bottom: -0.25rem
+}
+
+sup {
+	top: -0.5rem
+}
+
+.w3-small {
+	font-size: 0.75rem !important  /* 12px@16px=rem */
+}
+
+.w3-medium {
+	font-size: 0.9375rem !important   /* 15px@16px=rem */
+}
+
+.w3-large {
+	font-size: 1.125rem !important   /* 18px@16px=rem */
+}
+
+.w3-xlarge {
+	font-size: 1.5rem !important;   /* 16px@16px=rem */
+}
+
+.w3-center {
+	text-align: center !important
+}
+
+/* Form element formats */
+button, [type=button], [type=reset], [type=submit] {
+	-webkit-appearance: button
+}
+
+button::-moz-focus-inner, [type=button]::-moz-focus-inner, [type=reset]::-moz-focus-inner,
+	[type=submit]::-moz-focus-inner {
+	border-style: none;
+	padding: 0
+}
+
+button:-moz-focusring, [type=button]:-moz-focusring, [type=reset]:-moz-focusring,
+	[type=submit]:-moz-focusring {
+	outline: 1px dotted ButtonText
+}
+
+textarea {
+	overflow: auto;
+	width: 95%
+}
+
+/* class definitions */
+/* containers */
+.w3-main, #main {
+	transition: margin-left .4s;
+	margin-right: 0 !important
+		/* margin left is controlled by the media section */
+}
+
+.w3-auto, .w3-row {
+	padding-top: 4px;
+	overflow: auto /* expand the div to its childrens height */
+}
+
+.w3-container {
+	padding: 8px;
+}
+
+.w3-sidebar {
+	height: 100%;
+	width: 200px;
+	position: fixed !important;
+	z-index: 1;
+	overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.w3-bar-item {
+	float: left;
+	width: auto
+}
+
+.w3-bar-item-2 {
+	margin-left:8px
+}
+
+.w3-bar-block .w3-bar-item {
+	display: block;
+	padding: 8px;
+	text-align: left;
+	border: none;
+	white-space: normal;
+	float: none;
+	outline: 0
+}
+
+.w3-image {
+	max-width: 100%;
+	height: auto
+}
+
+.w3-col {
+	float: left;
+	width: 100%
+}
+
+/* menu accordion controls */
+.w3-hide {
+	display: none !important
+}
+
+.w3-show {
+	display: block !important
+}
+
+/* responsive layout definition. */
+/* full size screen. */
+@media ( min-width : 1200px) {
+	.w3-hide-large {
+		display: none !important
+	}
+	.w3-sidebar.w3-collapse {
+		display: block !important
+	}
+	.w3-main {
+		margin-left: 250px !important;
+	}
+	/* full width */
+	.w3-col.l1 {
+		width: 99.9%
+	}
+	/* half width */
+	.w3-col.l2 {
+		width: 49.9%
+	}
+	/* a third width */
+	.w3-col.l3 {
+		width: 33.3%
+	}
+	/* a third, two times */
+	.w3-col.l32 {
+		width: 66.6%
+	}
+	/* a fourth width */
+	.w3-col.l4 {
+		width: 24.9%
+	}
+	/* a fourth, three times. Note: a fourth, two times = a half */
+	.w3-col.l43 {
+		width: 74.9%
+	}
+	/* a fifth with asf. */
+	.w3-col.l5 {
+		width: 19.9%
+	}
+	.w3-col.l52 {
+		width: 39.99%
+	}
+	.w3-col.l53 {
+		width: 59.9%
+	}
+	.w3-col.l54 {
+		width: 79.9%
+	}
+	.w3-col.l6 {
+		width: 16.6%
+	}
+	.w3-col.l65 {
+		width: 83.3%
+	}
+}
+
+/* reduced size, but with side menu */
+@media ( max-width : 1199px) and (min-width: 850px) {
+	.w3-hide-large {
+		display: none !important
+	}
+	.w3-sidebar.w3-collapse {
+		display: block !important
+	}
+	.w3-main {
+		margin-left: 220px !important;
+	}
+	.w3-col.l1 {
+		width: 99.9%
+	}
+	.w3-col.l2 {
+		width: 49.9%
+	}
+	.w3-col.l3 {
+		width: 33.3%
+	}
+	.w3-col.l32 {
+		width: 66.6%
+	}
+	.w3-col.l4 {
+		width: 49.9%
+	}
+	.w3-col.l43 {
+		width: 99.9%
+	}
+	.w3-col.l5 {
+		width: 33.3%
+	}
+	.w3-col.l52 {
+		width: 66.6%
+	}
+	.w3-col.l53 {
+		width: 99.9%
+	}
+	.w3-col.l54 {
+		width: 99.9%
+	}
+	.w3-col.l6 {
+		width: 33.3%
+	}
+	.w3-col.l65 {
+		width: 99.99999%
+	}
+}
+
+/* further reduced screen, without side menu */
+@media ( max-width : 849px) and (min-width: 700px) {
+	.w3-hide-large {
+		display: block
+	}
+	.w3-sidebar.w3-collapse {
+		display: none
+	}
+	.w3-main {
+		margin-left: 0 !important;
+	}
+	.w3-col.l1 {
+		width: 99.9%
+	}
+	.w3-col.l2 {
+		width: 99.9%
+	}
+	.w3-col.l3 {
+		width: 49.9%
+	}
+	.w3-col.l32 {
+		width: 99.9%
+	}
+	.w3-col.l4 {
+		width: 49.9%
+	}
+	.w3-col.l43 {
+		width: 99.9%
+	}
+	.w3-col.l5 {
+		width: 33.3%
+	}
+	.w3-col.l52 {
+		width: 66.6%
+	}
+	.w3-col.l53 {
+		width: 99.9%
+	}
+	.w3-col.l54 {
+		width: 99.9%
+	}
+	.w3-col.l6 {
+		width: 33.33333%
+	}
+	.w3-col.l65 {
+		width: 99.99999%
+	}
+}
+
+/* further reduced screen, without side menu */
+@media ( max-width : 699px) {
+	.w3-hide-large {
+		display: block
+	}
+	.w3-sidebar.w3-collapse {
+		display: none
+	}
+	.w3-main {
+		margin-left: 0 !important;
+	}
+	.w3-col.l1 {
+		width: 99.9%
+	}
+	.w3-col.l2 {
+		width: 99.9%
+	}
+	.w3-col.l3 {
+		width: 99.9%
+	}
+	.w3-col.l32 {
+		width: 99.9%
+	}
+	.w3-col.l4 {
+		width: 99.99%
+	}
+	.w3-col.l43 {
+		width: 99.9%
+	}
+	.w3-col.l5 {
+		width: 49.9%
+	}
+	.w3-col.l52 {
+		width: 99.9%
+	}
+	.w3-col.l53 {
+		width: 99.9%
+	}
+	.w3-col.l54 {
+		width: 99.9%
+	}
+	.w3-col.l6 {
+		width: 49.9%
+	}
+	.w3-col.l65 {
+		width: 99.9%
+	}
+}
+
+/* Positionierungen */
+.w3-top, .w3-bottom {
+	position: fixed;
+	width: 100%;
+	z-index: 1
+}
+
+.w3-top {
+	top: 0
+}
+
+.w3-bottom {
+	bottom: 0
+}
+
+.w3-overlay {
+	position: fixed;
+	display: none;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 2
+}
+
+.w3-padding-small {
+	padding: 4px 8px !important
+}
+
+.w3-padding {
+	padding: 8px 16px !important
+}
+
+.w3-padding-large {
+	padding: 12px 24px !important
+}
+
+.w3-padding-16 {
+	padding-top: 16px !important;
+	padding-bottom: 16px !important
+}
+
+.w3-padding-64 {
+	padding-top: 64px !important;
+	padding-bottom: 64px !important
+}
+
+.w3-left {
+	float: left !important
+}
+
+.w3-right {
+	float: right !important
+}
+
+/* Colors */
+.w3-grayscale {
+	filter: grayscale(75%)
+}
+
+.w3-grayscale:hover {
+	filter: grayscale(0%)
+}

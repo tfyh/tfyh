@@ -13,17 +13,17 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
 use DateTimeImmutable;
 
-use tfyh\api\Transactions;
-use tfyh\util\ListHandler;
-use tfyh\util\Pdf;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Formatter;
-use tfyh\data\ParserName;
+use Api\Transaction;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Formatter;
+use Data\ParserName;
+use Util\ListHandler;
+use Util\Pdf;
 
 /**
  * Class file for the security concept generation. The security concept may be used for privacy and security audits.
@@ -82,7 +82,7 @@ class SecurityMonitor
         $this->variables["activitiesWeb"] = $activities_table . "</table>";
 
         // activities at api interface: init, login, errors
-        $this->variables["activitiesApi"] = Transactions::getLastAccessesApi();
+        $this->variables["activitiesApi"] = Transaction::getLastAccessesApi();
 
         // all changes pivot
         $changesAll = "<table><tr><th>Author</th><th>Modifications: Count</th></tr>";

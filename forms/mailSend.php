@@ -13,17 +13,15 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\util\Form;
-use tfyh\util\FormBuilder;
-use tfyh\util\I18n;
-use tfyh\util\ListHandler;
-use tfyh\util\MailHandler;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Data\Config;
+use Data\DatabaseConnector;
+use Util\Form;
+use Util\FormBuilder;
+use Util\I18n;
+use Util\ListHandler;
+use Util\MailHandler;
 
 // ===== initialize
 $userRequestedFile = __FILE__;
@@ -239,7 +237,7 @@ echo $formInfo;
 if ($todo < 3)
     echo $formToFill->get_html(true); // enable file upload
 if ($todo == 2)
-    echo "<p><a href='?f_seq=" . $runner->fsId . "2&edit=1'>" . $i18n->t("c1Kttz|Change the message.") . "</a></p>";
+    echo "<p><a href='?fSeq=" . $runner->fsId . "2&edit=1'>" . $i18n->t("c1Kttz|Change the message.") . "</a></p>";
 echo "<!-- END OF form -->\n</div>";
 $runner->endScript();
 

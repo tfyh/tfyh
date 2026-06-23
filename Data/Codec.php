@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 /**
  * This class provides some basic functions to encode and decode data to and from csv, and to and from base64.

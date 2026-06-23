@@ -13,19 +13,19 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use Exception;
 use mysqli;
 use mysqli_result;
 
-use tfyh\control\Logger;
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
+use Control\Logger;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Control\Sessions;
 // the internationalisation support is needed to translate setup error messages for the admin user.
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Util\I18n;
+use Util\Language;
 
 /**
  * Class file for the DataBaseInterface class A utility class to connect to the database. It provides read and write

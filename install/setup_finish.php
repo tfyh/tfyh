@@ -15,8 +15,8 @@
 
 // ===== THIS SHALL ONLY BE USED during application configuration, then access rights shall
 // be changed to "no access" - even better: or the form deleted from the site.
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Util\I18n;
+use Util\Language;
 
 include_once "../Util/I18n.php";
 include_once "../Util/Language.php";

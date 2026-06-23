@@ -13,9 +13,9 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
-use tfyh\util\Language;
+use Util\Language;
 
 /**
  * Class file to maintain a word index, referencing to database records. The index itself is a database

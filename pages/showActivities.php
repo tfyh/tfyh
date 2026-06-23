@@ -17,11 +17,9 @@
  * Simple display page. Shows all recent activities.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Monitor;
-use tfyh\control\Runner;
-use tfyh\util\I18n;
+use Control\Monitor;
+use Control\Runner;
+use Util\I18n;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

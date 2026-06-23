@@ -13,14 +13,12 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\data\PropertyName;
-use tfyh\data\WordIndex;
-use tfyh\util\Form;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\Config;
+use Data\PropertyName;
+use Data\WordIndex;
+use Util\Form;
+use Util\I18n;
 
 /**
  * The form to find an arbitrary record. Based on the Tfyh_form class, please read instructions there to

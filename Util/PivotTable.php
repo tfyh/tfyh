@@ -13,10 +13,10 @@
  * the License.
  */
 
-namespace tfyh\util;
+namespace Util;
 
-use tfyh\data\Parser;
-use tfyh\data\ParserConstraints;
+use Data\Parser;
+use Data\ParserConstraints;
 
 /**
  * PivotTable provided pivoting tables for the Lists class. Currently

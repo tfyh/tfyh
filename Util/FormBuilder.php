@@ -1,19 +1,32 @@
 <?php
+/**
+ * tools-for-your-hobby
+ * https://www.tfyh.org
+ * Copyright  2023-2025  Martin Glade
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
-namespace tfyh\util;
+namespace Util;
 
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\data\Findings;
-use tfyh\data\Formatter;
-use tfyh\data\Item;
-use tfyh\data\Parser;
-use tfyh\data\ParserName;
-use tfyh\data\ParserConstraints;
-use tfyh\data\Validator;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Control\Sessions;
+use Data\Codec;
+use Data\Config;
+use Data\Findings;
+use Data\Formatter;
+use Data\Item;
+use Data\Parser;
+use Data\ParserName;
+use Data\ParserConstraints;
+use Data\Validator;
 
 /**
  * This class provides a form segment for a web file. <p>The definition must be a CSV-file, all entries

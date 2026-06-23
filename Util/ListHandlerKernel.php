@@ -13,15 +13,15 @@
  * the License.
  */
 
-namespace tfyh\util;
+namespace Util;
 
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Sessions;
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Item;
-use tfyh\data\Record;
+use Control\LoggerSeverity;
+use Control\Sessions;
+use Data\Codec;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Item;
+use Data\Record;
 
 /**
  * This class provides a list segment for a web file. <p>The definition must be a CSV-file, all entries

@@ -17,12 +17,10 @@
  * A page to create a security concept for security-auditing purposes
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\control\SecurityMonitor;
-use tfyh\util\FileHandler;
-use tfyh\util\I18n;
+use Control\Runner;
+use Control\SecurityMonitor;
+use Util\FileHandler;
+use Util\I18n;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

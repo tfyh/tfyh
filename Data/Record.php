@@ -13,21 +13,21 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use DateTimeImmutable;
 
 include_once '../../tfyh/Api/PreModificationCheck.php';
-use tfyh\api\PreModificationCheck;
+use Api\PreModificationCheck;
 
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
-use tfyh\control\Users;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Control\Sessions;
+use Control\Users;
 // internationalisation support needed to reflect validation or database storage errors and for formatting
 // to HTML for user display
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Util\I18n;
+use Util\Language;
 
 /**
  * Class Record

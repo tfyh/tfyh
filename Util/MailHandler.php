@@ -12,9 +12,10 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-namespace tfyh\util;
 
-use tfyh\data\Item;
+namespace Util;
+
+use Data\Item;
 
 /**
  * This class provides a mail handler for sending mails. It is a wrapper around the php native mailing function.

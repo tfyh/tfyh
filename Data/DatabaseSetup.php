@@ -13,15 +13,15 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
-use tfyh\control\Users;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Control\Sessions;
+use Control\Users;
 // internationalisation support needed to translate setup error messages for the admin user.
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Util\I18n;
+use Util\Language;
 
 /**
  * Class file to adjust the database layout to the version required by the current configuration.

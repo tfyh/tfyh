@@ -17,13 +17,11 @@
  * a form to request application support by the support team
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\Logger;
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\util\Form;
-use tfyh\util\I18n;
+use Control\Logger;
+use Control\Runner;
+use Data\Config;
+use Util\Form;
+use Util\I18n;
 
 $userRequestedFile = __FILE__;
 include_once "../../tfyh/init/init.php";

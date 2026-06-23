@@ -12,11 +12,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-namespace tfyh\util;
+namespace Util;
 
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Formatter;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Formatter;
 
 /**
  * A class to produce a pdf based on the html layout and a set of data from the database.

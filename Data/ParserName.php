@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 /**
  * Defines an enumeration of parser names representing various data types and parsing strategies.

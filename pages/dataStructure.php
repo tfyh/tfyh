@@ -17,12 +17,10 @@
  * The page to show the data model.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\data\DatabaseConnector;
-use tfyh\util\FileHandler;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\DatabaseConnector;
+use Util\FileHandler;
+use Util\I18n;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

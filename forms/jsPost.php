@@ -13,18 +13,16 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
 use JetBrains\PhpStorm\NoReturn;
 
-use tfyh\api\ResultForTransaction;
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\data\Findings;
-use tfyh\data\Validator;
-use tfyh\util\I18n;
+use Api\ResultForTransaction;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Data\Codec;
+use Data\Config;
+use Data\Findings;
+use Data\Validator;
+use Util\I18n;
 
 /**
  * The response page to any form post. Provides configuration and data insert, update, and delete
@@ -40,15 +38,15 @@ use tfyh\util\I18n;
  * Write the full settings file of the changed item. Because settings files are small and writing rare, this is
  * the most efficient approach.
  */
-#[NoReturn] function writeChangeAndReturn(String $changedPath, bool $isBasic, String $response): void {
+#[NoReturn] function writeChangeAndReturn(String $changedPath, bool $isPackaged, String $response): void {
     $i18n = I18n::getInstance();
     $topBranchPath = explode(".", $changedPath)[1];
     $config = Config::getInstance();
     $topBranch = $config->getItem("." . $topBranchPath);
     $topBranchName = $topBranch->name();
-    $settingsDir = ($isBasic) ? "packaged" : "added";
+    $settingsDir = ($isPackaged) ? "packaged" : "added";
     $settingsFName = "../Config/$settingsDir/$topBranchName";
-    $settingsFContents = $topBranch->branchToCsv(99, $isBasic);
+    $settingsFContents = $topBranch->branchToCsv(99, $isPackaged);
     $success = file_put_contents($settingsFName, $settingsFContents);
     if ($success) {
         Runner::getInstance()->logger->log(LoggerSeverity::INFO, "tfyh/forms/jsPost.php",

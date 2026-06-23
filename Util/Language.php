@@ -12,7 +12,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-namespace tfyh\util;
+
+namespace Util;
 
 include_once '../../tfyh/Util/LanguageSettings.php';
 

@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\api;
+namespace Api;
 
 enum ResultForTransaction: Int {
     case UNDEFINED = 0;

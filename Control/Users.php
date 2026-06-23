@@ -13,16 +13,16 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Ids;
-use tfyh\data\ParserConstraints;
+use Data\Codec;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Ids;
+use Data\ParserConstraints;
 
 // internationalisation support on needed to translate user access and services information provided at the UI
-use tfyh\util\I18n;
+use Util\I18n;
 include_once "../../tfyh/Util/I18n.php";
 
 /**

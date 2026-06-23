@@ -13,13 +13,13 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use DateTimeImmutable;
 
 include_once '../../tfyh/Data/PropertyName.php';
 
-use tfyh\util\I18n;
+use Util\I18n;
 
 /**
  * The Type class represents a descriptor for a specific type, containing properties, its parser,

@@ -13,16 +13,14 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\Runner;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Formatter;
-use tfyh\data\ParserName;
-use tfyh\util\Form;
-use tfyh\util\FormBuilder;
-use tfyh\util\I18n;
-use tfyh\util\ListHandler;
+use Control\Runner;
+use Data\DatabaseConnector;
+use Data\Formatter;
+use Data\ParserName;
+use Util\Form;
+use Util\FormBuilder;
+use Util\I18n;
+use Util\ListHandler;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

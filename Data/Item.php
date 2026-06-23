@@ -13,14 +13,14 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use Stringable;
 use DateTimeImmutable;
 
-use tfyh\control\LoggerSeverity;
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Control\LoggerSeverity;
+use Util\I18n;
+use Util\Language;
 
 /**
  * The `Item` class represents a node within a hierarchical structure, containing a name, type, properties, and children.
@@ -706,7 +706,7 @@ class Item implements Stringable  // Stringable explicitly mentioned to ensure t
     {
         foreach ($this->children as $child) {
             if ($child !== $this) {
-                if ($child->isBasic() == $packaged) {
+                if ($child->isPackaged() == $packaged) {
                     // avoid endless drill down loops. Misconfiguration can cause such situations
                     $items[] = $child;
                     foreach ($child->properties as $propertyName => $propertyValue)

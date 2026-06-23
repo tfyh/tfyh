@@ -17,11 +17,9 @@
  * An overview on all accesses currently granted.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Menu;
-use tfyh\control\Runner;
-use tfyh\util\I18n;
+use Control\Menu;
+use Control\Runner;
+use Util\I18n;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

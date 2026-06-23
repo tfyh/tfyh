@@ -13,12 +13,12 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
-use tfyh\data\Config;
-use tfyh\data\Item;
+use Data\Config;
+use Data\Item;
 // internationalisation support on needed to translate the menu and provide an allowance profile for a role.
-use tfyh\util\I18n;
+use Util\I18n;
 
 /**
  * Class file for the Menu class. This class reads the menu and returns it as html, filtered to those entries which are
@@ -31,40 +31,34 @@ class Menu
      * HTML snippet at the start of a menu
      */
     private string $htmlMenuStart = "\n" .
-    "<!--============================== menu - start =========================-->" . "\n";
+    "<!--============================== menu - start =========================-->\n";
 
     /**
      * HTML snippet at the start of the level 1 list
      */
-    private string $htmlListL1 = '<div class="w3-padding-64 w3-large">' . "\n";
+    private string $htmlListL1 = "<div class='w3-padding-64 w3-large'>\n";
 
     /**
      * HTML snippet at the start of level 1 item. In the case of top for submenus use {link} = "javascript:void(0)"
      * for a submenu open trigger, {onclick} = 'onclick="openSubMenu([idOfParent])"', and {caret} =
      * '<b>&#x23f7</b>'. Else set {onclick} = '', {caret} = '', and {link} to the target link.
      */
-    private string $htmlItemL1 = '<a{href} class="w3-bar-item menuitem" id="{id}" ' .
-    '{onclick}{hidden}>{headline}{caret}</a>' . "\n";
+    private string $htmlItemL1;
 
     /**
      * HTML snippet at the start of a level 2 list.
      */
-    private string $htmlListL2 = '';
+    private string $htmlListL2 = "";
 
     /**
      * HTML snippet at the start of the level 2 item.
      */
-    private string $htmlItemL2 = '<div class="w3-bar-block w3-hide w3-medium subMenu{parent}">' . "\n" .
-    '<a{href} class="w3-bar-item w3-bar-item-2 menuitem" id="{id}" ' .
-    '{onclick}{hidden}>{headline}</a>' . "\n" . '</div>' . "\n";
+    private string $htmlItemL2;
 
     /**
      * HTML snippet at the end of the menu
      */
-    private string $htmlMenuEnd = '<footer class="w3-small w3-center" id="footer">' .
-    "<br><br>##user##<br>##version## (##language##)<br>##copyright##<br><br>".
-    "<img src='../../##appName##/resources/app_logo_64.png' alt='application logo'><br>&nbsp;</footer></div>" . "\n" .
-    "<!--============================== menu - end ===========================-->" . "\n";
+    private string $htmlMenuEnd;
 
     /**
      * the menu definition array, as was read from the csv file passed in the constructor
@@ -93,13 +87,16 @@ class Menu
         $username = $sessions->userFullName() . " (" . $sessions->userRole() . ")";
         $config = Config::getInstance();
         $appName = $config->appName;
-        $this->htmlMenuEnd = str_replace("##user##", $username,
-            str_replace("##appName##", $appName, $this->htmlMenuEnd));
-        $this->htmlMenuEnd = str_replace("##version##", $config->appVersion,
-            str_replace("##language##", $config->language()->value,
-                str_replace("##copyright##",$config->getItem(".framework.app.copyright")->valueStr(),
-                    $this->htmlMenuEnd)));
-    }
+        $version = $config->appVersion;
+        $language = $config->language()->value;
+        $this->htmlItemL1 = "<a{href} class='w3-bar-item menuitem' id='{id}' {onclick}{hidden}>{headline}{caret}</a>\n";
+        $this->htmlItemL2 = "<div class='w3-bar-block w3-hide w3-medium subMenu{parent}'>\n" .
+            "<a{href} class='w3-bar-item w3-bar-item-2 menuitem' id='{id}' {onclick}{hidden}>{headline}</a>\n</div>\n";
+        $this->htmlMenuEnd = '<footer class="w3-small w3-center" id="footer">' .
+            "<br><br>$username<br>$version ($language)<br>##copyright##<br><br>".
+            "<img src='../../$appName/resources/app_logo_64.png' alt='application logo'><br>&nbsp;</footer></div>" . "\n" .
+            "<!--============================== menu - end ===========================-->\n";
+        }
 
     /**
      * Create the item's definition array for the menu.

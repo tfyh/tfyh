@@ -13,17 +13,15 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Record;
-use tfyh\util\Form;
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Data\Codec;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Record;
+use Util\Form;
+use Util\I18n;
+use Util\Language;
 
 /**
  * The form for user profile editing. Based on the Form class, please read instructions there to

@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use DateTimeImmutable;
 
@@ -21,8 +21,8 @@ include_once '../../tfyh/Data/ParserName.php';
 include_once '../../tfyh/Data/Parser.php';
 
 // internationalisation support needed to localise property label and description
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Util\I18n;
+use Util\Language;
 
 /**
  * Class representing a property with associated metadata and parsing logic. All properties are defined in the

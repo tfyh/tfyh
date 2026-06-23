@@ -13,10 +13,8 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\Runner;
-use tfyh\util\I18n;
+use Control\Runner;
+use Util\I18n;
 
 $userRequestedFile = __FILE__;
 include_once "../../tfyh/init/init.php";

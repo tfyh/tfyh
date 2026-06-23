@@ -13,39 +13,38 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
 use JetBrains\PhpStorm\NoReturn;
 
 include_once '../../tfyh/Api/Container.php';
 include_once '../../tfyh/Api/ResultForContainer.php';
-use tfyh\api\Container;
-use tfyh\api\ResultForContainer;
+use Api\Container;
+use Api\ResultForContainer;
 
 include_once '../../tfyh/Authentication/AuthProvider.php';
-use tfyh\authentication\AuthProvider;
+use Authentication\AuthProvider;
 
 include_once '../../tfyh/Data/Codec.php';
 include_once '../../tfyh/Data/Config.php';
 include_once '../../tfyh/Data/DatabaseConnector.php';
 include_once '../../tfyh/Data/Ids.php';
 include_once '../../tfyh/Data/Record.php';
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Formatter;
-use tfyh\data\Ids;
-use tfyh\data\Record;
+use Data\Codec;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Ids;
+use Data\Record;
 
 // internationalisation support on needed to translate the login workflow messages
 include_once '../../tfyh/Util/I18n.php';
 include_once '../../tfyh/Util/Language.php';
 include_once '../../tfyh/Util/MailHandler.php';
 include_once '../../tfyh/Util/TokenHandler.php';
-use tfyh\util\I18n;
-use tfyh\util\Language;
-use tfyh\util\MailHandler;
-use tfyh\util\TokenHandler;
+use Util\I18n;
+use Util\Language;
+use Util\MailHandler;
+use Util\TokenHandler;
 
 
 /**
@@ -509,7 +508,7 @@ class Runner
         $this->checkContext();
 
         // ===== control the form sequence, except for calls of the jsGet.php page or the api.
-        $isJsGet = $this->userRequestedAction === "tfyh/pages/jsGet.php";
+        $isJsGet = $this->userRequestedAction === "../../tfyh/pages/jsGet.php";
         if (! $isJsGet) {
             if (!$this->isUserRequestForForm && ($userId == -1)) {
                 // drop web session if an anonymous user requests anything different from a form.

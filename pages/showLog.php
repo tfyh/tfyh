@@ -13,11 +13,9 @@
  * the License.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\data\Codec;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\Codec;
+use Util\I18n;
 
 /**
  * Page display file. Shows all logs of the application.

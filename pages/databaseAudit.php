@@ -17,12 +17,10 @@
  * A page to audit the complete database.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\DatabaseSetup;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\DatabaseConnector;
+use Data\DatabaseSetup;
+use Util\I18n;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

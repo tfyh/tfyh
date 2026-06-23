@@ -13,12 +13,12 @@
  * the License.
  */
 
-namespace tfyh\util;
+namespace Util;
 
-use tfyh\control\Users;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Formatter;
-use tfyh\data\ParserName;
+use Control\Users;
+use Data\DatabaseConnector;
+use Data\Formatter;
+use Data\ParserName;
 
 /**
  * Container to hold the audit class. Shall be run by the cron jobs.

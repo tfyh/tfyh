@@ -13,23 +13,23 @@
  * the License.
  */
 
-namespace tfyh\util;
+namespace Util;
 
-use tfyh\control\Runner;
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\data\Findings;
-use tfyh\data\Formatter;
-use tfyh\data\Indices;
-use tfyh\data\Item;
-use tfyh\data\Parser;
-use tfyh\data\ParserName;
-use tfyh\data\ParserConstraints;
-use tfyh\data\Property;
-use tfyh\data\PropertyName;
-use tfyh\data\Record;
-use tfyh\data\Type;
-use tfyh\data\Validator;
+use Control\Runner;
+use Data\Codec;
+use Data\Config;
+use Data\Findings;
+use Data\Formatter;
+use Data\Indices;
+use Data\Item;
+use Data\Parser;
+use Data\ParserName;
+use Data\ParserConstraints;
+use Data\Property;
+use Data\PropertyName;
+use Data\Record;
+use Data\Type;
+use Data\Validator;
 
 /**
  * This class provides a form segment for a web file. <p>The definition must be a CSV-file, all entries

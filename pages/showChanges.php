@@ -17,11 +17,9 @@
  * Simple display page. Shows all recent changes.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\data\DatabaseConnector;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\DatabaseConnector;
+use Util\I18n;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

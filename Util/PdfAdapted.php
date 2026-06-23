@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\util;
+namespace Util;
 
 use TCPDF;
 include_once "../../Tcpdf/tcpdf.php";

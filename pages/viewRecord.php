@@ -13,14 +13,12 @@
  * the License.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Record;
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Control\Runner;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Record;
+use Util\I18n;
+use Util\Language;
 
 /**
  * Generic record display file.

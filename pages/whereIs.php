@@ -15,15 +15,15 @@
 
 namespace tfyh\pages;
 
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Indices;
-use tfyh\data\Item;
-use tfyh\data\Record;
-use tfyh\util\I18n;
-use tfyh\util\Language;
-use tfyh\util\ListHandlerKernel;
+use Control\Runner;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Indices;
+use Data\Item;
+use Data\Record;
+use Util\I18n;
+use Util\Language;
+use Util\ListHandlerKernel;
 
 /**
  * Generic record display file.

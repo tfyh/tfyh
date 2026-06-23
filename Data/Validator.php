@@ -13,12 +13,12 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use DateTimeImmutable;
 
 // internationalisation support needed to reflect validation errors such as for a password, an IBAN or similar.
-use tfyh\util\I18n;
+use Util\I18n;
 
 /**
  * Provides static utility methods for data validations,

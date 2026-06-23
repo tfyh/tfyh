@@ -1,0 +1,539 @@
+
+/* --------- STANDARD TAG STYLES ----------------------*/
+/* =================================================== */
+
+html, body, input, textarea {
+	font: ':font-main';
+	color: ':color-text-body';
+	background-color: ':color-background-body';
+	margin: 0;
+}
+
+h1, h2, h3 {
+	color: ':color-text-h1-h3'; /* headline color */
+}
+
+input, p, textarea, blockquote, code, h4, h5, h6 {
+	color: ':color-text-p-h4-h6-etc'; /* text color */
+}
+
+a {
+	color: ':color-text-link'; /*background may change */
+}
+
+a:hover {
+	text-decoration: none;
+}
+
+a:visited, a:hover {
+	color: ':color-text-link-hover-visited'; /*background may change */
+}
+
+a.table-header {
+	color: ':color-text-table-header';
+}
+
+a.table-header:hover, a.table-header:visited {
+	color: ':color-text-table-header';
+}
+
+/* --------- TABLE STYLES -----------------------------*/
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0px;
+	-webkit-border-horizontal-spacing: 0px;
+	-webkit-border-vertical-spacing: 0px;
+	width: 100%;
+}
+
+th {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	text-align: left;
+	color: ':color-text-table-header';
+	background-color: ':color-background-table-header' !important;
+}
+
+th, td {
+	border: 1px solid  ':color-border-table';
+	padding: 6px;
+	word-wrap: break-word;
+	overflow: hidden;
+}
+
+tr:nth-child(even) {
+	background-color: ':color-background-table-even-rows';
+}
+
+tr:hover {
+	background-color: ':color-background-table-row-hover';
+}
+
+/* --------- PAGE AND MENU STYLES ---------------------*/
+/* =================================================== */
+
+.body {
+	max-width: 1280px;
+	margin: auto;
+}
+
+.menubar {
+	background-color: ':color-background-menubar' !important
+}
+
+.menuitem {
+	color: ':color-text-menuitem' !important;
+	background-color: ':color-background-menuitem' !important;
+	text-decoration: none !important;
+	cursor: pointer;
+}
+
+.menuitem:hover, .menuitem:focus {
+	color: ':color-text-menuitem-hover' !important;
+	background-color: ':color-background-menuitem-hover' !important
+}
+
+/* for Google graphs of statistics */
+.show_hover:hover {
+	cursor: pointer;
+}
+
+/* --------- FORM ELEMENT STYLES --------------------- */
+/* =================================================== */
+
+/* --------- FORM BUTTON STYLES -----------------------*/
+
+.formButton {
+	color: ':color-text-form-button' !important;
+	background-color: ':color-background-form-button' !important;
+	text-decoration: none !important;
+	cursor: pointer;
+	border: 1px solid transparent;
+	border-radius: 0px;
+	text-transform: uppercase;
+	font-size: 0.9rem;
+	padding: 4px 6px 4px 6px;
+	line-height: 1.2
+	box-shadow: 0 3px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+
+.formButton:hover, .formButton:focus {
+	color: ':color-text-form-button-hover' !important;
+	background-color: ':color-background-form-button-hover' !important
+}
+
+.formInput, .formSelector {
+	border: 2px solid transparent;
+	border-bottom: 2px solid ':color-border-form-input';
+	border-radius: 2px;
+	color: ':color-text-form-input';
+	background-color: ':color-background-form-input' !important;
+	font-size: 1.0rem;
+	line-height: 1.5;
+	min-height: 2.15rem;
+	padding: 2px 6px 2px 6px;
+	margin-left: auto;
+	margin-right: auto;
+	box-sizing: border-box;
+}
+
+.formInput:hover, .formInput:focus, .formSelector:hover, .formSelector:focus {
+	border: 2px solid ':color-border-form-input';
+	color: ':color-text-form-input-hover';
+	background-color: ':color-background-form-input-hover' !important;
+}
+
+.formlink {
+	cursor: pointer;
+	border: 2px solid transparent;
+	border-radius: 2px;
+	color: ':color-text-link';
+	padding: 2px 6px 2px 6px;
+}
+
+.formlink:hover {
+	color: ':color-text-link-hover-visited';
+}
+
+.helptext {
+	font-size: 0.9rem
+}
+
+.display-only {
+	border:1px solid transparent;
+	background-color:transparent;
+	margin-left: auto;
+	margin-right: auto;
+	box-sizing: border-box;
+}
+
+.display-bold {
+	font-weight:bold;
+	border:1px solid transparent;
+	background-color:transparent;
+	margin-left: auto;
+	margin-right: auto;
+	box-sizing: border-box;
+}
+
+.formTab {
+	border: 2px solid transparent;
+	border-bottom: 2px solid ':color-border-table';
+	border-radius: 2px;
+	color: ':color-text-form-input';
+	font-size: 1.0rem;
+	line-height: 1.5;
+	padding: 2px 6px 2px 6px;
+	margin-left: auto;
+	margin-right: auto;
+	box-sizing: border-box;
+}
+
+.formTab:hover, .formButton:focus {
+	color: ':color-text-form-button-hover' !important;
+	background-color: ':color-background-form-button-hover' !important;
+	cursor: pointer
+}
+
+.formTab-active {
+	border-bottom: 2px solid ':color-background-form-button';
+}
+
+.formDiv {
+	word-wrap:break-word;
+	overflow:hidden;
+	padding:2px;
+}
+
+.formDivHeadline {
+	word-wrap:break-word;
+	overflow:hidden;
+	padding:2px;
+	border-bottom: 2px solid ':color-text-h1-h3';
+}
+.formDivHeadline:hover, .formDivHeadline:focus {
+	border-bottom: 2px solid ':color-border-form-input';
+	background-color: ':color-background-form-input-hover' !important;
+	cursor:pointer;
+}
+
+.formHeadline {
+	color: ':color-text-h1-h3';
+}
+
+.listItem:hover {
+	cursor: pointer;
+	background-color: ':color-background-table-even-rows';
+}
+
+.listInputField, .validityPeriodInputField {
+	border: 2px solid transparent !important;
+}
+
+.listElementFrame {
+	display:flex;
+	flex-direction:row;
+	overflow:hidden;
+}
+
+.listElementAction {
+	text-align:center;
+	padding: 0 5px;
+	line-height:2.5;
+	font-size:1.5em
+}
+
+.listElementAction:hover, .listElementAction:focus {
+	color: ':color-text-form-button-hover' !important;
+	background-color: ':color-background-form-button-hover' !important;
+	cursor: pointer;
+}
+
+/* --------- CHECKBOX AND RADIO BUTTON STYLES ---------*/
+
+/* https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_custom_checkbox */
+/* The container */
+.cb-container {
+	display: block;
+	position: relative;
+	padding-left: 25px;
+	padding-right: 3px;
+	margin-bottom: 6px;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.cb-container input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+/* Create a custom checkbox */
+.cb-checkmark {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 20px;
+	width: 20px;
+	background-color: ':color-background-form-input';
+	border: 1px solid ':color-border-form-input';
+}
+
+/* Create a custom radio */
+.cb-radio {
+	position: absolute;
+	top: 4px;
+	left: 2px;
+	height: 16px;
+	width: 16px;
+	border-radius: 50%;
+	background-color: ':color-background-form-input';
+	border: 1px solid ':color-border-form-input';
+}
+
+/* On mouse-over, add a grey background color */
+.cb-container:hover input ~ .cb-checkmark, .cb-container:hover input 
+	 ~ .cb-radio {
+	background-color: ':color-background-form-input-hover';
+	border: 2px solid ':color-border-form-input';
+}
+
+/* When the checkbox|radio) is checked, add a accent color background */
+.cb-container input:checked ~ .cb-checkmark, .cb-container input:checked 
+	~ .cb-radio {
+	background-color: ':color-background-checkbox-radio-checked';
+}
+
+/* Create the checkmark|radio/indicator (hidden when not checked) */
+.cb-checkmark:after, .cb-radio:after {
+	content: "";
+	position: absolute;
+	display: none;
+}
+
+/* Show the checkmark when checked */
+.cb-container input:checked ~ .cb-checkmark:after,
+	.cb-container input:checked ~ .cb-radio:after {
+	display: block;
+}
+
+/* Style the checkmark/indicator */
+.cb-container .cb-checkmark:after {
+	left: 7px;
+	top: 5px;
+	width: 4px;
+	height: 6px;
+	border: solid white;
+	border-width: 0 2px 2px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+/* Style the radio/indicator */
+.cb-container .cb-radio:after {
+	top: 5px;
+	left: 5px;
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+}
+
+/* --------- SELECT DROPDOWN STYLES -------------------*/
+
+/* https://blog.kulturbanause.de/2015/03/formular-styling-mit-css-select-listen-radio-buttons-und-checkboxen-individuell-gestalten/ */
+/* remove standard-styles */
+select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background-image: url(select-arrow.png);
+	/* URL relative to this style sheet location */
+	background-position: right;
+	background-repeat: no-repeat;
+}
+
+option {
+	background-color: ':color-background-form-input'
+}
+
+/* --------- JAVASCRIPT APPLICATION STYLES ------------*/
+/* =================================================== */
+
+
+/* --------- MODAL DIALOG STYLES ----------------------*/
+
+/* The Modal (background) */
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0, 0, 0); /* Fallback color */
+	background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+	max-width: 960px; /* limit for large window sizes */
+	margin-left: auto; /* 5% from the top and centered */
+	margin-right: auto;
+	margin-bottom: 5%;
+	border: 1px solid transparent;
+	background-color: ':color-background-modal';
+	box-sizing: border-box;
+	padding: 3%;
+}
+
+/* The Close Button */
+.closeModal, .previousModal {
+	float: right;
+	padding: 0 5px;
+	font-size: 2rem;
+	line-height: 0.5;
+	font-weight: bold;
+}
+
+.closeModal:hover, .closeModal:focus, .previousModal:hover, .previousModal:focus {
+	color: ':color-text-form-button-hover' !important;
+	background-color: ':color-background-form-button-hover' !important;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+/* --------- TOP DIALOG STYLES ----------------------*/
+
+/* The Dialog (background) */
+.dialog {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0, 0, 0); /* Fallback color */
+	background-color: rgba(0, 0, 0, 0.2); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.dialog-content {
+	max-width: 800px; /* limit for large window sizes */
+	margin-left: auto; /* 5% from the top and centered */
+	margin-right: auto;
+    margin-bottom: 5%;
+	border: 1px solid transparent;
+	background-color: #f0eded;
+	box-sizing: border-box;
+	padding: 3%;
+}
+
+/* responsive layout definition. */
+@media ( min-width : 1000px) {
+	.modal-content {
+		margin-top: 5%;
+		width: 75%;
+	}
+	.dialog-content {
+		margin-top: 8%;
+		width: 65%;
+	}
+}
+
+/* reduced size, but with side menu */
+@media ( max-width : 999px) and (min-width: 700px) {
+	.modal-content {
+		margin-top: 3%;
+		width: 90%;
+	}
+	.dialog-content {
+		margin-top: 5%;
+		width: 75%;
+	}
+}
+
+/* reduced size, but with side menu */
+@media ( max-width : 699px) {
+	.modal-content {
+		margin-top: 2%;
+		width: 96%;
+	}
+	.dialog-content {
+		margin-top: 3%;
+		width: 90%;
+	}
+}
+
+/* --------- MENU BAR STYLES --------------------------*/
+
+/* bars for the statistics bar chart */
+.bar-container {
+	width: 100%;
+}
+
+.bar {
+	background-color: ':color-border-form-input';
+}
+
+/* --------- AUTOCOMPLETE ITEM STYLES -----------------*/
+
+.autocomplete-items {
+	border: 1px solid ':color-border-autocomplete-items';
+	border-bottom: none;
+	border-top: none;
+	z-index: 99;
+	/*position the autocomplete items to be the same width as the container:*/
+	top: 100%;
+	left: 0;
+	right: 0;
+}
+
+.autocomplete-items div {
+	padding: 10px;
+	cursor: pointer;
+	background-color: ':color-background-form-input';
+	border-bottom: 1px solid ':color-border-autocomplete-items';
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+	background-color: ':color-background-form-input-hover';
+	color: ':color-text-form-input';
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+	background-color: ':color-background-form-input-hover' !important;
+	color: ':color-text-form-input-hover';
+}
+
+/* --------- FORM FIELD VALIDITY MARKER STYLES --------*/
+.guid-valid {
+	border-right: 15px solid #090;       /* RAG - green, for all apps the same */
+}
+
+.guid-off-period {
+	border-right: 15px solid #fc0;       /* RAG - amber, for all apps the same */
+}
+
+.guid-not-found {
+	border-right: 15px solid #c00;       /* RAG - red, for all apps the same */
+}
+
+.guid-not-checked {
+	border-right: 15px solid #acacac;    /* RAG - gray, for all apps the same */
+}

@@ -17,23 +17,21 @@
  * A generic error message display page.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Logger;
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Monitor;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
+use Control\Logger;
+use Control\LoggerSeverity;
+use Control\Monitor;
+use Control\Runner;
+use Control\Sessions;
 include_once "../../tfyh/Control/Logger.php";
 include_once "../../tfyh/Control/LoggerSeverity.php";
 include_once "../../tfyh/Control/Monitor.php";
 include_once "../../tfyh/Control/Runner.php";
 include_once "../../tfyh/Control/Sessions.php";
 
-use tfyh\data\Config;
+use Data\Config;
 include_once "../../tfyh/Data/Config.php";
 
-use tfyh\util\I18n;
+use Util\I18n;
 include_once "../../tfyh/Util/I18n.php";
 
 // ===== read error information first

@@ -1,14 +1,14 @@
 <?php
 
-namespace tfyh\data;
+namespace Data;
 
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
-use tfyh\control\Users;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Control\Sessions;
+use Control\Users;
 // internationalisation support on needed to translate the missingNotice
-use tfyh\util\I18n;
-use tfyh\util\ListHandlerKernel;
+use Util\I18n;
+use Util\ListHandlerKernel;
 
 /**
  * Class responsible for managing indices stored in the $_SESSION super-global to enhance performance throughout a session.
@@ -32,7 +32,7 @@ class Indices
     }
 
     /**
-     * Constructor. Initializes the indices and sets the missingNotice.
+     * Constructor. Initialises the indices and sets the missingNotice.
      */
     private function __construct() {
         $this->init();
@@ -41,7 +41,7 @@ class Indices
     }
 
     /**
-     * Initializer for the indices. Clears or creates the indices if they do not exist.
+     * Initialiser for the indices. Clears or creates the indices if they do not exist.
      * @return void
      */
     private function init(): void {
@@ -133,7 +133,7 @@ class Indices
             $selectString .= ",invalid_from";
         if ($record->item->hasChild($this->userIdFieldName))
             $selectString .= "," . $this->userIdFieldName;
-        // stop here, if there is not uid/uuid provided, like in system tables (archive, changes, rubbish)
+        // stop here if there is not uid/uuid provided, like in system tables (archive, changes, rubbish)
         if (strlen($selectString) == 0)
             return "For table $tableName, there is no uid nor uuid. ";
         $sortField = explode(",", substr($selectString, 1))[0];
@@ -325,7 +325,7 @@ class Indices
     }
 
     /**
-     * Get a new uid which is checked against all existing to be really new. The randomizer has a very low
+     * Get a new uid which is checked against all existing to be really new. The randomiser has a very low
      * probability of 1 in 2.5e14 to generate two identical uids, but who knows. This is secure but requires
      * the full indices loading.
      */

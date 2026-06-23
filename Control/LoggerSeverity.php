@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
 enum LoggerSeverity : string
 {

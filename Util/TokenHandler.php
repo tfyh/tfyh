@@ -13,9 +13,9 @@
  * the License.
  */
 
-namespace tfyh\util;
+namespace Util;
 
-use tfyh\data\Ids;
+use Data\Ids;
 
 /**
  * A utility class to create one-time tokens for user identification.

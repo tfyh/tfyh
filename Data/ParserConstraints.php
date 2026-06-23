@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use DateTimeImmutable;
 use DateTimeZone;

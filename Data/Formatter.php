@@ -13,14 +13,14 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
 use Exception;
 
-use tfyh\util\Language;
+use Util\Language;
 
 /**
  * Handles the formatting of various data types and structures for storage or display

@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 /**
  * class file for simple XML reading without library support.
@@ -35,7 +35,10 @@ class Xml
     {
         // find tag itself
         $posLt = strpos($this->xml, "<", $this->l);
-        $posGt = strpos($this->xml, ">", $posLt + 1);
+        if (($posLt !== false) && ($posLt < strlen($this->xml)))
+            $posGt = strpos($this->xml, ">", $posLt + 1);
+        else
+            $posGt = strlen($this->xml) - 1;
 
         // none to come, return false
         if (($posLt === false) || ($posGt === false))
@@ -99,6 +102,7 @@ class Xml
 
         // read tree recursively from root.
         $closeTag = $this->dataRoot;
+        $tagsCount = 0;
         do {
             // read the tag
             $tag = $this->readTag();
@@ -117,7 +121,8 @@ class Xml
                     $closeTag = $tag;
                 }
             }
-        } while (! is_null($tag));
+            $tagsCount++;
+        } while (! is_null($tag) && ($tagsCount < 1000_000));  // prevent infinite loops
         return $this->dataRoot;
     }
 

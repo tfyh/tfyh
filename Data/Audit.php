@@ -13,9 +13,9 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
-use tfyh\control\Users;
+use Control\Users;
 
 /**
  * Audit the application for security and housekeeping purposes

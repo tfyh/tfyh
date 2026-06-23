@@ -13,11 +13,11 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Ids;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Ids;
 
 /**
  * Class to handle an application sessions pool to manage concurrency and throttle load. Two sorts of sessions
@@ -270,7 +270,7 @@ class Sessions
         $this->user = Users::getInstance()->getEmptyUserRow();
         $this->sessionId = "";
 
-        // get the web session id (= PHP session ID), if no session id is provided.
+        // get the web session id (= PHP session ID) if no session id is provided.
         if (strlen($sessionId) == 0) {
             if (session_status() === PHP_SESSION_NONE)
                 session_start();

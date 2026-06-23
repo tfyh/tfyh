@@ -20,41 +20,17 @@
 // be changed to "no access" - even better: or the form deleted from the site.
 
 // ===== initialize toolbox
-use tfyh\control\Monitor;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\DatabaseSetup;
-use tfyh\data\Findings;
-use tfyh\data\Ids;
-use tfyh\data\Validator;
-use tfyh\util\I18n;
-use tfyh\util\Language;
-include_once "../includeAll.php";
+use Control\Sessions;
+use Data\DatabaseConnector;
+use Data\DatabaseSetup;
+use Data\Findings;
+use Data\Ids;
+use Data\Validator;
 
-// redirect error reporting
-$cwd = getcwd();
-$errorFile = substr($cwd, 0, strrpos($cwd, "/")) . "/Log/php_error.log";
-error_reporting(E_ERROR | E_WARNING);
-ini_set("error_log", $errorFile);
-
-// This script is only used during installation. Access shall be forbidden in normal operation.
-// Therefore, no load throttling or security check is applied.
-$monitor = Monitor::getInstance("web");
-$runner = Runner::getInstance();
-$i18n = I18n::getInstance();
-
-// run parts of the runner start script until database initialisation
-// ===== Config and Monitor must have been initialised by init.php
-$config = Config::getInstance();
-$monitor = Monitor::getInstance();
-
-// ===== load the configuration
-$runner->setFields(__FILE__);
-$config->load();
-$i18n->loadResource(Language::DE);
-$runner->debugOn = $config->getItem(".app.operations.debug_on")->value();
+// reduced init procedure for setup files
+include 'setup_init.php';
+global $config, $i18n, $runner;
+include_once "../../tfyh/init/includeAll.php";
 
 $dbc = DatabaseConnector::getInstance();
 

@@ -13,10 +13,10 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 // internationalisation support needed to translate warning and error messages
-use tfyh\util\I18n;
+use Util\I18n;
 
 /**
  * The Findings class is responsible for managing and categorising findings such as errors and warnings.

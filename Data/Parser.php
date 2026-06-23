@@ -13,13 +13,13 @@
  * the License.
  */
 
-namespace tfyh\data;
+namespace Data;
 
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
 
-use tfyh\util\Language;
+use Util\Language;
 
 /**
  * The Parser class provides methods for cleansing and normalising date, time, and datetime strings

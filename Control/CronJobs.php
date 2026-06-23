@@ -13,10 +13,10 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
-use tfyh\data\Codec;
-use tfyh\data\Audit;
+use Data\Codec;
+use Data\Audit;
 
 /**
  * Static class container file for a daily jobs routine. It may be triggered by whatever, and then checks whether it was

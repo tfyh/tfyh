@@ -17,14 +17,12 @@
  * List display page. Shows either a list of a set or a list itself.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\util\FileHandler;
-use tfyh\util\I18n;
-use tfyh\util\ListHandler;
-use tfyh\util\PivotTable;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Util\FileHandler;
+use Util\I18n;
+use Util\ListHandler;
+use Util\PivotTable;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

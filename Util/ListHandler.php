@@ -12,18 +12,19 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-namespace tfyh\util;
+
+namespace Util;
 
 use DateTimeImmutable;
 use JetBrains\PhpStorm\NoReturn;
 
 include_once "../../tfyh/Util/ListHandlerKernel.php";
 
-use tfyh\control\Sessions;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Formatter;
-use tfyh\data\ParserName;
-use tfyh\data\Validator;
+use Control\Sessions;
+use Data\DatabaseConnector;
+use Data\Formatter;
+use Data\ParserName;
+use Data\Validator;
 
 /**
  * This class provides a list segment for a web file. <p>The definition must be a CSV-file, all entries

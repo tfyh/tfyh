@@ -13,12 +13,10 @@
  * the License.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\util\I18n;
-use tfyh\util\ListHandler;
+use Control\Runner;
+use Data\Config;
+use Util\I18n;
+use Util\ListHandler;
 
 /**
  * Page display file. lists available for data analysis

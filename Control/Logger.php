@@ -13,18 +13,18 @@
  * the License.
  */
 
-namespace tfyh\control;
+namespace Control;
 
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
 
-use tfyh\data\Codec;
-use tfyh\data\Formatter;
-use tfyh\data\ParserName;
-use const tfyh\data\DEFAULT_TIME_ZONE;
-use tfyh\util\FileHandler;
-use tfyh\util\Language;
+use Data\Codec;
+use Data\Formatter;
+use Data\ParserName;
+use const Data\DEFAULT_TIME_ZONE;
+use Util\FileHandler;
+use Util\Language;
 
 /**
  * Log file size limit. If exceeded, it is copied to a previous log file, and a new log file is created.

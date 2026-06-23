@@ -17,7 +17,7 @@ namespace tfyh\api;
 
 // TODO: normalisieren!
 include_once "../../dilbo/App/DilboCronJobs.php";
-use dilbo\app\DilboCronJobs;
+use dilbo\DilboCronJobs;
 
 use tfyh\control\LoggerSeverity;
 use tfyh\control\Runner;

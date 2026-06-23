@@ -13,9 +13,9 @@
  * the License.
  */
 
-namespace tfyh\api;
+namespace Api;
 
-use tfyh\data\Record;
+use Data\Record;
 
 interface PreModificationCheck
 {

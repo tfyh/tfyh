@@ -13,17 +13,15 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\util\Form;
-use tfyh\util\FormBuilder;
-use tfyh\util\I18n;
-use tfyh\util\MailHandler;
-use tfyh\util\TokenHandler;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Data\Config;
+use Data\DatabaseConnector;
+use Util\Form;
+use Util\FormBuilder;
+use Util\I18n;
+use Util\MailHandler;
+use Util\TokenHandler;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

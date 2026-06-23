@@ -13,16 +13,14 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\Runner;
-use tfyh\data\Codec;
-use tfyh\data\Config;
-use tfyh\data\Findings;
-use tfyh\data\Record;
-use tfyh\util\Form;
-use tfyh\util\FormBuilder;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\Codec;
+use Data\Config;
+use Data\Findings;
+use Data\Record;
+use Util\Form;
+use Util\FormBuilder;
+use Util\I18n;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

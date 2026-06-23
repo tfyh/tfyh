@@ -13,21 +13,19 @@
  * the License.
  */
 
-namespace tfyh\forms;
-
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Formatter;
-use tfyh\data\Ids;
-use tfyh\data\Indices;
-use tfyh\data\Parser;
-use tfyh\data\ParserName;
-use tfyh\data\Record;
-use tfyh\util\Form;
-use tfyh\util\I18n;
-use tfyh\util\Language;
+use Control\LoggerSeverity;
+use Control\Runner;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Formatter;
+use Data\Ids;
+use Data\Indices;
+use Data\Parser;
+use Data\ParserName;
+use Data\Record;
+use Util\Form;
+use Util\I18n;
+use Util\Language;
 
 /**
  * The form to edit an arbitrary record. This is the generic container, while the form is provided by the Form class.

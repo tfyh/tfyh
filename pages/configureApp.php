@@ -17,11 +17,9 @@
  * An overview on all accesses currently granted.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\Config;
+use Util\I18n;
 
 // ===== initialize
 $userRequestedFile = __FILE__;

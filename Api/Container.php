@@ -13,15 +13,15 @@
  * the License.
  */
 
-namespace tfyh\api;
+namespace Api;
 
 use JetBrains\PhpStorm\NoReturn;
 
-use tfyh\control\LoggerSeverity;
-use tfyh\control\Monitor;
-use tfyh\control\Runner;
-use tfyh\control\Sessions;
-use tfyh\data\Codec;
+use Control\LoggerSeverity;
+use Control\Monitor;
+use Control\Runner;
+use Control\Sessions;
+use Data\Codec;
 
 /**
  * A singleton class to handle the transaction container.
@@ -53,6 +53,12 @@ class Container
     public array $txs;
 
     /**
+     *  Parse a request container according to the API format definition and put it to the $this->txc
+     *  variable for further processing. The header is checked for a version, containerID, user and password
+     *  entry, and at least one transaction. All these elements must be present, the first three numeric. If an error
+     *  occurs, parsing stops and returns the error description, which is also put to $this->txc[ "containerResultMessage"].
+     *  If all is fine, it returns an empty String.
+     *
      * @param string $txcBase64Api the base64-encoded transaction container.
      * @return String the error message, if any, or an empty String if parsing was successful.
      */
@@ -203,14 +209,8 @@ class Container
     }
 
     /**
-     * Parse a request container according to the API format definition and put it to the $this->txc
-     * variable for further processing. The header is checked for a version, containerID, user and password
-     * entry, and at least one transaction. All these elements must be present, the first three numeric. If an error
-     * occurs, parsing stops and returns the error description, which is also put to $this->txc[ "containerResultMessage"].
-     * If all is fine, it returns an empty String.
-     */
-
-    /**
+     * Return the singleton instance of the Container class.
+     *
      * @return Container the singleton instance of the Container class.
      */
     public static function getInstance(): Container

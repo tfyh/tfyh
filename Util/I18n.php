@@ -13,7 +13,7 @@
  * the License.
  */
 
-namespace tfyh\util;
+namespace Util;
 
 class I18n {
     private static I18n $instance;

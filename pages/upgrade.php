@@ -13,17 +13,13 @@
  * the License.
  */
 
-namespace tfyh\pages;
-
-use ZipArchive;
-
-use tfyh\control\Runner;
-use tfyh\data\Audit;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\data\Formatter;
-use tfyh\util\FileHandler;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\Audit;
+use Data\Config;
+use Data\DatabaseConnector;
+use Data\Formatter;
+use Util\FileHandler;
+use Util\I18n;
 
 /**
  * The application software upgrade page.
@@ -165,7 +161,7 @@ if (! isset($_GET["upgrade"])) {
     // Set directory access rights and audit the upgrade result.
     // ==============================================================================================
     $audit = new Audit();
-    $audit->setDirectoriesAccessRights();
+    $audit->setDirectoriesAccessRights($runner->appRoot, 0, false);
     $audit->runAudit();
     echo "<h5>" . $i18n->t("RHFSbA|Checking the result") . "</h5>";
     echo "<p>" . $i18n->t("RGjcvy|Done. For the audit prot...") . '</p>';
@@ -177,8 +173,8 @@ if (! isset($_GET["upgrade"])) {
     // ==============================================================================================
     // initialize the version, if the respective script is available.
     // ==============================================================================================
-    if (file_exists("../tfyh/Control/initVersion.php")) {
-        include "../tfyh/Control/initVersion.php";
+    if (file_exists("../../tfyh/init/initVersion.php")) {
+        include "../../tfyh/init/initVersion.php";
     }
 }
 $runner->endScript();

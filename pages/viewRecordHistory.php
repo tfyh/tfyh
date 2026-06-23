@@ -13,12 +13,10 @@
  * the License.
  */
 
-namespace tfyh\pages;
-
-use tfyh\control\Runner;
-use tfyh\data\Config;
-use tfyh\data\DatabaseConnector;
-use tfyh\util\I18n;
+use Control\Runner;
+use Data\Config;
+use Data\DatabaseConnector;
+use Util\I18n;
 
 /**
  * Display the record history in a human-readable form.
