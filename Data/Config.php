@@ -15,6 +15,7 @@
 
 namespace Data;
 
+use DateTime;
 use DateTimeZone;
 
 include_once '../../tfyh/Data/Item.php';
@@ -111,6 +112,7 @@ class Config
     private array $loaded = [];
     private Language $language = Language::DE;
     private DateTimeZone $timeZone;
+    private int $timezoneOffset;
 
     public Logger $logger;
 
@@ -125,6 +127,9 @@ class Config
         // while monitor and runner share the same session type logger, the configuration errors and warnings
         // get a different one because they will reissue the same warnings on every page.
         $this->logger = new Logger("../../var/Log/config.log");
+        $dateTime = new DateTime();
+        $this->timeZone = $dateTime->getTimezone();
+        $this->timezoneOffset = $this->timeZone->getOffset($dateTime);
     }
 
     /**

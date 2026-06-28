@@ -496,7 +496,7 @@ class Record {
         let usedFields = {}
 
         let currentTemplate = ""
-        for (let templateDefinition in recordTemplates) {
+        for (let templateDefinition of recordTemplates) {
             let pair = templateDefinition.split(":")
             let nextTemplate = templateDefinition.substring(templateDefinition.indexOf(":") + 1).trim()
             currentTemplate = (nextTemplate.startsWith("~"))
@@ -508,7 +508,7 @@ class Record {
 
         let historyFieldName = config.getItem(".framework.database_connector.history").valueStr()
         let language = config.language()
-        for (let child in this.#item.getChildren()) {
+        for (let child of this.#item.getChildren()) {
             let token = "{#" + child.name() + "#}"
             if (recordTemplate.indexOf(token) >= 0) {
                 if (getFields) {

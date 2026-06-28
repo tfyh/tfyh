@@ -125,7 +125,6 @@ class WordIndex
         foreach ($searchResultAllWords as $uid) {
             // the $this->find_result is a two-level array: per table and per record
             $tableName = $this->uids[$uid];
-            $record = [];
             if (!isset($this->findResult[$tableName]))
                 $this->findResult[$tableName] = [];
             if (isset($tableName)) {
@@ -142,38 +141,39 @@ class WordIndex
                         $sql .= ", `" . $child->name() . "`";
                     }
                 }
-                $row = [];
                 $sql = $sql . " FROM `" . $tableName . "` WHERE `uid` = '" . $uid . "';";
                 $res = DatabaseConnector::getInstance()->customQuery($sql, $this);
-                if (isset($res->num_rows) && (intval($res->num_rows) > 0))
+                if (isset($res->num_rows) && (intval($res->num_rows) > 0)) {
                     $row = $res->fetch_row();
-                $c = 0;
-                $toParse = [];
-                foreach ($columns as $column)
-                    $toParse[$column] = $row[$c++];
-                $recordHandler->parse($toParse, Language::SQL);
-                $record["@short"] = $recordHandler->recordToTemplate("short");
-                $record["@in_fields"] = "";
-                $record["@display_as"] = "";
-                $c = 0;
-                foreach ($columns as $column) {
-                    if (!is_null($row[$c]) && $recordItem->hasChild($column)) {
-                        $record[$column] = $row[$c];
-                        $child = $recordItem->getChild($column);
-                        $label = $child->label();
-                        foreach ($words as $word)
-                            if (str_contains(self::toLowerAscii($row[$c]), $word)) {
-                                $record["@in_fields"] .= $label . ", ";
-                                $valueNative = Parser::parse($row[$c], $child->type()->parser(), $language);
-                                $displayAs = Formatter::format($valueNative, $child->type()->parser());
-                                $record["@display_as"] .= $displayAs . ", ";
-                                $record["@bold_where_is"] = self::boldWhereIs($displayAs, $word);
-                            }
+                    $c = 0;
+                    $toParse = [];
+                    foreach ($columns as $column)
+                        $toParse[$column] = $row[$c++];
+                    $recordHandler->parse($toParse, Language::SQL);
+                    $record = [];
+                    $record["@short"] = $recordHandler->recordToTemplate("short");
+                    $record["@in_fields"] = "";
+                    $record["@display_as"] = "";
+                    $c = 0;
+                    foreach ($columns as $column) {
+                        if (!is_null($row[$c]) && $recordItem->hasChild($column)) {
+                            $record[$column] = $row[$c];
+                            $child = $recordItem->getChild($column);
+                            $label = $child->label();
+                            foreach ($words as $word)
+                                if (str_contains(self::toLowerAscii($row[$c]), $word)) {
+                                    $record["@in_fields"] .= $label . ", ";
+                                    $valueNative = Parser::parse($row[$c], $child->type()->parser(), $language);
+                                    $displayAs = Formatter::format($valueNative, $child->type()->parser());
+                                    $record["@display_as"] .= $displayAs . ", ";
+                                    $record["@bold_where_is"] = self::boldWhereIs($displayAs, $word);
+                                }
+                        }
+                        $c++;
                     }
-                    $c++;
+                    $this->findResult[$tableName][$uid] = $record;
                 }
             }
-            $this->findResult[$tableName][$uid] = $record;
         }
     }
 

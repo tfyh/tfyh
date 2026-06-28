@@ -508,7 +508,7 @@ class Runner
         $this->checkContext();
 
         // ===== control the form sequence, except for calls of the jsGet.php page or the api.
-        $isJsGet = $this->userRequestedAction === "../../tfyh/pages/jsGet.php";
+        $isJsGet = $this->userRequestedAction === "tfyh/pages/jsGet.php";
         if (! $isJsGet) {
             if (!$this->isUserRequestForForm && ($userId == -1)) {
                 // drop web session if an anonymous user requests anything different from a form.
