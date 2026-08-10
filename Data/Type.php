@@ -15,10 +15,9 @@
 
 namespace Data;
 
-use DateTimeImmutable;
-
 include_once '../../tfyh/Data/PropertyName.php';
 
+use Data\NoZoneDateTime; // Import needed for return type declaration
 use Util\I18n;
 
 /**
@@ -102,7 +101,7 @@ class Type
     public function parser(): ParserName {
         return $this->parser;
     }
-    public function defaultValue(): bool|int|float|DateTimeImmutable|string|array {
+    public function defaultValue(): bool|int|float|NoZoneDateTime|string|array {
         return $this->properties[PropertyName::DEFAULT_VALUE->value] ?? ParserConstraints::empty($this->parser);
     }
     // localised, i.e. translated properties
@@ -119,10 +118,10 @@ class Type
     public function nodeReadPermissions(): string { return strval($this->properties[PropertyName::NODE_READ_PERMISSIONS->value] ?? ""); }
 
     // Types are immutable and do not have actual values.
-    public function valueMin(): bool|int|float|DateTimeImmutable|string|array {
+    public function valueMin(): bool|int|float|NoZoneDateTime|string|array {
         return $this->properties[PropertyName::VALUE_MIN->value] ?? ParserConstraints::min($this->parser);
     }
-    public function valueMax(): bool|int|float|DateTimeImmutable|string|array {
+    public function valueMax(): bool|int|float|NoZoneDateTime|string|array {
         return $this->properties[PropertyName::VALUE_MAX->value] ?? ParserConstraints::max($this->parser);
     }
     public function valueSize(): int { return intval($this->properties[PropertyName::VALUE_SIZE->value] ?? "0"); }

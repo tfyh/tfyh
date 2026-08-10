@@ -353,7 +353,7 @@ class Parser {
     }
 
     /**
-     * Convert a datetime String to a DateTimeImmutable Object. If no time is given, the current
+     * Convert a datetime String to a NoZoneDateTime Object. If no time is given, the current
      * time is inserted. In case of errors, this will return Constraints.empty(Name.DATETIME)
      */
     static #parseDateTime(datetimeString, language = Parser.#language) {

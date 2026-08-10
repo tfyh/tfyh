@@ -21,7 +21,7 @@ interface PreModificationCheck
 {
     /**
      * Run application-specific semantic checks or evaluations on the parsed record. This may modify the record's
-     * values without further notice, e.g. by lookup of Ids or similar
+     * values without further notice, e.g. by lookup of Ids or similar. It shall notice warnings and errors to the findings class.
      * @param Record $record the record to check. Make sure to parse the content into it before calling the preModificationCheck().
      * @param int $mode 1 = insert, 2 = update, 3 = delete
      * @return bool true, if all checks were successful

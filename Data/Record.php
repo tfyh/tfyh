@@ -15,8 +15,6 @@
 
 namespace Data;
 
-use DateTimeImmutable;
-
 include_once '../../tfyh/Api/PreModificationCheck.php';
 use Api\PreModificationCheck;
 
@@ -24,6 +22,9 @@ use Control\LoggerSeverity;
 use Control\Runner;
 use Control\Sessions;
 use Control\Users;
+
+use Data\NoZoneDateTime; // Import needed for return type declaration
+
 // internationalisation support needed to reflect validation or database storage errors and for formatting
 // to HTML for user display
 use Util\I18n;
@@ -36,7 +37,7 @@ use Util\Language;
  * that interacts with configurable data tables, handling operations such as copying
  * common fields, parsing rows, and enforcing user-based permissions.
  */
-class Record implements PreModificationCheck
+class Record
 {
 
     /**
@@ -129,7 +130,7 @@ class Record implements PreModificationCheck
     public function __construct(Item $item, PreModificationCheck $preModificationCheck = null)
     {
         $this->item = $item;
-        $this->preModificationCheck = (is_null($preModificationCheck)) ? $this : $preModificationCheck;
+        $this->preModificationCheck = (is_null($preModificationCheck)) ? null : $preModificationCheck;
         $this->actualValues = [];
     }
 
@@ -234,9 +235,9 @@ class Record implements PreModificationCheck
      * Get the value of a field. Return the default if the actual value is empty. Returns false if $name is not a name
      * of a record field. That should actually never happen.
      * @param string $name the name of the field to get the value of.
-     * @return bool|DateTimeImmutable|float|int|string|array the value of the field.
+     * @return bool|NoZoneDateTime|float|int|string|array the value of the field.
      */
-    public function value(string $name): bool|DateTimeImmutable|float|int|string|array
+    public function value(string $name): bool|NoZoneDateTime|float|int|string|array
     {
         $field = $this->item->getChild($name);
         if (is_null($field))
@@ -649,15 +650,6 @@ class Record implements PreModificationCheck
     }
 
     /**
-     * This implementation always returns true.
-     */
-    // TODO: check what this was meant for
-    public function isOk(Record $record, int $mode): bool
-    {
-        return true;
-    }
-
-    /**
      * Write the row to the database. This will store all actual values, but only these.
      * @param Record $record the record to store.
      * @param int $mode the mode to use for storing.
@@ -785,11 +777,18 @@ class Record implements PreModificationCheck
         // parse the provided record
         Findings::clearFindings();
         $changesToActualValues = $this->parse($row, $language, true);
-        // do semantic checks and modifications
-        $this->preModificationCheck->isOk($this, $mode);
         // for insert and update validate it against the record configuration
-        if (($mode == 1) || ($mode == 2))
+        if (($mode == 1) || ($mode == 2)) {
             $this->validate();
+            // do semantic checks and modifications
+            try {
+                $this->preModificationCheck->isOk($this, $mode);
+            } catch (\Exception $e) {
+                Findings::addFinding(17, 'Record->modify(): no PreModificationCheck provided.');
+            }
+        }
+        if (Findings::countErrors() > 0)
+            return "!" . Findings::getFindings(false);
         // and modify
         $modificationSuccess = $this->store($this, $mode, $verifyOnly);
         if (!$modificationSuccess)

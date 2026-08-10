@@ -15,7 +15,6 @@
 
 namespace Data;
 
-use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
 
@@ -76,11 +75,11 @@ class Parser
         // else to be the day of the month and add month and year
         try {
             // during bootstrap self::$timeZone my not yet be initialised
-            $now = new DateTimeImmutable("now", (isset(self::$timeZone)) ? self::$timeZone : null);
+            $now = new NoZoneDateTime();
         } catch (Exception) {
             $now = ParserConstraints::empty(ParserName::DATE);
         }
-        $nowMonth = intval($now->format("m"));
+        $nowMonth = $now->month();
         $lastDayOfMonth = match ($nowMonth) {
             4,6,9,11 => 30,
             2 => 28,  // no leap year support in date autocompletion.
@@ -103,7 +102,7 @@ class Parser
         $yearIsFirst = str_starts_with(strtolower($dateTemplate), "y");
         // if just two integers were detected, assume that the year is missing and add the
         // current year
-        $nowYear = intval($now->format("Y"));
+        $nowYear = $now->year();
         if ((count($parts) == 2) || ((count($parts) == 3) && (strlen($parts[2]) == 0))) {
             $y = $nowYear;
             $m = ($yearIsFirst) ? $partsInt[0] : $partsInt[1];
@@ -111,8 +110,8 @@ class Parser
             if (($m >= 1) && ($m <= 12) && ($d >= 1) && ($d <= $lastDayOfMonth))
                 // try to build a date, causes an exception if invalid
                 try {
-                    $date = new DateTimeImmutable("$y-$m-$d");
-                    return $date->format("Y-m-d");
+                    $date = new NoZoneDateTime("$y-$m-$d");
+                    return $date->toDateString(Language::CSV);
                 } catch (Exception) {
                     Findings::addFinding(1, $dateString);
                     return null;
@@ -137,8 +136,8 @@ class Parser
         try {
             $m = $partsInt[1];
             $d = $partsInt[($yearIsFirst) ? 2 : 0];
-            $date = new DateTimeImmutable("$y-$m-$d");
-            return $date->format("Y-m-d");
+            $date = new NoZoneDateTime("$y-$m-$d");
+            return $date->toDateString(Language::CSV);
         } catch (Exception) {
             Findings::addFinding(1, $dateString);
             return null;
@@ -211,10 +210,10 @@ class Parser
      * @param mixed $value The value to be parsed.
      * @param ParserName $parser The parser to be used for parsing.
      * @param Language $language The language of the value used for parsing.
-     * @return bool|int|float|DateTimeImmutable|string|array The parsed value.
+     * @return bool|int|float|NoZoneDateTime|string|array The parsed value.
      */
     public static function parse (mixed $value, ParserName $parser, Language $language):
-        bool|int|float|DateTimeImmutable|string|array
+        bool|int|float|NoZoneDateTime|string|array
     {
         if (gettype($value) != "string") {
             if (self::isMatchingNative($value, $parser))
@@ -319,30 +318,20 @@ class Parser
         return $sign * (abs(intval($hms[0])) * 3600 + intval($hms[1]) * 60 + intval($hms[2]));
     }
 
-    private static function parseDate (String $date_string, Language $language): DateTimeImmutable
+    private static function parseDate (String $date_string, Language $language): NoZoneDateTime
     {
         $dateString = self::cleanseDate($date_string, $language);
         if (is_null($dateString) || (strlen($dateString) == 0))
             return ParserConstraints::empty(ParserName::DATE);
-        $dti = date_create_immutable($dateString);
-        if ($dti === false) {
-            Findings::addFinding(2, $date_string);
-            return ParserConstraints::empty(ParserName::DATE);
-        }
-        return $dti;
+        return NoZoneDateTime::parse($dateString . " 00:00:00");
     }
 
-    private static function parseDatetime (String $datetime_string, Language $language): DateTimeImmutable
+    private static function parseDatetime (String $datetime_string, Language $language): NoZoneDateTime
     {
         $datetime = self::cleanseDatetime($datetime_string, $language);
         if (is_null($datetime) || (strlen($datetime) == 0))
             return ParserConstraints::empty(ParserName::DATETIME);
-        $dti = date_create_immutable($datetime);
-        if ($dti === false) {
-            Findings::addFinding(2, $datetime_string);
-            return ParserConstraints::empty(ParserName::DATETIME);
-        }
-        return $dti;
+        return NoZoneDateTime::parse($datetime_string);
     }
 
     /**
@@ -398,8 +387,8 @@ class Parser
             // NB: Due to the 32-bit integer restriction, the native type for long is also float, but this cannot be
             // distinguished
             return ParserName::DOUBLE;
-        if ($value instanceof DateTimeImmutable) {
-            if ($value->format("H:i:s") === "00:00:00")
+        if ($value instanceof NoZoneDateTime) {
+            if (strcmp($value->toTimeString(), "00:00:00") == 0)
                 return ParserName::DATE;
             else
                 return ParserName::DATETIME;
@@ -426,7 +415,7 @@ class Parser
             ParserName::LONG,  // no native Long in PHP, use float
             ParserName::DOUBLE => (gettype($value) == "double"),
             ParserName::DATE,
-            ParserName::DATETIME => (gettype($value) == "object") && (get_class($value) == "DateTimeImmutable"),
+            ParserName::DATETIME => (gettype($value) == "object") && (get_class($value) == "Data\NoZoneDateTime"),
             ParserName::STRING => (gettype($value) == "string"),
             ParserName::STRING_LIST => (gettype($value) == "array") && ((count($value) == 0) || (gettype($value[0]) == "string")),
             ParserName::NONE => true,

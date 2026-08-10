@@ -15,14 +15,13 @@
 
 namespace Control;
 
-use DateTimeImmutable;
-use DateTimeZone;
 use Exception;
 
 use Data\Codec;
 use Data\Formatter;
+use Data\NoZoneDateTime;
 use Data\ParserName;
-use const Data\DEFAULT_TIME_ZONE;
+
 use Util\FileHandler;
 use Util\Language;
 
@@ -38,8 +37,6 @@ const LOG_FILE_SIZE = 250_000;
 class Logger
 {
     private String $filePath;
-    private Language $language = Language::EN;
-    private DateTimeZone $timeZone;
 
     public function __construct(String $filePath) {
         $this->filePath = $filePath;
@@ -48,14 +45,6 @@ class Logger
             if (!file_exists($logDir))
                 mkdir($logDir, 0777, true);
         }
-        // do not Use DEFAULT_TIME_ZONE constant to avoid the need for the data/config loading here.
-        $this->timeZone = new DateTimeZone("Europe/Berlin");
-    }
-
-    public function setLocale(Language $language, DateTimeZone $timeZone = null): void
-    {
-        $this->language = $language;
-        $this->timeZone = (is_null($timeZone)) ? new DateTimeZone(DEFAULT_TIME_ZONE) : $timeZone;
     }
 
     public static function rotateIfNeeded(string $filename, string $headline): void {
@@ -75,8 +64,8 @@ class Logger
     public function log(LoggerSeverity $severity, String $caller, String $message): void
     {
         try {
-            $now = new DateTimeImmutable("now", $this->timeZone);
-            $logLine = Formatter::format($now, ParserName::DATETIME, $this->language);
+            $now = new NoZoneDateTime();
+            $logLine = Formatter::format($now, ParserName::DATETIME, Language::EN);
         } catch (Exception) {
             $logLine = "date-and-time";
         }

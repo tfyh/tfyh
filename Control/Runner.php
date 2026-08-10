@@ -321,10 +321,9 @@ class Runner
         else
             $userToLogin = Record::parseRow($userToLogin, $users->userTableName, Language::SQL);
         $userId = $userToLogin[$users->userIdFieldName];
-
         // get the password hash. External authentication providers get preference, abort on error.
         $passwordHash = "-";
-        $authProviderClassFile = "../Authentication/AuthProvider.php";
+        $authProviderClassFile = "../../tfyh/Authentication/AuthProvider.php";
         if (file_exists($authProviderClassFile)) {
             include_once $authProviderClassFile;
             $authProvider = new AuthProvider();
@@ -337,7 +336,6 @@ class Runner
             $this->rejectUser(-2, $errorMessage);
             return $errorMessage;
         }
-
         // verify the password
         if (password_verify($password, $passwordHash)) {
             $this->loginUser($userId);

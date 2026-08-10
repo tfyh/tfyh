@@ -15,8 +15,6 @@
 
 namespace Data;
 
-use DateTimeImmutable;
-
 include_once '../../tfyh/Data/ParserName.php';
 include_once '../../tfyh/Data/Parser.php';
 
@@ -97,11 +95,11 @@ class Property {
     /**
      * Make sure that objects are really copied instead of referencing them for date and datetime.
      * @param mixed $value the value to copy
-     * @return array|bool|DateTimeImmutable|float|int|mixed|string the copy or clone in case of DateTimeImmutable.
+     * @return array|bool|NoZoneDateTime|float|int|mixed|string the copy or clone in case of NoZoneDateTime.
      */
     static function copyOfValue(mixed $value): mixed
     {
-         if ((gettype($value) === "object") && (get_class($value) === "DateTimeImmutable"))
+         if ((gettype($value) === "object") && (get_class($value) === "NoZoneDateTime"))
              return Parser::parse(Formatter::format($value, ParserName::DATETIME, Language::CSV),
                  ParserName::DATETIME, Language::CSV);
         else

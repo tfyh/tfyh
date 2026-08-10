@@ -16,8 +16,12 @@
 use Control\Monitor;
 use Control\Runner;
 
+use Data\NoZoneDateTime;
+
 // include statements are inserted later in the script code for performance reasons
 
+include_once "../../tfyh/Data/NoZoneDateTime.php";
+NoZoneDateTime::tester(30000);
 const HITS_PER_SECOND_MAX = 2.0;
 // ===== Redirect in case of maintenance
 $maintenanceUntil = file_get_contents("../../maintenance.until");

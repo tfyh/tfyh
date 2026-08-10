@@ -15,8 +15,6 @@
 
 namespace Data;
 
-use DateTimeImmutable;
-use DateTimeZone;
 use Exception;
 
 /**
@@ -51,21 +49,24 @@ class ParserConstraints
     const FOREVER_SECONDS = 9.223372e+15;
 
     // the native value for local dates is also localDateTime to simplify handling
-    private static DateTimeImmutable $DATETIME_EMPTY;
-    public static DateTimeImmutable $DATETIME_MIN;
-    public static DateTimeImmutable $DATETIME_MAX;
+    private static NoZoneDateTime $DATETIME_EMPTY;
+    public static NoZoneDateTime $DATETIME_MIN;
+    public static NoZoneDateTime $DATETIME_MAX;
 
     // only for the PHP part, because the class initialiser cannot handle expressions
     public static function init(): void
     {
-        // for setting the limits, the timezone does not matter.
-        $utc_timezone = new DateTimeZone("UTC");
         // in October 1582 there was a gap between the 4th and the 15th to change from the Julian
-        // to the Gregorian calendar. Do not allow dates before that point in time.
+        // to the Gregorian calendar. Same thing happened in Great Britain only in 1753. Details see
+        // https://dev.mysql.com/doc/refman/8.4/en/mysql-calendar.html. The MS SQL Server therefore
+        // limits the Dattime data type to dates from 1753-01-01 onwards. See:
+        // https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime-transact-sql?view=sql-server-ver17
+        // For a wider range of dates one could use the Datetime2 data type, but this is not
+        // available in MySQL. And the framework is meant to be implementation agnostic.
         try {
-            self::$DATETIME_EMPTY = new DateTimeImmutable("1582-12-31 00:00:00", $utc_timezone);
-            self::$DATETIME_MIN = new DateTimeImmutable("1583-01-01 00:00:00", $utc_timezone);
-            self::$DATETIME_MAX = new DateTimeImmutable("2999-12-31 23:59:59", $utc_timezone);
+            self::$DATETIME_EMPTY = new NoZoneDateTime("1753-01-01 00:00:00");
+            self::$DATETIME_MIN = new NoZoneDateTime("1753-01-02 00:00:00");
+            self::$DATETIME_MAX = new NoZoneDateTime("2999-12-31 23:59:59");
         } catch (Exception) {
             // ignored. DateTimeFormat Exceptions cannot appear because al values are proven literals
         }
@@ -86,7 +87,7 @@ class ParserConstraints
     /* ----- MIN, MAX, DEFAULT AND EMPTY VALUES ------------------------------- */
     /* ------------------------------------------------------------------------ */
 
-    public static function max(ParserName $parser): bool|int|float|DateTimeImmutable|string|array
+    public static function max(ParserName $parser): bool|int|float|NoZoneDateTime|string|array
     {
         return match ($parser) {
             ParserName::BOOLEAN => true,
@@ -102,7 +103,7 @@ class ParserConstraints
         };
     }
 
-    public static function min(ParserName $parser): bool|int|float|DateTimeImmutable|string|array
+    public static function min(ParserName $parser): bool|int|float|NoZoneDateTime|string|array
     {
         return match ($parser) {
             ParserName::BOOLEAN => true,
@@ -118,7 +119,7 @@ class ParserConstraints
         };
     }
 
-    public static function empty(ParserName $parser): bool|int|float|DateTimeImmutable|string|array
+    public static function empty(ParserName $parser): bool|int|float|NoZoneDateTime|string|array
     {
         return match ($parser) {
             ParserName::BOOLEAN => false,

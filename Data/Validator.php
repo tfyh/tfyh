@@ -15,8 +15,6 @@
 
 namespace Data;
 
-use DateTimeImmutable;
-
 // internationalisation support needed to reflect validation errors such as for a password, an IBAN or similar.
 use Util\I18n;
 
@@ -58,12 +56,12 @@ class Validator {
 
     /**
      * Create a difference statement for two values.
-     * @param array|bool|DateTimeImmutable|float|int|string|null $a a value to be compared
-     * @param array|bool|DateTimeImmutable|float|int|string|null $b the other value to be compared
+     * @param array|bool|NoZoneDateTime|float|int|string|null $a a value to be compared
+     * @param array|bool|NoZoneDateTime|float|int|string|null $b the other value to be compared
      * @return String a statement describing the differences between the two values.
      */
-    private static function diffSingle (array|bool|DateTimeImmutable|float|int|string|null $a,
-                                        array|bool|DateTimeImmutable|float|int|string|null $b): String
+    private static function diffSingle (array|bool|NoZoneDateTime|float|int|string|null $a,
+                                        array|bool|NoZoneDateTime|float|int|string|null $b): String
     {
         $diff = "";
         $i18n = I18n::getInstance();
@@ -99,12 +97,11 @@ class Validator {
             // only DateTimImmutable objects are allowed in the Tfyh data context as value objects
             if (! is_object($b))
                 $diff .= $i18n->t("8qn1n1|A is object, B not.");
-            elseif (strcasecmp(get_class($a), "DateTimeImmutable") != 0)
+            elseif (strcasecmp(get_class($a), "NoZoneDateTime") != 0)
                 $diff .= $i18n->t("OHYGer|A is object, but not a D...");
-            elseif (strcasecmp(get_class($b), "DateTimeImmutable") != 0)
-                $diff .= $i18n->t("K8RkEM|A is DateTimeImmutable, ...");
-            $diff .= ((strcmp($a->format("Y-m-d H:i:s"), $b->format("Y-m-d H:i:s")) == 0)) ? "" : $i18n->t(
-                "z5G34s|datetime A != datetime B...");
+            elseif (strcasecmp(get_class($b), "NoZoneDateTime") != 0)
+                $diff .= $i18n->t("K8RkEM|A is NoZoneDateTime, ...");
+            $diff .= (($a->compareTo($b) == 0)) ? "" : $i18n->t("z5G34s|datetime A != datetime B...");
         } elseif (is_string($a)) // String
             $diff .= (is_string($b)) ? ((strcmp($a, $b) == 0) ? "" : $i18n->t("fkVBQK|string A differs from st...")) : $i18n->t(
                 "y5iS0B|A is a string, B not.");
@@ -130,12 +127,12 @@ class Validator {
 
     /**
      * Check whether two values of data are equal.
-     * @param array|bool|DateTimeImmutable|float|int|string $a a value to be compared
-     * @param array|bool|DateTimeImmutable|float|int|string $b the other value.
+     * @param array|bool|NoZoneDateTime|float|int|string $a a value to be compared
+     * @param array|bool|NoZoneDateTime|float|int|string $b the other value.
      * @return bool true, if the values are equal, false otherwise.
      */
-    public static function isEqualValues(array|bool|DateTimeImmutable|float|int|string $a,
-                                         array|bool|DateTimeImmutable|float|int|string $b): bool {
+    public static function isEqualValues(array|bool|NoZoneDateTime|float|int|string $a,
+                                         array|bool|NoZoneDateTime|float|int|string $b): bool {
         return (strlen(self::diffSingle($a, $b)) == 0);
     }
 
@@ -146,11 +143,11 @@ class Validator {
     /**
      * Check whether a value fits the native PHP type matching the type
      * constraints.
-     * @param bool|int|float|DateTimeImmutable|string $value the value to be checked
+     * @param bool|int|float|NoZoneDateTime|string $value the value to be checked
      * @param Type $type the type to be checked against
      * @return bool true, if the value fits the type, false otherwise.
      */
-    public static function isMatchingType (bool|int|float|DateTimeImmutable|string $value, Type $type): bool
+    public static function isMatchingType (bool|int|float|NoZoneDateTime|string $value, Type $type): bool
     {
         if (!Parser::isMatchingNative($value, $type->parser())) {
             Findings::addFinding(13, Formatter::format($value, Parser::nativeToParser($value)),
@@ -198,8 +195,10 @@ class Validator {
                 break;
             case ParserName::DATE:
             case ParserName::DATETIME:
-                $lLimit = max($min, ParserConstraints::$DATETIME_MIN);
-                $uLimit = min($max, ParserConstraints::$DATETIME_MAX);
+                // Date and DateTime are represented as objects which cannot be compared in PHP
+                // use the microTime() representation instead to check for limit violation.
+                $lLimit = max($min->microtime(), ParserConstraints::$DATETIME_MIN->microtime());
+                $uLimit = min($max->microtime(), ParserConstraints::$DATETIME_MAX->microtime());
                 break;
             case ParserName::TIME:
                 $lLimit = max($min, ParserConstraints::TIME_MIN);
@@ -227,12 +226,14 @@ class Validator {
         }
 
         // adjust value to not exceed the limits
-        if ($value < $lLimit) {
+        $isDateTime = ($type->parser() == ParserName::DATE) || ($type->parser() == ParserName::DATETIME);
+        $toCompare = ($isDateTime) ? $value->microtime() : $value;
+        if ($toCompare < $lLimit) {
             Findings::addFinding(10, Formatter::format($value, $type->parser()), Formatter::format($lLimit, $type->parser()));
-            return $lLimit;
-        } elseif ($value > $uLimit) {
+            return ($isDateTime) ? ParserConstraints::$DATETIME_MIN : $lLimit;
+        } elseif ($toCompare > $uLimit) {
             Findings::addFinding(11, Formatter::format($value, $type->parser()), Formatter::format($uLimit, $type->parser()));
-            return $uLimit;
+            return ($isDateTime) ? ParserConstraints::$DATETIME_MAX : $uLimit;
         } else
             return $value;
     }

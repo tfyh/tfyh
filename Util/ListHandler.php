@@ -15,7 +15,7 @@
 
 namespace Util;
 
-use DateTimeImmutable;
+use Data\NoZoneDateTime;
 use JetBrains\PhpStorm\NoReturn;
 
 include_once "../../tfyh/Util/ListHandlerKernel.php";
@@ -348,7 +348,7 @@ class ListHandler extends ListHandlerKernel
         $sessions = Sessions::getInstance();
         $destination = $sessions->userFullName() . " (" . $sessions->userId() . ", " . $sessions->userRole() . ")";
         $csv .= "\n" . $this->i18n->t("JX2kP6|Provided on %1 by %2 to ...",
-                Formatter::format(new DateTimeImmutable("now"), ParserName::DATETIME),
+                Formatter::format(new NoZoneDateTime(), ParserName::DATETIME),
                 $_SERVER['HTTP_HOST'], $destination) . "\n";
         FileHandler::returnStringAsZip($csv, $this->tableName . ".csv");
     }

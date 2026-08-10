@@ -15,9 +15,6 @@
 
 namespace Data;
 
-use DateInterval;
-use DateTime;
-use DateTimeImmutable;
 use Exception;
 
 use Util\Language;
@@ -72,9 +69,9 @@ class Formatter
         return str_replace(".", ",", $numberString);
     }
 
-    private static function formatDate (DateTimeImmutable $date, Language $language): string
+    private static function formatDate (NoZoneDateTime $date, Language $language): string
     {
-        return $date->format(Language::settingsOf($language)->dateTemplate);
+        return $date->toDateTimeString($language);
     }
 
     private static function formatTime (int $time, Language $language): string
@@ -98,9 +95,9 @@ class Formatter
             sprintf("%'.02d", $m) . ":" . sprintf("%'.02d", $s);
     }
 
-    private static function formatDatetime (DateTimeImmutable $datetime, Language $language): string
+    private static function formatDatetime (NoZoneDateTime $datetime, Language $language): string
     {
-        return $datetime->format(Language::settingsOf($language)->dateTemplate . " H:i:s");
+        return $datetime->toDateTimeString($language);
     }
 
     /**
@@ -134,7 +131,7 @@ class Formatter
         if (is_null($language))
             $language = Config::getInstance()->language();
         if (!Parser::isMatchingNative($value, $parser)) {
-            Findings::addFinding(1, strval($value), $parser->name);
+            Findings::addFinding(1, (is_object($value)) ? "object" : strval($value), $parser->name);
             return self::format(ParserConstraints::empty($parser), $parser, $language);
         }
         if (($language != Language::SQL) && (ParserConstraints::isEmpty($value, $parser)))
@@ -197,22 +194,14 @@ class Formatter
     /**
      * Convert micro time float to a datetime object
      * @param float $microTime the micro time float to convert.
-     * @return DateTimeImmutable the converted datetime.
+     * @return NoZoneDateTime the converted datetime.
      */
-    public static function microTimeToDateTime (float $microTime): DateTimeImmutable
+    public static function microTimeToDateTime (float $microTime): NoZoneDateTime
     {
         // convert micro time float to datetime
-        $dt0 = new DateTime("1970-01-01 00:00:00");
-        $seconds = sprintf("%u", $microTime); // %u => integer formatting, not 32 bit limited
-        if (strlen($seconds) >= 11)
-            $seconds = "9999999999"; // 1.0e11 - 1
-        try {
-            $dti = new DateInterval(sprintf("PT%uS", $seconds));
-            $dt = $dt0->add($dti);
-            return DateTimeImmutable::createFromMutable($dt);
-        } catch (Exception) {
-            return new DateTimeImmutable("1970-01-01 00:00:00");
-        }
+        $epochMins = intval($microTime / 60);
+        $partialMillis = intval(($microTime - $epochMins * 60.0) * 1000);
+        return new NoZoneDateTime(NoZoneDateTime::epochToDateTimeString($epochMins, $partialMillis));
     }
 
     /**

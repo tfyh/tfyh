@@ -16,7 +16,6 @@
 namespace Data;
 
 use Stringable;
-use DateTimeImmutable;
 
 use Control\LoggerSeverity;
 use Util\I18n;
@@ -293,9 +292,9 @@ class Item implements Stringable  // Stringable explicitly mentioned to ensure t
 
     /**
      * The defaultValue() is also used by the Record class; therefore, it is not private
-     * @return bool|int|float|DateTimeImmutable|string|array the default value of the item.
+     * @return bool|int|float|NoZoneDateTime|string|array the default value of the item.
      */
-    function defaultValue(): bool|int|float|DateTimeImmutable|string|array
+    function defaultValue(): bool|int|float|NoZoneDateTime|string|array
     {
         return $this->properties[PropertyName::DEFAULT_VALUE->value] ?? $this->_type->defaultValue();
     }
@@ -345,12 +344,12 @@ class Item implements Stringable  // Stringable explicitly mentioned to ensure t
         return $this->_type->name();
     }
 
-    public function valueMin(): bool|int|float|DateTimeImmutable|string|array
+    public function valueMin(): bool|int|float|NoZoneDateTime|string|array
     {
         return $this->properties[PropertyName::VALUE_MIN->value] ?? $this->_type->valueMin();
     }
 
-    public function valueMax(): bool|int|float|DateTimeImmutable|string|array
+    public function valueMax(): bool|int|float|NoZoneDateTime|string|array
     {
         return $this->properties[PropertyName::VALUE_MAX->value] ?? $this->_type->valueMax();
     }
@@ -431,7 +430,7 @@ class Item implements Stringable  // Stringable explicitly mentioned to ensure t
      * Get the value. This will return the actual or the item default if no actual was set. If the
      * item default is also not set, the type default is used.
      */
-    public function value(): string|int|bool|float|DateTimeImmutable|array
+    public function value(): string|int|bool|float|NoZoneDateTime|array
     {
         return $this->properties[PropertyName::ACTUAL_VALUE->value] ?? $this->defaultValue();
     }
@@ -632,9 +631,9 @@ class Item implements Stringable  // Stringable explicitly mentioned to ensure t
      * when adjusted by the limit checks. If a value is left out or set null, the items' actual
      * value will be validated, updated, and returned. See the Findings class to get errors and warnings.
      * @param mixed|null $value the value to validate.
-     * @return bool|int|float|DateTimeImmutable|string|array the validated value.
+     * @return bool|int|float|NoZoneDateTime|string|array the validated value.
      */
-    public function validate(mixed $value = null): bool|int|float|DateTimeImmutable|string|array
+    public function validate(mixed $value = null): bool|int|float|NoZoneDateTime|string|array
     {
         // validate
         if (is_null($value))

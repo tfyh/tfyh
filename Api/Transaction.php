@@ -102,7 +102,7 @@ class Transaction
                 "Starting modification ($modeStr) for client #$userId at table $tableName.");
 
         $recordItem = Config::getInstance()->getItem(".tables.$tableName");
-        $record = new Record($recordItem, $this->preModificationCheck);
+        $record = new Record($recordItem);
         $findings = $record->modify($rowCsv, $mode, Language::CSV);
 
         // Return response
@@ -152,7 +152,7 @@ class Transaction
      * Load a configuration branch using the API syntax and return the result.
      * @param string $listName The list name is either ".modified" to
      *  get the file modification times of the configuration files, or ".actuals" to get the actual values of the
-     *  configuration items, or a relative path to a configuration file, e.g. "../../Config/packaged/app"
+     *  configuration items, or a relative path to a configuration file, e.g. "Config/packaged/app"
      * @return string the contents of the configuration file, or an error message.
      */
     public function apiCfgList(string $listName): string
@@ -167,9 +167,9 @@ class Transaction
             Config::getInstance()->rootItem->getActualValues($csv);
             return $okPrefix . $csv;
         }
-        $csv = file_get_contents("../../Config/$settingsFilePath");
+        $csv = file_get_contents("../../$settingsFilePath");
         if ($csv === false)
-            return ResultForTransaction::TRANSACTION_FAILED->value . ";" . $i18n->t("3cuTrK|Failed to read ../%1", $settingsFilePath);
+            return ResultForTransaction::TRANSACTION_FAILED->value . ";" . $i18n->t("3cuTrK|Failed to read ../../%1", $settingsFilePath);
         return $okPrefix . $csv;
     }
 

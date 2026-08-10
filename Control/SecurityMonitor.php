@@ -15,12 +15,11 @@
 
 namespace Control;
 
-use DateTimeImmutable;
-
 use Api\Transaction;
 use Data\Config;
 use Data\DatabaseConnector;
 use Data\Formatter;
+use Data\NoZoneDateTime;
 use Data\ParserName;
 use Util\ListHandler;
 use Util\Pdf;
@@ -45,7 +44,7 @@ class SecurityMonitor
         $this->variables = [];
         $config = Config::getInstance();
         // provided by the application
-        $this->variables["printedOn"] = Formatter::format(new DateTimeImmutable("now"), ParserName::DATETIME);
+        $this->variables["printedOn"] = Formatter::format(new NoZoneDateTime(), ParserName::DATETIME);
         $this->variables["hostUrl"] = $_SERVER['HTTP_HOST'];
         $this->variables["appVersion"] = $config->appVersion;
 

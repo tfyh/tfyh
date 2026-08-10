@@ -112,7 +112,7 @@ class Config
     private array $loaded = [];
     private Language $language = Language::DE;
     private DateTimeZone $timeZone;
-    private int $timezoneOffset;
+    public int $timezoneOffset;
 
     public Logger $logger;
 
@@ -239,7 +239,6 @@ class Config
         $this->appVersion = file_get_contents("../../version");
 
         // initialise the locale settings for parser and formatter (JavaScript code: see main loader.)
-        $this->logger->setLocale($this->language);
         Formatter::setLocale($this->language);
         Parser::setLocale($this->language, $this->timeZone());
     }
