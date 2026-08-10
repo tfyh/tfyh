@@ -15,7 +15,6 @@
 
 namespace Data;
 
-use DateTimeZone;
 use Exception;
 
 use Util\Language;
@@ -29,11 +28,9 @@ use Util\Language;
 class Parser
 {
     private static Language $language = Language::EN;
-    private static DateTimeZone $timeZone;
 
-    public static function setLocale(Language $language = null, DateTimeZone $timeZone = null): void {
+    public static function setLocale(Language $language = null): void {
         self::$language = (is_null($language)) ? self::$language : $language;
-        self::$timeZone = (is_null($timeZone)) ? new DateTimeZone(DEFAULT_TIME_ZONE) : $timeZone;
     }
 
     /* ------------------------------------------------------------------------ */
