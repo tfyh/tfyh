@@ -483,7 +483,7 @@ class Item implements Stringable  // Stringable explicitly mentioned to ensure t
                 return $recursionPath;
             }
             $passed[] = $current->path();
-            $path = ($current.$this->isRoot()) ? ".$path" : $current->_name . ".$path";
+            $path = ($current->isRoot()) ? ".$path" : $current->_name . ".$path";
         }
         return $path;
     }

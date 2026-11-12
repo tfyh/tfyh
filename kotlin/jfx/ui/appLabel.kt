@@ -14,23 +14,15 @@
 
 package org.tfyh.jfx.ui
 
-fun submitButton(
-    text: String = "submit button",
-    onClick: () -> Unit = {}
-) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Theme.colors.color_background_form_button,
-            contentColor = Theme.colors.color_text_form_button,
-            disabledContainerColor = Theme.colors.color_background_form_button_hover,
-            disabledContentColor = Theme.colors.color_text_form_button_hover
-        ),
-        shape = TextFieldDefaults.shape
-    ) {
-        Text(
-            text = text,
-            style = Theme.fonts.p,
-        )
-    }
+import javafx.scene.layout.Region
+import javafx.scene.paint.Color
+import javafx.scene.text.Font
+import org.tfyh.data.Config
+import org.tfyh.jfx.design.AppColours
+import org.tfyh.jfx.design.AppFonts
+
+fun appLabel(contents: String, font: Font = AppFonts.p, textColor: Color? = null): Region {
+    val label = StyledText.toAnnotatedString(contents, font, textColor)
+    if (Config.getInstance().debug) label.border = AppColours.borderTest()
+    return label
 }

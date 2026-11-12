@@ -93,9 +93,9 @@ class Table internal constructor(private val recordItem: Item) {
 
     /**
      * Build a selector to filter rows with matching filterRow values. If filterRow contains fields,
-     * that do not belong to this table, they are ignored.
+     * that do not belong to this table, they are ignored. If none of the fields matches, null is returned.
      */
-    fun buildSelector(filterRow: MutableMap<String, String>): Selector {
+    fun buildSelector(filterRow: MutableMap<String, String>): Selector? {
         val conditions: MutableList<Selector> = mutableListOf()
         for (fieldName in filterRow.keys) {
             if (recordItem.hasChild(fieldName)) {
@@ -106,7 +106,8 @@ class Table internal constructor(private val recordItem: Item) {
                 }
             }
         }
-        return Selector(children = conditions, childrenAnd = true)
+        return if (conditions.isEmpty()) null
+            else Selector(children = conditions, childrenAnd = true)
     }
 
     companion object {
@@ -275,7 +276,8 @@ class Table internal constructor(private val recordItem: Item) {
         for (fieldName in row.keys) {
             if (record.item.hasChild(fieldName)) {
                 val value = row[fieldName]
-                if ((value != null) && (value.compareTo(tableRow[fieldName] ?: "") != 0)) {
+                val previousValue = tableRow[fieldName]
+                if ((value != null) && ((previousValue == null) || (value.compareTo(previousValue) != 0))) {
                     tableRow[fieldName] = value
                     changed = true
                 }
@@ -398,11 +400,15 @@ class Table internal constructor(private val recordItem: Item) {
     }
 
     /**
-     * Select a set of tableRows based on the selector and sorting.
+     * Select a set of tableRows based on the selector and sorting. Set the selector to null to get all rows.
      */
     fun select(where: Selector?, maxRows: Int = 0, sorting: String = ""): List<MutableMap<String, String>> {
         val selected: MutableList<MutableMap<String, String>> = mutableListOf()
-        val uids = rows.keys.toList() // avoid a co-modification exception when loading the very first time
+        val uids = try {
+            rows.keys.toList() // avoid a co-modification exception when loading the very first time
+        } catch (_: Exception) {
+            listOf(rows.firstNotNullOf { it.key })
+        }
         for (uid in uids) {
             val row = rows[uid]
             if (row != null) {

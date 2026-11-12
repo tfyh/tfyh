@@ -14,16 +14,16 @@
 
 package org.tfyh.api
 
-import io.ktor.client.HttpClient
-import io.ktor.client.network.sockets.ConnectTimeoutException
-import io.ktor.client.network.sockets.SocketTimeoutException
-import io.ktor.client.plugins.HttpRequestTimeoutException
-import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.get // needed for Android API 25 level
-import io.ktor.client.request.parameter
-import io.ktor.client.request.post
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.parameters
+import io.ktor.client.*
+import io.ktor.client.network.sockets.*
+import io.ktor.client.plugins.*
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import org.tfyh.api.Container.ResultType
 import org.tfyh.control.EventHandlerIF
 import org.tfyh.control.Logger
@@ -32,6 +32,7 @@ import org.tfyh.data.Codec
 import org.tfyh.data.Config
 import org.tfyh.data.LocalCacheIF
 import org.tfyh.data.NoZoneDateTime
+import org.tfyh.jfx.ui.Looper
 import org.tfyh.util.Timer
 import org.tfyh.util.User
 import kotlin.math.min
@@ -43,7 +44,7 @@ import kotlin.time.Clock
  * parse responses and trigger response processing.
  */
 
-class ApiHandler private constructor() {
+class ApiHandler private constructor(): EventHandlerIF {
 
     companion object {
 
@@ -58,36 +59,42 @@ class ApiHandler private constructor() {
         const val MESSAGE_SEPARATOR_STRING = "\n-#|#-\n"
         const val MS_REPLACEMENT_STRING = "\n_#|#_\n"
 
-        const val API_POST_URI = "/dilbo/api/post_tx.php"
-        private const val API_UPDATE_CHECK_URI = "/dilbo/api/update_check.php"
         private const val API_PENDING_MILLIS = 500L
         private const val API_PAUSE_AFTER_TIMEOUT_MILLIS = 10000L
         private const val TX_COUNT_PER_CONTAINER = 10
 
-        internal val apiHandler = ApiHandler()
-        fun getInstance() = apiHandler
+
+        private val instance = ApiHandler()
+        fun getInstance() = instance
     }
 
-    internal lateinit var eventHandler: EventHandlerIF
-    fun setEventHandler(eventHandler: EventHandlerIF) { this.eventHandler = eventHandler }
+    private val config = Config.getInstance()
+    private val apiUri = "/tfyh/apiAccess"
+    private val apiPostUri = "$apiUri/post_tx.php"
+    private val apiUpdateCheckUri = "$apiUri/update_check.php"
 
     private var apiServerUrl: String = ""
     private var apiServerVerified: Boolean = false
+
     private var started = false
     var loginRetryActive: Boolean = false
     // the apiSessionId will be provided by the server. It may contain the user password in plain
     // text at session start. The user password will not be stored.
     private var apiSessionId: String = ""
     private var apiUserId: Int = -1
-    internal var connected = false
-    internal var connectionStatus = 0
+    private var connected = false
+    fun isConnected() = connected
+    private var connectionStatus = 0
+    fun getConnectionStatus() = connectionStatus
 
     // last data update and session activity timestamps (seconds)
     private var lastUpdateCheck = 0L
-    internal var lastSessionActivity = 0L
+    private var lastSessionActivity = 0L
+    fun setLastSessionActivity(lastSessionActivity: Long) { this.lastSessionActivity = lastSessionActivity }
     private var lastSessionRegenerate = 0L
     // parameters as provided by the server on a session transaction
-    var welcomeMessage = "no server yet connected."
+    private var welcomeMessage = "no server yet connected."
+    fun getWelcomeMessage() = welcomeMessage
     private var lastContainerSuccessful = true
 
     // The following synchronisation defaults must never be 0.
@@ -100,25 +107,28 @@ class ApiHandler private constructor() {
 
     // transaction queues. Transactions wait in the pending-queue, are processed in the busy-queue
     // and moved to the failed-queue on errors, else dropped after being processed.
-    internal val pendingQueue: MutableList<Transaction> = mutableListOf()
-    internal var lastContainerResult: Container.Result = ResultType.UNDEFINED.result
+    private val pendingQueue: MutableList<Transaction> = mutableListOf()
+    fun pendingQueueSize() = pendingQueue.size
+    private var lastContainerResult: Container.Result = ResultType.UNDEFINED.result
+    fun setLastContainerResult(containerResult: Container.Result) { this.lastContainerResult = containerResult }
 
-    // the first request always goes with lowest version, then the client shall
+    // the first request always goes with the lowest version, then the client shall
     // max out the version based on the server response
     private var transactionId = 42
     // the operation can be paused upon overload detection or timeout
     private var paused = 0L // wait time in milliseconds
 
-    private var container = Container.getInstance()
+    private val container = Container.getInstance().apply { setApiHandler(this@ApiHandler) }
     private var timer: Timer = Timer(::onTimerEvent)
-    private var httpClient: HttpClient? = null
-
-    internal val config = Config.getInstance()
-    internal lateinit var localCache: LocalCacheIF
-    internal val logger = Logger("api")
-
-    fun setLocalCache(localCache : LocalCacheIF) { this.localCache = localCache }
+    private lateinit var httpClient: HttpClient
     fun setHttpClient(httpClient: HttpClient) { this.httpClient = httpClient }
+
+    private lateinit var localCache: LocalCacheIF
+    fun getLocalCache() = localCache
+    fun setLocalCache(localCache : LocalCacheIF) { this.localCache = localCache }
+    private val logger = Logger("api")
+    fun log(severity: LoggerSeverity, caller: String, message: String) = logger.log(severity, caller, message)
+
     fun getUrl() = this.apiServerUrl
     fun setUrl(url: String) { this.apiServerUrl = url }
     fun getApiStatus(): ApiStatusEnum {
@@ -133,17 +143,18 @@ class ApiHandler private constructor() {
      * Set the server Url and check whether it exists. Leave url empty to use the configured value
      */
     suspend fun connect(url: String = ""): Int {
-        val httpClient = this.httpClient ?: return 0
         if (connected)
             return connectionStatus
-        var urlToCheck = url.ifEmpty { config.getItem(".app.server.url").valueCsv() }
+        var urlToCheck = url.ifEmpty { config.getItem(".app.club.dilbo_server").valueCsv() }
         if (urlToCheck.endsWith("/"))
             urlToCheck = urlToCheck.substring(0, urlToCheck.length - 1)
         if ((urlToCheck == "http://127.0.0.1") || (urlToCheck == "http://localhost"))
             urlToCheck = localCache.localhostUrl() // this replaces the localhost for emulators
+        if (urlToCheck.isEmpty())
+            return 998
         // send
         try {
-            val urlToGet = urlToCheck + API_UPDATE_CHECK_URI
+            val urlToGet = urlToCheck + apiUpdateCheckUri
             val updateCheckResponse = httpClient.get(urlToGet)
             if (updateCheckResponse.status.value in 200..299) {
                 apiServerUrl = urlToCheck
@@ -151,7 +162,9 @@ class ApiHandler private constructor() {
                 connectionStatus = updateCheckResponse.status.value
             }
             return updateCheckResponse.status.value
-        } catch (_:Exception) {}
+        } catch (_:Exception) {
+            currentCoroutineContext().ensureActive()
+        }
         return 999
     }
     /**
@@ -171,7 +184,7 @@ class ApiHandler private constructor() {
         for (cacheFileName in localCacheKeys) {
             if (cacheFileName.startsWith(pendingPrefix)) {
                 val tx = Transaction.readStored(cacheFileName.replace(pendingPrefix, "")
-                    .toInt(), this)
+                    .toInt())
                 // add, if it is a write transaction
                 if ((tx != null) &&
                     ((tx.type == Transaction.TxType.INSERT) ||
@@ -201,10 +214,14 @@ class ApiHandler private constructor() {
      * The httpClient must be set to get any action done.
      */
     fun start() {
-        container.setLogger(logger)
-        if (!started)
+        if (!started) {
             initialiseTheQueue()
-
+            if (apiUserId == -1) {
+                Looper.getSingleton().append(EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT,
+                    name= "loginDo"))
+                return
+            }
+        }
         // start the queue with a session start.
         val txStart = addNewTxToPending(Transaction.TxType.SESSION, "start", emptyMap())
         // put to front, in case stored transaction have already been added to the queue
@@ -216,7 +233,7 @@ class ApiHandler private constructor() {
         pendingQueue.add(1,txStart)
 
         // set url and credentials
-        apiServerUrl = apiServerUrl.ifEmpty { config.getItem(".app.server.url").valueCsv() }
+        apiServerUrl = apiServerUrl.ifEmpty { config.getItem(".app.club.dilbo_server").valueCsv() }
         // start the timer, if not yet started
         if (!started) {
             timer.start(API_PENDING_MILLIS)
@@ -246,17 +263,17 @@ class ApiHandler private constructor() {
         // Time synchronisation
         NoZoneDateTime.setClientToServerOffset(apiParams["server_datetime"] ?: "")
 
-        welcomeMessage = apiParams["server_welcome_message"] ?: ""
+        welcomeMessage = (apiParams["server_welcome_message"] ?: "").replace("//", "\n")
         // User information and permissions
         val user = User.getInstance()
         val previousUserId = user.userId()
         val apiUserCsv = apiParams["api_user"] ?: ""
         user.set(apiUserCsv)
         val apiEvent = EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT, "sessionStarted")
-        eventHandler.handleEvent(apiEvent)
+        Looper.getSingleton().append(apiEvent)
         if (user.userId() != previousUserId) {
-            apiEvent.name = "userChanged"
-            eventHandler.handleEvent(apiEvent)
+            val userEvent = EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT, "userChanged")
+            Looper.getSingleton().append(userEvent)
         }
     }
 
@@ -301,14 +318,14 @@ class ApiHandler private constructor() {
      * Check for last other write access and start reload of tables, if true.
      */
     private suspend fun updateCheck(): String {
-        val httpClient = this.httpClient ?: return ""
         val response = try {
             httpClient.post(
-                urlString = (config.getItem(".app.server.url").valueCsv()) + API_UPDATE_CHECK_URI
+                urlString = (config.getItem(".app.club.dilbo_server").valueCsv()) + apiUpdateCheckUri
             ) {
                 parameter("lowa", apiSessionId)
             }
         } catch (_: Exception) {
+            currentCoroutineContext().ensureActive()
             return "ERROR: some internet connection error"
         }
 
@@ -332,7 +349,7 @@ class ApiHandler private constructor() {
                 apiServerVerified = true
             else {
                 loginRetryActive = true
-                eventHandler.handleEvent(EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT,"urlConfirmed"))
+                Looper.getSingleton().append(EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT,"urlConfirmed"))
             }
         }
         if (!apiServerVerified) return
@@ -372,7 +389,7 @@ class ApiHandler private constructor() {
      * Display a dialogue with the http connection error.
      */
     private fun showHttpsError(error: String) {
-        eventHandler.handleEvent(EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT,
+        Looper.getSingleton().append(EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT,
         "httpsError", message = "Internet connection error: $error"))
     }
     /**
@@ -381,7 +398,6 @@ class ApiHandler private constructor() {
      */
     private suspend fun processNextApiContainer() {
 
-        val httpClient = this.httpClient ?: return
         if ((apiUserId < 0) && apiSessionId.isEmpty())
             return
         // prepare
@@ -402,14 +418,18 @@ class ApiHandler private constructor() {
         if ((apiServerUrl == "http://127.0.0.1") || (apiServerUrl == "http://localhost"))
             apiServerUrl = localCache.localhostUrl() // this replaces the localhost for emulators
         // send
+        val sendTo = apiServerUrl + apiPostUri
         val response = try {
             httpClient.submitForm (
-                    url = apiServerUrl + API_POST_URI,
+                    url = sendTo,
                     formParameters = parameters {
                         append("txc", txc)
                     }
             )
         } catch (e: Exception) {
+            if (e is CancellationException) {
+                currentCoroutineContext().ensureActive()
+            }
             if ((e is HttpRequestTimeoutException) ||
                 (e is ConnectTimeoutException) ||
                 (e is SocketTimeoutException)) {
@@ -446,7 +466,7 @@ class ApiHandler private constructor() {
                     apiServerUrl = ""
                     connected = false
                     handleHttpsError(ResultType.SERVER_ERROR.result)
-                    eventHandler.handleEvent(EventHandlerIF.Event(EventHandlerIF.EventType.MENU_EVENT, "login"))
+                    Looper.getSingleton().append(EventHandlerIF.Event(EventHandlerIF.EventType.MENU_EVENT, "login"))
                 }
                 in 500..599 -> {
                     // explicit server error
@@ -491,6 +511,11 @@ class ApiHandler private constructor() {
         paused = Clock.System.now().toEpochMilliseconds() + API_PAUSE_AFTER_TIMEOUT_MILLIS
         // invalidate the container transactions and remove them to unlock the queue processing
         container.setFailedAndRemoveAllTransactions()
+    }
+
+    override fun handleEvent(event: EventHandlerIF.Event): Boolean {
+        Looper.getSingleton().append(event)
+        return true
     }
 
 }

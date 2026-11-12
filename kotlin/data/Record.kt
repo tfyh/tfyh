@@ -26,7 +26,36 @@ import org.tfyh.util.User
 @Suppress("Unused")
 class Record (internal val item: Item) {
 
+    enum class VersionValidity(val value: String, val colour: String) {
+        NOT_CHECKED("uuid-not-checked", "acacac" /* RAG - grey */),
+        NOT_FOUND("uuid-not-found", "cc0000" /* RAG - red */),
+        NOT_VERSIONED("uuid-not-versioned", "ffffff" /* RAG - white */),
+        OUTDATED("uuid-outdated", "ffcc00" /* RAG - amber */),
+        VALID("uuid-valid", "009900" /* RAG - green */)
+    }
+
     companion object {
+
+        /**
+         * Compute a common version validity for a list. If any member is not versioned, return not versioned. Else if
+         * any member is not checked return not checked. Else if any member is nor found, return not found. Else if any
+         * member is outdated return outdated. Else return valid.
+         */
+        fun combinedVersionValidity(validityCollection: MutableCollection<VersionValidity>): VersionValidity {
+            for (validity in validityCollection)
+                if (validity == VersionValidity.NOT_VERSIONED)
+                    return VersionValidity.NOT_VERSIONED
+            for (validity in validityCollection)
+                if (validity == VersionValidity.NOT_CHECKED)
+                    return VersionValidity.NOT_CHECKED
+            for (validity in validityCollection)
+                if (validity == VersionValidity.NOT_FOUND)
+                    return VersionValidity.NOT_FOUND
+            for (validity in validityCollection)
+                if (validity == VersionValidity.OUTDATED)
+                    return VersionValidity.OUTDATED
+            return VersionValidity.VALID
+        }
 
         fun copyCommonFields() {
             val config = Config.getInstance()

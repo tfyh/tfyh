@@ -14,16 +14,29 @@
 
 package org.tfyh.jfx.ui
 
+import javafx.geometry.Insets
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
+import javafx.scene.layout.Border
+import javafx.scene.layout.BorderStroke
+import javafx.scene.layout.BorderStrokeStyle
+import javafx.scene.layout.BorderWidths
+import javafx.scene.layout.CornerRadii
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Region
+import javafx.scene.layout.VBox
 import org.tfyh.control.EventHandlerIF
 import org.tfyh.data.Config
 import org.tfyh.data.Item
 import org.tfyh.data.Table
+import org.tfyh.jfx.design.AppColours
+import org.tfyh.jfx.design.AppDimensions
 
 /**
  * The Sector may be understood as empty container carrying UI content provided by a UIProvider.
  */
-class Sector(val item: Item, val isPortraitLayout: Boolean,
-             private val uiProviderFactory: UIProviderFactoryIF) {
+class Sector(val item: Item, private val uiProviderFactory: UIProviderFactoryIF, val parent: Sector?): Pane() {
 
     // read the configuration
     /**
@@ -50,14 +63,16 @@ class Sector(val item: Item, val isPortraitLayout: Boolean,
     // mark whether the size is the min size and the sector has children
     private var isMinSize = false
 
-    private val dimensions = Dimensions(400, 400)
+    private val dimensions = ViewBuilder.Dimensions(400, 400)
     private var offsetX = x
     private var offsetY = y
+
+    private lateinit var pane: Pane
     /**
      * The ui interface content provider for this sector. Will only be needed if the sector is a leaf.
      */
     private val uiProvider: UIProviderIF? = uiProviderFactory.getProvider(
-        item.getChild("provider") ?: Config.getInstance().invalidItem, dimensions)
+        item.getChild("provider") ?: Config.getInstance().invalidItem, dimensions, this)
 
     private val childSectors = mutableListOf<Sector>()
 
@@ -82,44 +97,54 @@ class Sector(val item: Item, val isPortraitLayout: Boolean,
 
     private fun size() = if (horizontal) w else h
 
-    private fun setAllDimensions() {
+    private fun setInternalDimensions() {
         dimensions.widthPx = w
         dimensions.heightPx = h
         offsetX = x
         offsetY = y
     }
 
-    /**
-     * Return true if this Sector has no embedded sectors.
-     */
-    fun isLeaf(): Boolean {
-        for (child in item.children)
-            if (itemIsSector(child))
-                return false
-        return true
+    fun setDimensions(w: Int, h: Int, x: Int = 0, y: Int = 0) {
+        this.w = w
+        this.h = h
+        this.x = x
+        this.y = y
+        setInternalDimensions()
+    }
+
+    internal fun getHierarchy(): String {
+        var hierarchy = "Layout hierarchy:\n"
+        var currentSector: Sector? = this
+        do {
+            hierarchy += currentSector.toString() + "\n"
+            currentSector = currentSector?.parent
+        } while (currentSector != null)
+        return hierarchy
     }
 
     /**
-     * Recursive layout computation. Call by the stage to compute all sizes and offsets. For
+     * Recursive layout computation. Call by the ViewBuilder to compute all sizes and offsets. For
      * the composition only the leaf layer is drawn. Call it with stage width and height in dp, the offset
      * of the stage is always [0, 0]
      */
-    internal fun buildSector(stageWidthPx: Int = 0, stageHeightPx: Int = 0) {
-        w = if (stageWidthPx > 0) stageWidthPx else w
-        h = if (stageHeightPx > 0) stageHeightPx else h
+    internal fun buildSector(): List<Region> {
         var sumWeight = 0.0
         // compute sum of weight
         for (child in item.getChildren()) {
             if (itemIsSector(child)) {
                 sumWeight += (child.getChild("weight")?.value() as Int? ?: 1.0).toDouble()
-                val childSector = Sector(child, this.isPortraitLayout, uiProviderFactory)
+                val childSector = Sector(child, uiProviderFactory, this)
                 // the list is used for size computation, the map for placement o stage
                 childSectors.add(childSector)
             }
         }
 
-        composeSector()
-        if (childSectors.isEmpty()) return
+        if (childSectors.isEmpty())
+            return listOf(HBox(uiProvider?.build() ?: appLabel(this.toString())).apply {
+                border = sectorBorder
+                background = sectorBackground
+                setPrefSize(w.toDouble(), h.toDouble())
+            })
 
         // compute sizes of child sectors and trigger composition
         var sumMinSizes = 0.0
@@ -170,32 +195,43 @@ class Sector(val item: Item, val isPortraitLayout: Boolean,
                 sector.y = y + offset
                 offset += sector.h
             }
-            sector.setAllDimensions()
+            sector.setInternalDimensions()
         }
 
         // drill down. Dimension of the child were already set.
+        val panes = mutableListOf<Region>()
         for (sector in childSectors)
-             sector.buildSector()
+             panes.add(sector.build())
+        return panes
     }
 
-    fun composeSector() {
-        /** TODO
-        Box(
-            modifier = Modifier
-                .offset(x = offsetX, y = offsetY)
-                .width(dimensions.widthPx).height(dimensions.heightPx)
-                .background(Theme.colors.color_background_body)
-                .border(
-                    BorderStroke(
-                        width = 2.dp,
-                        color = Theme.colors.color_background_menubar
-                    )
-                )
-                .zIndex(1.0F)
-        ) {
-            if (isLeaf())
-                uiProvider?.composeContent()
-        }*/
+    /**
+     * build the sector.
+     */
+    fun build(): Region {
+        pane = if (horizontal) HBox(0.0, *buildSector().toTypedArray())
+                   else VBox(0.0, *buildSector().toTypedArray()).apply {
+            setPrefSize(w.toDouble(), h.toDouble())
+            setMinSize(w.toDouble(), h.toDouble())
+            setMaxSize(w.toDouble(), h.toDouble())
+            if (childSectors.isEmpty())
+                onMouseClicked = { e ->
+                    if (e.isControlDown) ViewBuilder.getInstance().showDialogue(this@Sector.getHierarchy())
+                }
+            if (Config.getInstance().debug)
+                border = AppColours.borderTest()
+        }
+        return pane
+    }
+
+    /**
+     * Update the sector content by removing the single UI provider and adding a new one.
+     */
+    fun update() {
+        if (childSectors.isEmpty()) {
+            pane.children.clear()
+            pane.children.addAll(*buildSector().toTypedArray())
+        }
     }
 
     /**
@@ -206,6 +242,15 @@ class Sector(val item: Item, val isPortraitLayout: Boolean,
     }
 
     companion object {
+
+        val sectorInsets = Insets(AppDimensions.smallSpacing)
+        val sectorBackground = Background(BackgroundFill(
+            AppColours.background_body, CornerRadii.EMPTY, sectorInsets
+        ))
+        val sectorBorder = Border(BorderStroke(
+            AppColours.background_body, BorderStrokeStyle.SOLID,
+            CornerRadii.EMPTY, BorderWidths(0.0), sectorInsets
+        ))
 
         /**
          * Return true, if the item represents a sector configuration, ie the value type is "template"

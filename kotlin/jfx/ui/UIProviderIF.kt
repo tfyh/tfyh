@@ -14,6 +14,8 @@
 
 package org.tfyh.jfx.ui
 
+import javafx.scene.layout.Region
+
 /**
  * The fyh framework provides support for the UI composition and handles the screen layout
  * within the Stage and Sector classes. The application can add content to the screen by
@@ -21,7 +23,7 @@ package org.tfyh.jfx.ui
  */
 interface UIProviderIF {
     /**
-     * The content composition which will be part of the composition tree
+     * The content building which will be part of the UI creation
      */
-    fun composeContent()
+    fun build(): Region
 }

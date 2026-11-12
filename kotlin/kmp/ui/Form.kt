@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,7 +66,7 @@ class Form(
     private var formFieldFocused: FormField? = null
 
 
-    val viewModel = FormViewModel(dimensions)
+    private val viewModel = FormViewModel(dimensions)
 
     /* ---------------------------------------------------------------------- */
     /* --------------------- INITIALIZATION --------------------------------- */
@@ -195,12 +196,16 @@ class Form(
         }
     }
 
+    fun show() = viewModel.show()
+    fun hide() = viewModel.hide()
+    @Composable
+    fun version() = viewModel.version.collectAsState().value
     /**
      * Get the width of a form field depending on its span
      */
     fun getFieldWidth(columnsSpan: Int = 1): Dp {
-        val formColumnsCount = responsiveFormColumnsCount(viewModel.dimensions.widthDp())
-        val widthDp = viewModel.dimensions.widthDp()
+        val formColumnsCount = responsiveFormColumnsCount(viewModel.dimensions.widthDp)
+        val widthDp = viewModel.dimensions.widthDp
         val basicWidth = when (formColumnsCount) {
             1 -> if (widthDp < 400.dp) widthDp * 0.9F
             else if (widthDp < 600.dp) widthDp * 0.75F
@@ -285,7 +290,7 @@ class Form(
 
                 Spacer(modifier = Modifier.height(rsp))
                 Row(modifier = Modifier.width(getFieldWidth(cCnt))) {
-                    if (Stage.isPortrait())
+                    if (ViewBuilder.getSingleton().isPortrait())
                         Spacer(modifier = Modifier.width(rsp))
                     AppLabel(text = headline, large = true)
                 }
@@ -305,7 +310,7 @@ class Form(
                         if (inputField.rowTag == "R")
                             Spacer(modifier = Modifier.height(rsp))
                         Row {
-                            if (Stage.isPortrait())
+                            if (ViewBuilder.getSingleton().isPortrait())
                                 Spacer(modifier = Modifier.width(rsp))
                             if (inputField.listPosition >= 0)
                                 inputField.Compose()
@@ -386,11 +391,11 @@ class Form(
             val widthDp = _widthDp.asStateFlow() // publicly exposed as read-only state flow
 
             fun show() {
-                _widthDp.update { dimensions.widthDp() }
+                _widthDp.update { dimensions.widthDp }
                 _version.update { _version.value + 1 }
             }
             fun hide() {
-                _widthDp.update { dimensions.widthDp() }
+                _widthDp.update { dimensions.widthDp }
                 _version.update { 0 }
             }
 

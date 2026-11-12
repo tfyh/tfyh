@@ -21,6 +21,7 @@ use Data\Codec;
 use Data\Config;
 use Data\DatabaseConnector;
 use Data\Item;
+use Data\ParserConstraints;
 use Data\Record;
 
 /**
@@ -334,32 +335,87 @@ class ListHandlerKernel
         for ($i = 0; $i < count($this->columns); $i++)
             if (strcasecmp($this->firstOfBlock, $this->columns[$i]) == 0)
                 $firstOfBlockCol = $i;
-        $firstOfBlockFilter = ($firstOfBlockCol >= 0);
-        if ((strlen($this->firstOfBlock) > 0) && !$firstOfBlockFilter)
+        $getFirstOfBlockOnly = ($firstOfBlockCol >= 0);
+        if ((strlen($this->firstOfBlock) > 0) && !$getFirstOfBlockOnly)
             return I18n::getInstance()->t("5jD9Z0|List definition error. F...");
 
-        // get all rows
-        $lastFirstValue = null;
+        // special case: find the most recent version of an object. This is done by reverse sorting
+        // of the invalid_from period indicator for each uuid.
+        $getLastVersionOnly = $getFirstOfBlockOnly &&
+            (strcmp($this->firstOfBlock, "uuid") == 0) &&
+            (strcmp($this->oSortsList, "uuid.-invalid_from") == 0);
+
+        // get and filter selected rows
+        $lastBlockPivotValue = null;
         $this->rowsSqlCount = 0;
         if (isset($res->num_rows) && (intval($res->num_rows) > 0)) {
             $fetchedRow = $res->fetch_row();
-            while ($fetchedRow) {
-                $this->rowsSqlCount++;
-                $filtered = ($firstOfBlockFilter && !is_null($lastFirstValue) && isset($fetchedRow[$firstOfBlockCol]) &&
-                    (strcmp(strval($fetchedRow[$firstOfBlockCol]), $lastFirstValue) == 0));
-                if (!$filtered) {
+
+            // most complex: get the last version of a record only.
+            if ($getLastVersionOnly) {
+                $rowsLastObject = array(); // group for last version filter
+                while ($fetchedRow) {
+                    $this->rowsSqlCount++;
+                    $blockPivotValue = (isset($fetchedRow[$firstOfBlockCol])) ? $fetchedRow[$firstOfBlockCol] : "";
+                    // because the collected last block is used for filtering, do not use the very first row.
+                    $newPivotValue = ! is_null($lastBlockPivotValue) && (strcmp($blockPivotValue, $lastBlockPivotValue) != 0);
+                    $namedRow = array();
+                    $c = 0;
+                    foreach ($this->columns as $column)
+                        $namedRow[$column] = $fetchedRow[$c++];
+                    if ($newPivotValue) {
+                        // If a new object block starts select the last version of the previous object.
+                        $n = count($rowsLastObject);
+                        // This is the first row if the invalid_from-field is the empty-value ...
+                        if (($n == 1) || (strcmp($rowsLastObject[0]["invalid_from"], ParserConstraints::$DATE_EMPTY_AS_STRING) == 0))
+                            $rowsSql[] = $rowsLastObject[0];
+                        else
+                            // or the last of the block with the largest invalid_from-value
+                            $rowsSql[] = $rowsLastObject[$n - 1];
+                        // after picking the last version row, clear the object block.
+                        $rowsLastObject = array();
+                    }
+                    // collect all rows for an object
+                    $rowsLastObject[] = $namedRow;
+                    $lastBlockPivotValue = $blockPivotValue;
+                    $fetchedRow = $res->fetch_row();
+                }
+                // after completion add the last object's last version like above
+                $n = count($rowsLastObject);
+                if (($n == 1) || (strcmp($rowsLastObject[0]["invalid_from"], ParserConstraints::$DATE_EMPTY_AS_STRING) == 0))
+                    $rowsSql[] = $rowsLastObject[0];
+                else
+                    $rowsSql[] = $rowsLastObject[$n - 1];
+            } // less complex: get the first row of a block only
+            else if ($getFirstOfBlockOnly) {
+                while ($fetchedRow) {
+                    $this->rowsSqlCount++;
+                    $blockPivotValue = (isset($fetchedRow[$firstOfBlockCol])) ? $fetchedRow[$firstOfBlockCol] : "";
+                    $newPivotValue = is_null($lastBlockPivotValue) || (strcmp($blockPivotValue, $lastBlockPivotValue) != 0);
+                    if ($newPivotValue) {
+                        $namedRow = array();
+                        $c = 0;
+                        foreach ($this->columns as $column)
+                            $namedRow[$column] = $fetchedRow[$c++];
+                        $rowsSql[] = $namedRow;
+                        $lastBlockPivotValue = $blockPivotValue;
+                    }
+                    $fetchedRow = $res->fetch_row();
+                }
+            } // simple: rely on the SQL filter and sorting options and use all rows.
+            else {
+                while ($fetchedRow) {
+                    $this->rowsSqlCount++;
                     $namedRow = array();
                     $c = 0;
                     foreach ($this->columns as $column)
                         $namedRow[$column] = $fetchedRow[$c++];
                     $rowsSql[] = $namedRow;
-                    if ($firstOfBlockFilter && isset($fetchedRow[$firstOfBlockCol]))
-                        $lastFirstValue = strval($fetchedRow[$firstOfBlockCol]);
+                    $fetchedRow = $res->fetch_row();
                 }
-                $fetchedRow = $res->fetch_row();
             }
-        }
 
+        }
         // TODO permissions check. Use $this->record
 
         return $rowsSql;

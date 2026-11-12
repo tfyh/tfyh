@@ -33,15 +33,15 @@ data class Transaction(
     val type : TxType = TxType.NOP,
     val tableName : String = "",
     val uid : String = Ids.generateUid(9), // only for local storage, not used at API
-    var record : Map<String, String> = emptyMap(),
+    internal var record : Map<String, String> = emptyMap(),
     // transaction result as provided by the server
-    var resultCode : Int = ResultType.UNDEFINED.result.code,
-    var resultMessage : String = "",
+    internal var resultCode : Int = ResultType.UNDEFINED.result.code,
+    internal var resultMessage : String = "",
     // status control
-    var sentAt : Long = 0L,
-    var resultAt : Long = 0L,
-    var closedAt : Long = 0L,
-    var callBack : (Transaction) -> Unit = { }
+    internal var sentAt : Long = 0L,
+    internal var resultAt : Long = 0L,
+    internal var closedAt : Long = 0L,
+    internal var callBack : (Transaction) -> Unit = { }
 ) {
 
     enum class TxType {
@@ -111,6 +111,9 @@ data class Transaction(
             val isServerGenerated: Boolean
         )
 
+        val apiHandler = ApiHandler.getInstance()
+        val localCache = apiHandler.getLocalCache()
+
         // this function is used to initialise the ResultType enum
         fun resultOf(code: Int): Result {
             for (type in ResultType.entries)
@@ -123,9 +126,9 @@ data class Transaction(
          * read a transaction from the local storage. Return null on errors. Returns a new Transaction
          * instead of updating the existing one.
          */
-        fun readStored(id: Int, apiHandler: ApiHandler): Transaction? {
+        fun readStored(id: Int): Transaction? {
             // transaction values as set by the request
-            val parts = Codec.splitCsvRow(apiHandler.localCache.getItem("${ApiHandler.CACHE_PATH_PENDING}/tx-$id"))
+            val parts = Codec.splitCsvRow(localCache.getItem("${ApiHandler.CACHE_PATH_PENDING}/tx-$id"))
             if (parts.size < 6)
                 return null
             var transactionId = id
@@ -182,20 +185,20 @@ data class Transaction(
         // encode to CSV
         val plain = this.toString()
         // write it to the cache
-        apiHandler.localCache.setItem("$cachePath/tx-${transactionId}", plain)
+        localCache.setItem("$cachePath/tx-${transactionId}", plain)
         // update the maximum transaction ID
-        apiHandler.localCache.setItem("$cachePath/tx-max", transactionId.toString())
+        localCache.setItem("$cachePath/tx-max", transactionId.toString())
 
         // cleanse done and failed queues. Only keep the last 100 done transactions
         if ((cachePath == ApiHandler.CACHE_PATH_DONE)
             || (cachePath == ApiHandler.CACHE_PATH_FAILED)) {
-            for (cached in apiHandler.localCache.keys())
+            for (cached in localCache.keys())
                 if (cached.startsWith(cachePath)) {
                     val idStr = cached.replace("$cachePath/tx-", "")
                     try {
                         val id = idStr.toInt()
                         if ((transactionId - id) > 100)
-                            apiHandler.localCache.removeItem(cached)
+                            localCache.removeItem(cached)
                     } catch (_:Exception) {}
                 }
         }
@@ -204,7 +207,7 @@ data class Transaction(
     /**
      * remove a transaction in the local storage.
      */
-    internal fun deleteStored(cachePath: String) = apiHandler.localCache
+    internal fun deleteStored(cachePath: String) = localCache
         .removeItem("$cachePath/tx-$transactionId")
 
     /**
@@ -246,9 +249,9 @@ data class Transaction(
             }
         }
         this.closedAt = Clock.System.now().toEpochMilliseconds()
-        apiHandler.logger.log(
+        apiHandler.log(
             LoggerSeverity.INFO, "Transaction.processTransaction()",
-            "#$transactionId $type $tableName [${apiHandler.pendingQueue.size}]: " +
+            "#$transactionId $type $tableName [${apiHandler.pendingQueueSize()}]: " +
                     resultType.result.message
         )
         // delete the transaction from the pending queue
@@ -259,7 +262,7 @@ data class Transaction(
     }
 
     fun handleError() {
-        ApiHandler.apiHandler.logger.log(
+        apiHandler.log(
             LoggerSeverity.ERROR, "Transaction.handleError()",
             "tx-$transactionId $type $tableName failed: $resultCode $resultMessage.")
         callBack(this)
@@ -271,9 +274,9 @@ data class Transaction(
     private fun onSessionResponse () : ResultType {
         if (tableName != "close") {
             apiHandler.onSessionResponse(resultMessage)
-            apiHandler.logger.log(
+            apiHandler.log(
                 LoggerSeverity.INFO, "ApiHandler.onSessionResponse",
-                apiHandler.welcomeMessage.replace("<br>", "\n")
+                apiHandler.getWelcomeMessage().replace("<br>", "\n")
             )
         }
         return ResultType.RESPONSE_SUCCESSFULLY_PROCESSED
@@ -284,7 +287,7 @@ data class Transaction(
      */
     private fun onReadResponse () : ResultType {
         val nowSeconds = Clock.System.now().epochSeconds
-        apiHandler.lastSessionActivity = nowSeconds
+        apiHandler.setLastSessionActivity(nowSeconds)
 
         // the table name starting with a dor indicates a configuration read
         if (tableName.startsWith(".")) {

@@ -172,7 +172,7 @@ class XmlTag {
      */
     fun tagID(): String {
         if (isComment) return TAG_ID_COMMENT
-        return tagID!!
+        return tagID ?: ""
     }
 
     /**
