@@ -38,7 +38,7 @@ fun ModalCloseButton() {
             modifier = Modifier
                 .padding(Theme.dimensions.regularSpacing)
                 .clickable {
-                    Stage.viewModel.setVisibleModal(false)
+                    ViewBuilder.getSingleton().setVisibleModal(false)
                 }
         )
     }

@@ -22,9 +22,9 @@ import org.tfyh.data.Item
  */
 interface UIProviderFactoryIF {
     /**
-     * Instantiate an ui-provider which provides content for a sector to be displayed
+     * Instantiate an ui-provider which provides content for a host sector to be displayed
      * @param item The provider's configuration item
      * @param dimensions The window dimensions for the provider to compose its content
      */
-    fun getProvider(item: Item, dimensions: Dimensions): UIProviderIF?
+    fun getProvider(item: Item, dimensions: ViewBuilder.Dimensions, host: Sector): UIProviderIF?
 }

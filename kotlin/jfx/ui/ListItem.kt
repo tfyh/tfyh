@@ -14,67 +14,89 @@
 
 package org.tfyh.jfx.ui
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import javafx.geometry.Insets
+import javafx.scene.Cursor
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.input.MouseButton
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
+import javafx.scene.layout.CornerRadii
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Region
+import javafx.scene.layout.StackPane
+import javafx.scene.paint.Paint
+import org.dilbo.core.EventHandler
 import org.tfyh.control.EventHandlerIF
 import org.tfyh.data.Item
+import org.tfyh.jfx.design.AppColours
+import org.tfyh.jfx.design.AppDimensions
+import org.tfyh.jfx.design.AppFonts
 
 data class ListItem (
     val uid: String,
-    val icon: DrawableResource,
+    val icon: Image,
     val text: String,
     val providedByItem: Item,
-    val textAlign: TextAlign = TextAlign.Start,
     val evenRow: Boolean = false,
+    val headerRow: Boolean = false,
     var visible: Boolean = true
 ) {
 
-    companion object {
+    private val eventHandler = EventHandler.getSingleton()
 
-        class ListItemViewModel(listItem: ListItem) : ViewModel() {
-            // the visibility is static and depends on the screen orientation. Change in
-            // screen coordinates will trigger a recomposition rather than a change of state.
-            private val _visible : MutableStateFlow<Boolean> = MutableStateFlow(listItem.visible)
-            val visible : StateFlow<Boolean> = _visible
-        }
-    }
-
-    private val viewModel = ListItemViewModel(this)
-    private val eventHandler = EventHandler.getInstance()
-
-    fun Compose() {
-        val visible : Boolean by viewModel.visible.collectAsStateWithLifecycle()
+    fun build(): Region {
+        val backgroundDefault =
+            if (headerRow) Background(
+                    BackgroundFill(
+                        Paint.valueOf(AppColours.hex(AppColours.background_form_input_hover)),
+                        CornerRadii(3.0), null
+                    )
+                )
+            else if (evenRow)
+                Background(BackgroundFill(Paint.valueOf(AppColours.hex(AppColours.background_table_even_rows)),
+                    CornerRadii(3.0), null))
+            else
+                AppColours.backgroundTransparent()
+        val border = if (headerRow) AppColours.borderSolid(AppDimensions.smallSpacing, "FFFFFFFF") else AppColours.borderNone()
         if (visible) {
-            val clickEvent = EventHandlerIF.Event(EventHandlerIF.EventType.UI_EVENT,"doubleClick", uid, providedByItem)
-            var rowModifier = Modifier
-                .fillMaxWidth()
-                .padding(Theme.dimensions.smallSpacing)
-                .combinedClickable(
-                    onClick = { clickEvent.name = "click"; eventHandler.handleEvent(clickEvent) },
-                    // do the same for a double click (desktop) and a long click (smartphone)
-                    onLongClick = { eventHandler.handleEvent(clickEvent) },
-                    onDoubleClick = { eventHandler.handleEvent(clickEvent) },
-                )
-            if (evenRow)
-                rowModifier = rowModifier.background(Theme.colors.color_background_table_even_rows)
-            Row(
-                modifier = rowModifier
-            ) {
-                Image(
-                    painterResource(icon),
-                    contentDescription = "icon",
-                    modifier = Modifier.height(24.dp)
-                )
-                Spacer(
-                    modifier = Modifier.weight(0.02F)
-                )
-                AppLabel(
-                    text = text,
-                    textAlign = textAlign,
-                    modifier = Modifier.weight(0.91F)
-                )
+            val clickEvent = EventHandlerIF.Event(EventHandlerIF.EventType.UI_EVENT, "doubleClick", uid, providedByItem)
+            val imageView = ImageView(icon).apply {
+                fitWidth = 24.0 * ViewBuilder.fontZoom
+                isPreserveRatio = true
             }
+            val appLabel = if (headerRow) appLabel(text, AppFonts.h3, AppColours.text_h1_h3)
+                            else appLabel(text, AppFonts.p)
+            val listItem = HBox(AppDimensions.regularSpacing, imageView, appLabel).apply {
+                background = backgroundDefault
+                this.border = border
+                onMouseEntered = { background = AppColours.background(AppColours.background_form_input_hover) }
+                onMouseExited = { background = backgroundDefault }
+                if (headerRow)
+                    onMouseClicked = { event ->
+                        if (event.button.equals(MouseButton.PRIMARY)) {
+                            clickEvent.name = "collapse"
+                            eventHandler.handleEvent(clickEvent)
+                        }
+                    }
+                else
+                    onMouseClicked = { event ->
+                        if (event.button.equals(MouseButton.PRIMARY)) {
+                            if (event.clickCount == 1)
+                                clickEvent.name = "click"
+                            if (event.clickCount == 2)
+                                clickEvent.name = "doubleClick"
+                        } else if (event.button.equals(MouseButton.SECONDARY))
+                            clickEvent.name = "rightClick"
+                        eventHandler.handleEvent(clickEvent)
+                    }
+                cursor = Cursor.HAND
+                padding =
+                    Insets(AppDimensions.smallSpacing, AppDimensions.smallSpacing, 0.0, AppDimensions.smallSpacing)
+            }
+            return listItem
         }
+        return Region()
     }
 }
 

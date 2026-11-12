@@ -14,11 +14,24 @@
 
 package org.tfyh.jfx.ui
 
-import javafx.scene.Node
-import javafx.scene.control.Label
+import javafx.scene.control.TextArea
+import javafx.scene.layout.*
+import org.tfyh.data.Config
+import org.tfyh.jfx.design.AppColours
 
-fun appLabel(contents: String, styleClass: String): Node {
-    val label = Label(contents)
-    label.styleClass.add(styleClass)
-    return label
+fun textAreaInput(
+    formField: FormField
+): Pane {
+    val textArea = TextArea()
+    formField.initialiseTextInputControl(textArea)
+    textArea.isWrapText = true
+    return VBox(
+        appLabel(formField.label), textArea
+    ).apply {
+        if (Config.getInstance().debug)
+            background = AppColours.backgroundTest()
+    }
 }
+
+
+

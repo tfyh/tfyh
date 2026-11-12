@@ -14,6 +14,35 @@
 
 package org.tfyh.util
 
+/**
+ * Provide framework access to the application's resources.
+ */
 interface ResProviderIF {
+
+    /**
+     * The list of available resource directories
+     */
+    val directories: List<String>
+
+    /**
+     * Read a resource into a ByteArray. This is an asynchronous getter.
+     */
     suspend fun readBytes(path: String): ByteArray
+
+    /**
+     * Read all resources into memory to avoid suspend calls during UI composition
+     */
+    suspend fun init()
+
+    /**
+     * Get a resource as ByteArray (usually images). This is a synchronous getter and requires an init call to read the resources
+     * into memory. Must return an empty ByteArray, if no drawable resource of the given name was found.
+     */
+    fun getBytes(path: String): ByteArray
+
+    /**
+     * Get a string resource. This is a synchronous getter and requires an init call to read the resources
+     * into memory. Must return an empty String, if no string resource of the given name was found.
+     */
+    fun getString(path: String): String
 }

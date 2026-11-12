@@ -15,6 +15,7 @@
 
 namespace Api;
 
+use Data\ParserConstraints;
 use JetBrains\PhpStorm\NoReturn;
 
 use Control\LoggerSeverity;
@@ -151,6 +152,27 @@ class Container
     }
 
     /**
+     * Short form to return on container errors with less processing and logging overhead
+     */
+    #[NoReturn]
+    public function sendContainerErrorResponseAndExit(): void
+    {
+        $runner = Runner::getInstance();
+        ParserConstraints::init();  // needed to initialise the formatter for the timestamp
+        $runner->logger->log(LoggerSeverity::ERROR, "sendResponseAndExit",
+            "Container failed. Result code: " . $this->txc["containerResultCode"] .
+            ". Result message: " . $this->txc["containerResultMessage"]);
+        self::logDroppedTransactions();
+        // Build the response container plain text
+        $response = $this->txc["version"] . ";" . $this->txc["containerId"] . ";" . $this->txc["containerResultCode"] . ";" .
+            $this->txc["containerResultMessage"] . ";";
+        // encode the container and measure its length
+        $response = Codec::apiEncode($response);
+        echo $response;
+        exit();
+    }
+
+    /**
      * Take the current transaction container, build an appropriate response container from it, and send it
      * back. Transactions must be handled before building the response. The response will have the same
      * version as the request. If the container result code indicates an error, all transactions get as well an
@@ -160,6 +182,7 @@ class Container
     public function sendResponseAndExit(): void
     {
         $runner = Runner::getInstance();
+        ParserConstraints::init();  // needed to initialise the formatter for the timestamp
         $runner->logger->log(LoggerSeverity::DEBUG, "sendResponseAndExit",
             "Sending response " . self::containerToLog());
         // log errors

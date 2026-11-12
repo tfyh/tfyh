@@ -12,22 +12,28 @@
  * the License.
  */
 
-package org.tfyh.control
+package org.tfyh.jfx.ui
 
 import javafx.application.Platform
+import org.tfyh.control.EventHandlerIF
 import java.util.*
 
 
 /**
  * A simple looper to catch events from background threads into the UI thread.
  */
-class Looper(val eventHandler: EventHandlerIF) {
+class Looper private constructor() {
+
+    companion object {
+        val instance = Looper()
+        fun getSingleton(): Looper = instance
+    }
 
     private var running = false
     private val eventQueue : MutableList<EventHandlerIF.Event> = mutableListOf()
     private val timer = Timer()
 
-    fun start(looperPeriodMillis: Long) {
+    fun start(looperPeriodMillis: Long, eventHandler: EventHandlerIF) {
         if (running) return
         timer.schedule(object : TimerTask() {
             override fun run() {

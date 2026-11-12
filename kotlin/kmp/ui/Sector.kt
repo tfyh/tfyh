@@ -36,8 +36,9 @@ import kotlin.math.floor
 /**
  * The Sector may be understood as empty container carrying UI content provided by a UIProvider.
  */
-class Sector(val item: Item, val isPortraitLayout: Boolean,
-             private val uiProviderFactory: UIProviderFactoryIF) {
+class Sector(val item: Item,
+             private val uiProviderFactory: UIProviderFactoryIF
+) {
 
     // read the configuration
     /**
@@ -64,9 +65,9 @@ class Sector(val item: Item, val isPortraitLayout: Boolean,
     // mark whether the size is the min size and the sector has children
     private var isMinSize = false
 
-    private val dimensions = Dimensions(400.dp, 400.dp)
-    private var offsetX = Stage.pxToDp(x)
-    private var offsetY = Stage.pxToDp(y)
+    private var dimensions = Dimensions(400.dp, 400.dp)
+    private var offsetX = ViewBuilder.pxToDp(x)
+    private var offsetY = ViewBuilder.pxToDp(y)
     /**
      * The ui interface content provider for this sector. Will only be needed if the sector is a leaf.
      */
@@ -101,10 +102,9 @@ class Sector(val item: Item, val isPortraitLayout: Boolean,
         h = floor(h * 100) / 100
         x = floor(x * 100) / 100
         y = floor(y * 100) / 100
-        dimensions.widthDp = Stage.pxToDp(w)
-        dimensions.heightDp = Stage.pxToDp(h)
-        offsetX = Stage.pxToDp(x)
-        offsetY = Stage.pxToDp(y)
+        dimensions = Dimensions(ViewBuilder.pxToDp(w), ViewBuilder.pxToDp(h))
+        offsetX = ViewBuilder.pxToDp(x)
+        offsetY = ViewBuilder.pxToDp(y)
     }
 
     /**
@@ -118,21 +118,21 @@ class Sector(val item: Item, val isPortraitLayout: Boolean,
     }
 
     /**
-     * Recursive layout computation. Call by the stage to compute all sizes and offsets. For
-     * the composition only the leaf layer is drawn. Call it with stage width and height in dp, the offset
-     * of the stage is always [0, 0]
+     * Recursive layout computation. Call by the view builder to compute all sizes and offsets. For
+     * the composition only the leaf layer is drawn. Call it with the view builder width and height
+     * in dp, the offset of the view builder is always [0, 0]
      */
     @Composable
-    internal fun BuildSector(stageWidthDp: Dp = 0.dp, stageHeightDp: Dp = 0.dp) {
-        w = if (stageWidthDp > 0.dp) Stage.dpToPx(stageWidthDp) else w
-        h = if (stageHeightDp > 0.dp) Stage.dpToPx(stageHeightDp) else h
+    internal fun BuildSector(screenWidthDp: Dp = 0.dp, screenHeightDp: Dp = 0.dp) {
+        w = if (screenWidthDp > 0.dp) ViewBuilder.dpToPx(screenWidthDp) else w
+        h = if (screenHeightDp > 0.dp) ViewBuilder.dpToPx(screenHeightDp) else h
         var sumWeight = 0.0
         // compute sum of weight
         for (child in item.getChildren()) {
             if (itemIsSector(child)) {
                 sumWeight += (child.getChild("weight")?.value() as Int? ?: 1.0).toDouble()
-                val childSector = Sector(child, this.isPortraitLayout, uiProviderFactory)
-                // the list is used for size computation, the map for placement o stage
+                val childSector = Sector(child, uiProviderFactory)
+                // the list is used for size computation, the map for placement on the screen
                 childSectors.add(childSector)
             }
         }

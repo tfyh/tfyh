@@ -49,6 +49,7 @@ class DataBase private constructor() {
     /**
      * Reload all tables from the local cache. This will delete all existing data. If a table is
      * not available in the local cache, a transaction for download is appended to the API queue.
+     * @param localCacheOnly set true to skip download of data, if not available
      */
     fun load(localCacheOnly : Boolean = false) {
         val recordItems = Config.getInstance().getItem(".tables").getChildren()
@@ -239,25 +240,24 @@ class DataBase private constructor() {
     }
 
     /**
-     * Return a clone of the tableRow. Will be an empty map, if there is no table row
-     * with the given name.
+     * Select a set of tableRows with matching values. Keys in matching which do not reflect a table field name are
+     * ignored. If none of the matching keys corresponds to a table field, all rows are returned.
      */
-    fun selectByMatch(tableName: String, row: MutableMap<String, String>): List<MutableMap<String, String>> {
+    fun selectByMatch(tableName: String, matching: MutableMap<String, String>): List<MutableMap<String, String>> {
         val table = tables[tableName] ?: return mutableListOf()
-        return table.select(table.buildSelector(row))
+        val where = table.buildSelector(matching)
+        return table.select(where)
     }
 
     /**
-     * Select a set of tableRows applying the selector and sorting
+     * Select a set of tableRows applying the selector and sorting. Set the selector to null to get all rows.
      */
     fun select(tableName: String, where: Selector? = null, maxRows: Int = 0, sorting: String = ""):
             List<MutableMap<String, String>> {
         val table = tables[tableName] ?: return mutableListOf()
         val rowsList = table.select(where, maxRows, sorting)
-        return if (sorting.isEmpty())
-                    rowsList
-                else
-                    Table.sortRows(sorting, rowsList, table.record.item)
+        return if (sorting.isEmpty()) rowsList
+            else Table.sortRows(sorting, rowsList, table.record.item)
     }
 
     /**

@@ -93,18 +93,11 @@ class SettingsLoader {
                         0.0
                     }
                 val serverModified = serverTimes[settingsFile] ?: 0.0
-                if (localModified < serverModified) {
+                if (localModified < serverModified)
                     apiHandler.addNewTxToPending(Transaction.TxType.LIST,
                         ".$settingsFile", emptyMap())
-                    apiHandler.logger.log(LoggerSeverity.INFO, "SettingsLoader.onModifiedResponse()",
-                        "updating $settingsFile")
-                } else
-                    apiHandler.logger.log(LoggerSeverity.INFO, "SettingsLoader.onModifiedResponse()",
-                        "Skipped $settingsFile, already up-to-date")
             }
         }
-        // as a last step get all actual values, labels, descriptions
-        apiHandler.addNewTxToPending(Transaction.TxType.LIST,".actuals", emptyMap())
     }
 
     /**

@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
-import org.tfyh.kmp.ui.Stage
+import org.tfyh.kmp.ui.ViewBuilder
 
 data class AppTypography(
     val h1: TextStyle,
@@ -39,7 +39,7 @@ fun appTypography(
     fontFamily: FontFamily): AppTypography {
 
     // use the types as in the CSS of the web application.
-    val rem = (14 * Stage.fontZoom()).sp
+    val rem = (14 * ViewBuilder.getSingleton().fontZoom()).sp
     return AppTypography(
         h1 = TextStyle(
             fontSize = 2.25 * rem,

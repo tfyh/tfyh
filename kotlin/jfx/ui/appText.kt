@@ -14,21 +14,8 @@
 
 package org.tfyh.jfx.ui
 
-fun modalCloseButton() {
-    Box (
-        modifier = Modifier
-            .width(Theme.dimensions.textFieldHeight)
-            .height(Theme.dimensions.textFieldHeight)
-    ) {
-        Text(
-            text = "⨯",
-            color = Theme.colors.color_text_h1_h3,
-            style = Theme.fonts.h3,
-            modifier = Modifier
-                .padding(Theme.dimensions.regularSpacing)
-                .clickable {
-                    Stage.viewModel.setVisibleModal(false)
-                }
-        )
-    }
+import javafx.scene.layout.Region
+
+fun appText(content: String): Region {
+    return StyledText.toAnnotatedString(content)
 }

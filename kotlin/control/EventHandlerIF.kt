@@ -20,10 +20,11 @@ import org.tfyh.data.Item
 interface EventHandlerIF {
 
     enum class EventType {
-        UI_EVENT,   // any user interface event, like a mouse click
-        API_EVENT,  // any event triggered by the API, like for user authentication
-        MENU_EVENT, // all menu selections, i.e. events which require a permissions check
-        DATA_EVENT // any data event like reloaded information
+        UI_EVENT,    // any user interface event, like a mouse click
+        API_EVENT,   // any event triggered by the API, like for user authentication
+        MENU_EVENT,  // all menu selections, i.e. events which require a permissions check
+        DATA_EVENT,  // any data event like reloaded information
+        SYSTEM_EVENT // system events like a clock trigger
     }
 
     data class Event(
@@ -52,8 +53,7 @@ interface EventHandlerIF {
         }
 
     /**
-     * Handle the Event. Return true on success, false on all errors.
+     * Handle the Event. Return true if handled, false on no relevance or all errors.
      */
-
     fun handleEvent(event: Event): Boolean
 }

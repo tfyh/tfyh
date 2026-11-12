@@ -15,8 +15,12 @@
 package org.tfyh.jfx.ui
 
 import javafx.scene.Node
+import javafx.scene.paint.Color
+import javafx.scene.text.Font
 import javafx.scene.text.Text
 import javafx.scene.text.TextFlow
+import org.tfyh.jfx.design.AppColours
+import org.tfyh.jfx.design.AppFonts
 
 /**
  * Translates the shortcut text styles ~* ~_ ~/ to bold, underline and italic as well as ~\ to the new line character.
@@ -28,19 +32,11 @@ object StyledText {
      * &lt;u&gt;; _~ = &lt;/u&gt;; ~/ = &lt;i&gt;; /~ = &lt;/i&gt;; ~\ =
      * &lt;br&gt;;
      */
-    private val styles: Map<String, String> = mapOf(
-        "~*" to "tfyh-bold",
-        "~_" to "tfyh-underline",
-        "~/" to "tfyh-italic"
+    private val fonts: Map<String, Font> = mapOf(
+        "~*" to AppFonts.b,
+        "~_" to AppFonts.p,
+        "~/" to AppFonts.i
     )
-
-    /**
-     * In order to style the text apprOpriately you MUST add StyledText.css to the
-     * view-builders style sheets
-     */
-    const val css = ".tfyh-bold { fx-font-weight:bold; }\n" +
-                " .tfyh-underline { -fx-text-decoration: underline; }\n" +
-                " .tfyh-italic { -fx-font-style: italic; }"
 
     private var remainder = ""
     private var nextOpener = ""
@@ -49,7 +45,7 @@ object StyledText {
     private fun nextSnippet() {
         nextOpener = ""
         var nextOpenerPosition = Int.MAX_VALUE
-        for (opener in styles.keys) {
+        for (opener in fonts.keys) {
             if (remainder.contains(opener) && (remainder.indexOf(opener) < nextOpenerPosition)) {
                 nextOpener = opener
                 nextOpenerPosition = remainder.indexOf(opener)
@@ -57,16 +53,17 @@ object StyledText {
         }
         if (nextOpener.isNotEmpty()) {
             if (nextOpenerPosition > 0)
-                styledSnippets.add(Text(remainder.substring(0, nextOpenerPosition)))
+                styledSnippets.add(Text(remainder.substring(0, nextOpenerPosition)).apply { font = AppFonts.p })
             remainder = remainder.substring(nextOpenerPosition + 2)
             val closer = nextOpener.substring(1) + "~"
             val spanText =
                 if (remainder.indexOf(closer) < 0) remainder
                 else remainder.substring(0, remainder.indexOf(closer))
-            val spanStyle = styles[nextOpener]
-            if (spanStyle != null) {
+            val spanFont = fonts[nextOpener]
+            if (spanFont != null) {
                 val styledSnippet = Text(spanText)
-                styledSnippet.styleClass.add(spanStyle)
+                styledSnippet.font = spanFont
+                if (nextOpener == "~_") styledSnippet.style = "-fx-text-decoration: underline;"
                 styledSnippets.add(styledSnippet)
             }
             remainder = if (remainder.length > (spanText.length + 2))
@@ -75,13 +72,18 @@ object StyledText {
         }
     }
 
-    fun toAnnotatedString(text: String): TextFlow {
+    fun toAnnotatedString(text: String, font: Font = AppFonts.p, textColor: Color? = null): TextFlow {
+        styledSnippets.clear()
         remainder = text.replace("~\\", "\n")
         nextOpener = "?"
         while (nextOpener.isNotEmpty() && remainder.isNotEmpty())
             nextSnippet()
         if (remainder.isNotEmpty())
-            styledSnippets.add(Text(remainder))
+            styledSnippets.add(Text(remainder).apply {
+                this.font = font
+                if (textColor != null)
+                    fill = textColor
+            })
         val styledTexts = styledSnippets.map { it }.toTypedArray()
         return TextFlow(*styledTexts)
     }

@@ -17,9 +17,7 @@ package org.tfyh.api
 import org.tfyh.api.ApiHandler.Companion.API_VERSION
 import org.tfyh.api.ApiHandler.Companion.MESSAGE_SEPARATOR_STRING
 import org.tfyh.api.ApiHandler.Companion.MS_REPLACEMENT_STRING
-import org.tfyh.api.ApiHandler.Companion.apiHandler
 import org.tfyh.control.EventHandlerIF
-import org.tfyh.control.Logger
 import org.tfyh.control.LoggerSeverity
 import org.tfyh.data.Codec
 
@@ -27,7 +25,7 @@ import org.tfyh.data.Codec
  * The API container class providing container transmission check an error handling,
  * container parsing.
  */
-open class Container private constructor() {
+class Container private constructor() {
 
     /**
      * Then different types of results. Except for 300 and 900 these are all errors
@@ -118,11 +116,11 @@ open class Container private constructor() {
     )
 
     companion object {
-        protected val container = Container()
+        private val container = Container()
         fun getInstance() = container
     }
 
-    private var logger: Logger? = null
+    private lateinit var apiHandler: ApiHandler
 
     // transaction values as set iun the request
     val version : Int = API_VERSION
@@ -144,7 +142,7 @@ open class Container private constructor() {
         return ResultType.UNDEFINED
     }
 
-    fun setLogger(logger: Logger) { this.logger = logger }
+    fun setApiHandler(apiHandler: ApiHandler) { this.apiHandler = apiHandler }
 
     /**
      * Get a new empty container
@@ -165,27 +163,30 @@ open class Container private constructor() {
      */
     fun build (apiUserId: Int, apiSessionId: String): String {
         // use the globally provided user and session id, from page load.
-        var plain = "$version;$cID;$apiUserId;$apiSessionId;"
+        val containerHeader = "$version;$cID;$apiUserId;$apiSessionId;"
+        var containerPayload = ""
         for (i in transactions.indices) {
             val tx = transactions[i]
-            plain += buildString {
+            val txHeader = buildString {
                 append(tx.transactionId.toString())
                 append(";")
                 append(tx.type.toString().lowercase())
                 append(";")
                 append(tx.tableName)
-                append(";")
             }
+            var txPayload = ""
             for (key in tx.record.keys) {
                 val value =
                     tx.record[key]?.replace(MESSAGE_SEPARATOR_STRING, MS_REPLACEMENT_STRING)
-                plain += key + ";" + Codec.encodeCsvEntry(value) + ";"
+                txPayload += ";" + key + ";" + Codec.encodeCsvEntry(value)
             }
-            plain = plain.substring(0, plain.length - 1) + MESSAGE_SEPARATOR_STRING
+            containerPayload += txHeader + txPayload + MESSAGE_SEPARATOR_STRING
+            // uncomment next statement for debugging and testing
+            println(txHeader + ": " + Codec.apiEncode(containerHeader + txHeader + txPayload))
         }
-        plain = plain.substring(0, plain.length - MESSAGE_SEPARATOR_STRING.length)
-        val base64api = Codec.apiEncode(plain)
-        logger?.log(
+        containerPayload = containerPayload.substring(0, containerPayload.length - MESSAGE_SEPARATOR_STRING.length)
+        val base64api = Codec.apiEncode(containerHeader + containerPayload)
+        apiHandler.log(
             LoggerSeverity.INFO, "ApiHandler.buildContainer",
             "Container built: " + transactions.size + " transactions in " + base64api.length + " base64 characters")
         return base64api
@@ -196,8 +197,7 @@ open class Container private constructor() {
      * failed and remove the transactions from the container to unblock the queue
      */
     fun setFailedAndRemoveAllTransactions() {
-        val logger = ApiHandler.getInstance().logger
-        logger.log(LoggerSeverity.ERROR,
+        ApiHandler.getInstance().log(LoggerSeverity.ERROR,
             "Container.setFailedAndRemoveAllTransactions()",
             "Container #$cID failed: $cResultMessage. Invalidating all transactions.")
         transactions.forEach {
@@ -220,7 +220,7 @@ open class Container private constructor() {
      */
     fun processResponse (response: String) {
 
-        // Handle API compatibility, container Id and too few header parts errors
+        // Handle API compatibility, container id and too few header parts errors
         val plain = Codec.apiDecode(response)
         val plainParts = plain.split(";")
         val plainShort = if (plain.length < 100) plain else plain.substring(0, 100) + "..."
@@ -235,7 +235,7 @@ open class Container private constructor() {
                     ResultType.MISMATCHING_ID
                 else
                     ResultType.SYNTAX_ERROR
-            apiHandler.lastContainerResult = cParsingResult.result
+            apiHandler.setLastContainerResult(cParsingResult.result)
             cParsingError += cParsingResult.result.message + ". Container response: " + plainShort
             setFailedAndRemoveAllTransactions()
             return
@@ -245,7 +245,7 @@ open class Container private constructor() {
         cResultMessage = plainParts[3]
         try {
             val containerResult = getType(plainParts[2].toInt())
-            apiHandler.lastContainerResult = containerResult.result
+            apiHandler.setLastContainerResult(containerResult.result)
             cResultCode = containerResult.result.code
             if (cResultCode >= 40) {
                 if (cResultMessage.isEmpty()) cResultMessage = plainShort
@@ -263,18 +263,18 @@ open class Container private constructor() {
                         EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT,
                             if (cResultCode == ResultType.UNKNOWN_CLIENT.result.code) "unknownClient"
                             else "authenticationFailed")
-                    apiHandler.eventHandler.handleEvent(apiEvent)
+                    apiHandler.handleEvent(apiEvent)
                 }
                 return
             }
         } catch (_: NumberFormatException) {
-            apiHandler.lastContainerResult = ResultType.SYNTAX_ERROR.result
+            apiHandler.setLastContainerResult(ResultType.SYNTAX_ERROR.result)
             cResultCode = ResultType.SYNTAX_ERROR.result.code
             cParsingError += ResultType.SYNTAX_ERROR.result.message + plainShort
             setFailedAndRemoveAllTransactions()
             val apiEvent =
                 EventHandlerIF.Event(EventHandlerIF.EventType.API_EVENT, "containerFailed")
-            apiHandler.eventHandler.handleEvent(apiEvent)
+            apiHandler.handleEvent(apiEvent)
             return
         }
 
@@ -284,14 +284,14 @@ open class Container private constructor() {
 
         // handle no transactions in container error
         if (txcBody.isEmpty()) {
-            apiHandler.lastContainerResult = ResultType.EMPTY_RESPONSE_CONTAINER.result
+            apiHandler.setLastContainerResult(ResultType.EMPTY_RESPONSE_CONTAINER.result)
             cParsingError += ResultType.EMPTY_RESPONSE_CONTAINER.result.message
             setFailedAndRemoveAllTransactions()
             return
         }
 
         // parse and handle transactions
-        apiHandler.lastContainerResult = ResultType.RESPONSE_SUCCESSFULLY_PARSED.result
+        apiHandler.setLastContainerResult(ResultType.RESPONSE_SUCCESSFULLY_PARSED.result)
         val txResponsesAsList = txcBody.split(MESSAGE_SEPARATOR_STRING)
         for (i in txResponsesAsList.indices) {
             if (txResponsesAsList[i].isNotEmpty()) {
@@ -324,11 +324,11 @@ open class Container private constructor() {
      */
     fun logResponseError(caller: String, result: Result) {
         if (result.isPermanentError)
-            logger?.log(
+            apiHandler.log(
                 LoggerSeverity.ERROR, caller,
                 "Container failed permanently. ${transactions.size} transactions affected. Reason: " + result.message)
         else
-            logger?.log(
+            apiHandler.log(
                 LoggerSeverity.WARNING, "ApiHandler.handleHttpsError",
                 "Container failed temporarily. Will retry. Reason: " + result.message)
     }

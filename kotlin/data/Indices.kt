@@ -147,7 +147,7 @@ class Indices private constructor() {
     /**
      * Add all records of a table to the indices. Provides warnings on duplicates for uid and short UUID, i.e. the
      * first 11 characters of a UUID. This will be skipped, if the table was already loaded, but may then
-     * be enforced by setting forced to true
+     * be enforced by setting forced to true. When forced the indices are not cleared before loading.
      */
     internal fun addTable(recordItem: Item, forced: Boolean = false): String {
         val tableName = recordItem.name()
@@ -195,8 +195,7 @@ class Indices private constructor() {
      * The Form uses this public access to the #addTable private function
      */
     fun buildIndexOfNames(tableName: String) {
-        if (this.name2uuid[tableName] == null)
-            this.addTable(Config.getInstance().getItem(".tables.$tableName"))
+        this.addTable(Config.getInstance().getItem(".tables.$tableName"), true)
     }
 
     /**
@@ -250,7 +249,7 @@ class Indices private constructor() {
      * Restrict the search to a single table by setting the $tableName.
      */
     fun getTableForUuid(uuidOrShortUuid: String, tableName: String = "@all"): String {
-        if (uuidOrShortUuid.isEmpty())
+        if (uuidOrShortUuid.length < 11)
             return ""
         val shortUuid = uuidOrShortUuid.substring(0, 11)
         if (tableName != "@all") {

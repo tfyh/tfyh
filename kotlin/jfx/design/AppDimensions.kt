@@ -14,16 +14,10 @@
 
 package org.tfyh.jfx.design
 
-data class AppDimensions(
-    val smallSpacing: Int,
-    val regularSpacing: Int,
-    val largeSpacing: Int,
-    val textFieldHeight: Int = 16,
-    val pickerSize: Int = textFieldHeight * 10
-)
-
-val appDefaultDimensions = AppDimensions(
-    smallSpacing = 3,
-    regularSpacing = 12,
-    largeSpacing = 20
-)
+object AppDimensions {
+    val smallSpacing = 3.0
+    val regularSpacing = 12.0
+    val largeSpacing = 20.0
+    val textFieldHeight = 16.0
+    val pickerSize = textFieldHeight * 10
+}

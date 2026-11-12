@@ -26,6 +26,8 @@ import kotlin.math.abs
 @Suppress("Unused")
 object Formatter {
 
+    var useSeconds = true
+
     /* ------------------------------------------------------------------------ */
     /* ----- DATA FORMATTING -------------------------------------------------- */
     /* ----- No errors are documented ----------------------------------------- */
@@ -83,14 +85,17 @@ object Formatter {
         val s = (timeInt % 60).toString().padStart(2, '0')
         val m = ((timeInt / 60) % 60).toString().padStart(2, '0')
         val h = (timeInt / 3600).toString().padStart(2, '0')
-        return "$sign$h:$m:$s"
+        return if (useSeconds) "$sign$h:$m:$s" else "$sign$h:$m"
     }
 
     /**
      * Format a datetime value for storage in files and the database.
      */
     private fun formatDateTime(datetime: NoZoneDateTime, language: Language):
-            String = datetime.toDateTimeString(language)
+            String {
+        return if (useSeconds) datetime.toDateTimeString(language)
+        else datetime.toDateTimeString(language).substring(0, 16)
+    }
 
     /**
      * Format a string list for storage in files and the database.

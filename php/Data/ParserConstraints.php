@@ -56,6 +56,9 @@ class ParserConstraints
     private static NoZoneDateTime $DATETIME_EMPTY;
     public static NoZoneDateTime $DATETIME_MIN;
     public static NoZoneDateTime $DATETIME_MAX;
+    public static String $DATE_EMPTY_AS_STRING = "1753-01-01";
+    public static String $DATE_MIN_AS_STRING = "1753-01-02";
+    public static String $DATE_MAX_AS_STRING = "2999-12-31";
 
     public static function init(): void
     {
@@ -65,12 +68,12 @@ class ParserConstraints
          * For a wider range of dates one could use the Datetime2 data type, but this is not
          * available in MySQL. And the framework is meant to be implementation agnostic.
          */
-        self::$DATE_EMPTY = new NoZoneDateTime("1753-01-01");
-        self::$DATE_MIN = new NoZoneDateTime("1753-01-02");
-        self::$DATE_MAX = new NoZoneDateTime("2999-12-31");
-        self::$DATETIME_EMPTY = new NoZoneDateTime("1753-01-01 00:00:00");
-        self::$DATETIME_MIN = new NoZoneDateTime("1753-01-02 00:00:00");
-        self::$DATETIME_MAX = new NoZoneDateTime("2999-12-31 23:59:59");
+        self::$DATE_EMPTY = new NoZoneDateTime(self::$DATE_EMPTY_AS_STRING);
+        self::$DATE_MIN = new NoZoneDateTime(self::$DATE_MIN_AS_STRING);
+        self::$DATE_MAX = new NoZoneDateTime(self::$DATE_MAX_AS_STRING);
+        self::$DATETIME_EMPTY = new NoZoneDateTime(self::$DATE_EMPTY_AS_STRING . " 00:00:00");
+        self::$DATETIME_MIN = new NoZoneDateTime(self::$DATE_MIN_AS_STRING . " 00:00:00");
+        self::$DATETIME_MAX = new NoZoneDateTime(self::$DATE_MAX_AS_STRING . " 23:59:59");
     }
 
     // this is an arbitrary limit which will fit into a MySQL data field

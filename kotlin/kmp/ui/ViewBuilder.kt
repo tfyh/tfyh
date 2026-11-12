@@ -16,10 +16,7 @@ package org.tfyh.kmp.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,21 +42,23 @@ import org.tfyh.data.DataBase
 import org.tfyh.kmp.design.AppTheme
 import org.tfyh.kmp.design.Theme
 
-data class Dimensions(var widthDp: Dp, var heightDp: Dp) {
-    fun widthDp() = widthDp
-    fun heightDp() = heightDp
-    fun isPortrait() = heightDp > widthDp
-}
-
 /**
- * The Stage represents the screen in three layers: the main, the modal, and the dialogue. The
- * Application will use the main to display any information, the modal to entered data in forms
+ * The ViewBuilder composes the view in three layers: the main, the modal, and the dialogue. The
+ * Application will use the main to display any information, the modal to enter data in forms
  * and the dialogue to call for user action e.g. in case of errors. The layout of the main is build
  * using Sectors hierarchically.
  */
-object Stage: EventHandlerIF {
+class ViewBuilder private constructor(): EventHandlerIF {
 
-    private var density = 1.0F
+    companion object {
+        private val instance = ViewBuilder()
+        fun getSingleton() = instance
+
+        private var density = 1.0F
+        internal fun pxToDp(px: Double): Dp = (px / density).dp
+        internal fun dpToPx(dp: Dp): Double = (dp * density).value.toDouble()
+    }
+
     private var widthDp: Dp = 400.dp
     private var heightDp: Dp = 400.dp
     private var sizePx: Int = 160000
@@ -80,8 +79,8 @@ object Stage: EventHandlerIF {
     }
     var dialogContent = emptyDialogContent
 
-    fun setDimensions(width: Int, height: Int, stageDensity: Float) {
-        density = stageDensity
+    fun setDimensions(width: Int, height: Int, screenDensity: Float) {
+        density = screenDensity
         widthDp = pxToDp(width.toDouble())
         heightDp = pxToDp(height.toDouble())
         sizePx = (width * height)
@@ -95,40 +94,26 @@ object Stage: EventHandlerIF {
         if (heightDp < 500.dp) heightDp * 0.9F
         else if (heightDp < 1200.dp) heightDp * 0.8F
         else if (heightDp < 1800.dp) heightDp * 0.7F
-        else 1260.dp)
-    fun getDialogMaxDimensions() = Dimensions(
-        if (widthDp < 500.dp) widthDp * 0.9F
-        else if (widthDp < 1200.dp) widthDp * 0.8F
-        else 960.dp,
-        if (heightDp < 500.dp) heightDp * 0.9F
-        else if (heightDp < 1200.dp) heightDp * 0.8F
-        else if (heightDp < 1800.dp) heightDp * 0.7F
-        else 1260.dp)
+        else 1260.dp
+    )
 
-    internal fun pxToDp(px: Double): Dp = (px / density).dp
-    internal fun dpToPx(dp: Dp): Double = (dp * density).value.toDouble()
     fun isPortrait() = (widthDp / heightDp < 0.8)
     fun fontZoom() = fontZoom
 
-    val viewModel = StageViewModel()
+    private val model = Model()
 
-    /**
-     * Show a text as dialogue. The text may have formatting information.
-     */
-    fun showDialogue(text: String) {
-        dialogContent = {
-            Column(modifier = Modifier.fillMaxWidth().padding(Theme.dimensions.largeSpacing),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                AppLabel(text)
-                SubmitButton(text = "Ok", onClick = { viewModel.setVisibleDialog(false) } )
-            }
-        }
-        viewModel.setVisibleDialog(true)
+    fun setVisibleMain(visibility: Boolean) = model.setVisibleMain(visibility)
+    fun setVisibleModal(visibility: Boolean) = model.setVisibleModal(visibility)
+    fun setVisibleDialogue(visibility: Boolean) = model.setVisibleDialogue(visibility)
+    fun showDialogue(message: String) {
+        dialogContent =
+            { Text(text = message, textAlign = TextAlign.Center,style = Theme.fonts.h2) }
+        setVisibleDialogue(true)
     }
 
     @Composable
     fun BuildUi(fontFamily: FontFamily, uiProviderFactory: UIProviderFactoryIF) {
-        val showMainState by remember { mutableStateOf(viewModel.versionMain) }
+        val showMainState by remember { mutableStateOf(model.versionMain) }
         val showMain = showMainState.collectAsStateWithLifecycle().value
         val config = Config.getInstance()
         if (config.ready() && (showMain > 0)) {
@@ -145,11 +130,11 @@ object Stage: EventHandlerIF {
                         else
                             config.getItem(".ui.profiles.dilbo.landscape").valueCsv()
                     val uiItem = config.getItem(".ui.layouts.$layoutName")
-                    layoutRoot = Sector(uiItem, isPortrait(), uiProviderFactory)
+                    layoutRoot = Sector(uiItem, uiProviderFactory)
                     layoutRoot?.BuildSector(widthDp, heightDp)
                 }
                 // the modal
-                val showModal = viewModel.versionModal.collectAsStateWithLifecycle()
+                val showModal = model.versionModal.collectAsStateWithLifecycle()
                 if (showModal.value > 0) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -173,7 +158,7 @@ object Stage: EventHandlerIF {
                 }
 
                 // the dialogue
-                val showDialog = viewModel.versionDialog.collectAsStateWithLifecycle()
+                val showDialog = model.versionDialog.collectAsStateWithLifecycle()
                 if (showDialog.value > 0) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -203,7 +188,7 @@ object Stage: EventHandlerIF {
         return false
     }
 
-    class StageViewModel {
+    class Model {
 
         private val _versionMain: MutableStateFlow<Int> = MutableStateFlow(0)
         internal val versionMain: StateFlow<Int> = _versionMain
@@ -219,7 +204,7 @@ object Stage: EventHandlerIF {
             _versionModal.update { if (visibility) _versionModal.value + 1 else 0 }
         }
 
-        fun setVisibleDialog(visibility: Boolean) {
+        fun setVisibleDialogue(visibility: Boolean) {
             _versionDialog.update { if (visibility) _versionDialog.value + 1 else 0 }
         }
     }

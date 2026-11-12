@@ -14,39 +14,36 @@
 
 package org.tfyh.jfx.ui
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import javafx.scene.input.KeyCode
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Region
+import javafx.scene.layout.VBox
+import javafx.scene.shape.Box
 import org.tfyh.api.ApiHandler
 import org.tfyh.api.Transaction
-import org.tfyh.data.Codec
-import org.tfyh.data.Config
-import org.tfyh.data.Formatter
-import org.tfyh.data.Ids
-import org.tfyh.data.Item
-import org.tfyh.data.Parser
-import org.tfyh.data.ParserName
-import org.tfyh.data.Record
+import org.tfyh.data.*
+import org.tfyh.jfx.design.AppColours
+import org.tfyh.jfx.design.AppDimensions
+import org.tfyh.jfx.design.AppFonts
 import org.tfyh.util.Language
-import kotlin.math.min
 
 class Form(
     private val _recordItem: Item,
     private val formDefinition: String = "",
-    dimensions: Dimensions,
+    val dimensions: ViewBuilder.Dimensions,
     private val onSubmit: () -> Unit,
-) : UIProviderIF {
+) : UIProviderIF, Pane() {
 
     internal var formErrors: String = "" // validation errors as String
     internal var formHeadline: String = "" // headline for the form, leave empty to use the record item label
+    private var formRows: MutableList<HBox> = mutableListOf() // rows of the form which contain fields
     var inputFields: MutableMap<String, FormField> = mutableMapOf()   // used by the FormHandler class
     internal var previousErrors: String = "" // for display of entry errors on top of the form
     private var fsId = Ids.generateUid(4)
     private var formColumnsCount: Int = 0
+    val widthPx = dimensions.widthPx
     private var formFieldFocused: FormField? = null
-
-
-    val viewModel = FormViewModel(dimensions)
 
     /* ---------------------------------------------------------------------- */
     /* --------------------- INITIALIZATION --------------------------------- */
@@ -74,6 +71,7 @@ class Form(
         val config = Config.getInstance()
 
         // identify form columns count
+        formColumnsCount = 0
         for (definitionRow in definitionRows) {
             val namesStr = definitionRow["names"]
             if (namesStr != null) {
@@ -84,16 +82,19 @@ class Form(
 
         // '*' = required, '.' = hidden, '!' = read-only, '~' = display value like bold label
         val modifierChars = listOf("*", ".", "!", "~", ">", "<")
-        var i = 0
-        val formFieldsItem = config.getItem(".framework.form_fields")
+        var i = 0 // index of form fields including th virtual fields which fill empty spaces in the grid
+        val formFieldsBranchItem = config.getItem(".framework.form_fields")
+        // iterate through form rows
         for (definitionRow in definitionRows) {
             val rowTag = definitionRow["rowTag"]
             val namesStr = definitionRow["names"]
             val labelsStr = definitionRow["labels"]
             if ((namesStr != null) && (labelsStr != null)) {
                 val namesPlus = Parser.parse(namesStr, ParserName.STRING_LIST, Language.CSV)
+                // namesPlus are the names including their modifier characters for this row
                 val labels = Parser.parse(labelsStr, ParserName.STRING_LIST, Language.CSV)
-                var c = 0
+                // labels overwrite the default label of the form field if not empty. They will not be checked in i18n parsing.
+                var c = 0 // the column in the grid
                 if ((namesPlus is List<*>) && (labels is List<*>)) {
                     for (namePlus in namesPlus) {
                         var inputFieldName = namePlus as String
@@ -103,7 +104,7 @@ class Form(
                             if (inputFieldName.isNotEmpty() && (modifierChars.indexOf(inputFieldName.substring(0, 1)) >= 0))
                                 inputFieldName.substring(0, 1)
                             else ""
-                        // the last form field in a row will always fill the remainder with the row.
+                        // the last form field in a row will always fill the remainder within that row.
                         val formColumnsSpan =
                             if (c == (namesPlus.size - 1)) formColumnsCount - c
                             else 1
@@ -112,7 +113,6 @@ class Form(
                         var dataFieldName = inputFieldName
                         if (inputFieldName.contains("#")) {
                             dataFieldName = inputFieldName.substring(0, inputFieldName.indexOf("#"))
-                            // inputName = namePlusStr.replace("#", "_")
                             try  {
                                 listPosition = inputFieldName.substring(inputFieldName.indexOf("#") + 1).toInt()
                             } catch (_: Exception) {}
@@ -120,54 +120,23 @@ class Form(
                         if (inputFieldName.isNotEmpty())
                             this.inputFields[inputFieldName] =
                                 if (_recordItem.hasChild(dataFieldName))
-                                    FormField(
-                                        this,
-                                        _recordItem,
-                                        modifierChar,
-                                        dataFieldName,
-                                        label,
-                                        useRowTag,
-                                        i,
-                                        listPosition,
-                                        onSubmit,
-                                        formColumnsSpan
-                                    )
+                                    FormField(this,_recordItem, modifierChar,dataFieldName,
+                                        label, useRowTag, i, listPosition, onSubmit, formColumnsSpan)
                                 else
-                                    FormField(
-                                        this,
-                                        formFieldsItem,
-                                        modifierChar,
-                                        inputFieldName,
-                                        label,
-                                        useRowTag,
-                                        i,
-                                        0,
-                                        onSubmit,
-                                        formColumnsSpan
-                                    )
+                                    FormField(this,formFieldsBranchItem, modifierChar, inputFieldName,
+                                        label, useRowTag, i, 0, onSubmit, formColumnsSpan)
                         else {
                             val virtualName = "_$i"
                             this.inputFields[virtualName] =
-                                FormField(
-                                    this,
-                                    config.invalidItem,
-                                    modifierChar,
-                                    virtualName,
-                                    virtualName,
-                                    useRowTag,
-                                    i,
-                                    0,
-                                    { },
-                                    formColumnsSpan
-                                )
+                                FormField(this, config.invalidItem, modifierChar, virtualName,
+                                    virtualName, useRowTag, i, 0,{ }, formColumnsSpan)
                         }
                         if ((listPosition > 0) && (_recordItem.hasChild(dataFieldName))
                                 && (this.inputFields[dataFieldName] == null))
                             this.inputFields[dataFieldName] = FormField(
-                                this, _recordItem, "",
-                                dataFieldName, label, "", i, -1, onSubmit, formColumnsSpan
+                                this, _recordItem, "", dataFieldName,
+                                label, "", i, -1, onSubmit, formColumnsSpan
                             )
-
                         c++
                         i++
                     }
@@ -177,29 +146,14 @@ class Form(
     }
 
     /**
-     * Get the width of a form field depending on its span
+     * Get the width of a form field depending on its span.
      */
-    fun getFieldWidth(columnsSpan: Int = 1): Dp {
-        val formColumnsCount = responsiveFormColumnsCount(viewModel.dimensions.widthDp())
-        val widthDp = viewModel.dimensions.widthDp()
-        val basicWidth = when (formColumnsCount) {
-            1 -> if (widthDp < 400.dp) widthDp * 0.9F
-            else if (widthDp < 600.dp) widthDp * 0.75F
-            else 350.dp
-
-            2 -> if (widthDp < 600.dp) widthDp * 0.43F
-            else if (widthDp < 900.dp) widthDp * 0.35F
-            else 350.dp
-
-            else -> if (widthDp < 900.dp) widthDp * 0.28F
-            else if (widthDp < 1200.dp) widthDp * 0.25F
-            else 350.dp
-        }
-        return ((basicWidth +
-                appDimensions.regularSpacing) * min(columnsSpan, formColumnsCount) -
-                appDimensions.regularSpacing)
+    fun getFieldWidth(columnsSpan: Int): Int {
+        val unitWidth = (widthPx - 2 * AppDimensions.regularSpacing) / formColumnsCount - AppDimensions.regularSpacing
+        val spanWidth = unitWidth * columnsSpan
+        val additionalSpacing = AppDimensions.regularSpacing * (columnsSpan - 1)
+        return (spanWidth + additionalSpacing).toInt()
     }
-
 
     /**
      * Convenience shortcut to check whether the form was initialised with a valid configuration
@@ -210,12 +164,7 @@ class Form(
      * Hide an input field
      */
     fun setVisible(fieldName: String, visible: Boolean) {
-        val inputField = inputFields[fieldName]
-        if (inputField != null) {
-            if (visible) inputField.viewModel.show()
-            else inputField.viewModel.hide()
-            viewModel.show()
-        }
+        inputFields[fieldName]?.setVisibility(visible)
     }
     /**
      * the form input field gathered focus. Notify the previous one about its focus losing.
@@ -228,6 +177,8 @@ class Form(
      * Preset all values of the form with those of the provided row. Strings are shown in the form as is,
      * they must be formatted and ids resolved. Only dates are reformatted from the local format to the
      * browser expected YYYY-MM-DD.
+     * @param asEntered Set to true to also change the entered value of the form field. The effect is, that
+     * no change is detected for the value if the value is kept.
      */
     fun presetWithStrings(row: Map<String, String>, asEntered: Boolean = false) {
         for (fieldName in this.inputFields.keys) {
@@ -238,79 +189,63 @@ class Form(
         }
     }
 
-    fun responsiveFormColumnsCount(widthDp: Dp) =
-        if (widthDp < 800.dp) 1 else formColumnsCount
-
     /**
      * compose the form based on the field set.
      */
-    override fun composeContent () {
-        val versionState by remember { mutableStateOf(viewModel.version) }
-        val version = versionState.collectAsStateWithLifecycle().value
-        val widthState by remember { mutableStateOf(viewModel.widthDp) }
-        val widthDp = widthState.collectAsStateWithLifecycle().value
-        if (version >= 0) {
-            val inputNames = inputFields.keys.toList()
-            var index = 0
-            val rsp = Theme.dimensions.regularSpacing
-            val headline = formHeadline.ifEmpty { _recordItem.label() }
-            // the fsId is used to hide the
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .wrapContentSize()
-            ) {
-                // responsive layout. only one column of fields for small portrait screens
-                val cCnt = responsiveFormColumnsCount(widthDp)
-
-                Spacer(modifier = Modifier.height(rsp))
-                Row(modifier = Modifier.width(getFieldWidth(cCnt))) {
-                    if (Stage.isPortrait())
-                        Spacer(modifier = Modifier.width(rsp))
-                    AppLabel(text = headline, large = true)
-                }
-                if (previousErrors.isNotEmpty())
-                    Row(modifier = Modifier.width(getFieldWidth(cCnt))) {
-                        Text(
-                            text = previousErrors,
-                            style = Theme.fonts.p,
-                            color = Theme.colors.color_all_form_input_invalid
-                        )
+    override fun build (): Region {
+        // set headline and error message
+        val headline = HBox(0.0,
+            appLabel(formHeadline.ifEmpty { _recordItem.label() }, AppFonts.h3))
+        formRows.clear()
+        formRows.add(headline)
+        if (previousErrors.isNotEmpty())
+        formRows.add(HBox(appLabel(previousErrors,
+            textColor = AppColours.all_form_input_invalid)))
+        // build form
+        val inputNames = inputFields.keys.toList()
+        var index = 0
+        // responsive layout. only one column of fields for small portrait screens
+        val cCnt = formColumnsCount
+        var fieldsInRow = mutableListOf<Region?>()
+        var c = 0
+        while (index < inputNames.size) {
+            while ((index < inputNames.size) && (c < cCnt)) {
+                val ff = inputFields[inputNames[index]]
+                if ((ff?.listPosition ?: -1) >= 0) {
+                    // add a spacer for a detached row
+                    if (ff?.rowTag == "R")
+                        formRows.add(HBox().apply {
+                            prefHeight = AppDimensions.regularSpacing
+                            // border = AppColours.borderSpacer()
+                        })
+                    val ffUI = ff?.build().apply {
+                        prefWidth = getFieldWidth(ff?.columnsSpan ?: 1).toDouble()
                     }
-                while (index < inputNames.size) {
-                    val inputField = inputFields[inputNames[index]]
-                    if (inputField != null) {
-                        // the "listPosition == 0" fields contain the summary of list fields
-                        // and are not displayed, only fields for the list members
-                        if (inputField.rowTag == "R")
-                            Spacer(modifier = Modifier.height(rsp))
-                        Row {
-                            if (Stage.isPortrait())
-                                Spacer(modifier = Modifier.width(rsp))
-                            if (inputField.listPosition >= 0)
-                                inputField.Compose()
-                            index++
-                            var c = 1
-                            while ((index < inputNames.size) && (c < cCnt)
-                                && (inputFields[inputNames[index]]?.rowTag == "")
-                            ) {
-                                val ff = inputFields[inputNames[index]]
-                                if ((ff?.listPosition ?: -1) >= 0) {
-                                    Spacer(modifier = Modifier.width(rsp))
-                                    ff?.Compose()
-                                    c++
-                                }
-                                index++
-                            }
-                            Spacer(modifier = Modifier.width(rsp))
-                        }
-                    } else
-                        index++
+                    fieldsInRow.add(ffUI ?: VBox())
+                    c++
                 }
-                Spacer(modifier = Modifier.height(rsp))
+                index++
+                // close row, if either columns were filled up or the next form field opens a new row
+                if ((index >= inputNames.size) ||
+                    (inputFields[inputNames[index]]?.rowTag != "") || (c == cCnt)) {
+                    if (fieldsInRow.isNotEmpty()) {
+                        val row = HBox(AppDimensions.regularSpacing, *fieldsInRow.toTypedArray())
+                        formRows.add(row)
+                        fieldsInRow = mutableListOf()
+                        c = 0
+                    }
+                }
             }
         }
+        return VBox(AppDimensions.regularSpacing, *formRows.toTypedArray()).apply {
+            onKeyPressed = {
+                key -> if (key.code == KeyCode.ENTER)
+                    onSubmit()
+            }
+            prefWidth = widthPx.toDouble()
+        }
     }
+
     /**
      * read all values entered.
      */
@@ -358,23 +293,4 @@ class Form(
         )
     }
 
-    companion object {
-        class FormViewModel(val dimensions: Dimensions): ViewModel() {
-            private val _version = MutableStateFlow(0) // private mutable state flow
-            val version = _version.asStateFlow() // publicly exposed as read-only state flow
-            private val _widthDp = MutableStateFlow(0.dp) // private mutable state flow
-            val widthDp = _widthDp.asStateFlow() // publicly exposed as read-only state flow
-
-            fun show() {
-                _widthDp.update { dimensions.widthDp() }
-                _version.update { _version.value + 1 }
-            }
-            fun hide() {
-                _widthDp.update { dimensions.widthDp() }
-                _version.update { 0 }
-            }
-
-        }
-
-    }
 }

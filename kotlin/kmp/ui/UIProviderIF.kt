@@ -17,8 +17,8 @@ package org.tfyh.kmp.ui
 import androidx.compose.runtime.Composable
 
 /**
- * The fyh framework provides support for the UI composition and handles the screen layout
- * within the Stage and Sector classes. The application can add content to the screen by
+ * The tfyh framework provides support for the UI composition and handles the screen layout
+ * within the ViwBuilder and Sector classes. The application can add content to the screen by
  * providing content to the Sector class which will be included in the composition.
  */
 interface UIProviderIF {

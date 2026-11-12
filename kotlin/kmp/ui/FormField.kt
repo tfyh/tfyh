@@ -21,7 +21,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import org.dilbo.app.FormHandler
+import org.dilbo.core.FormHandler
 import org.tfyh.control.LoggerSeverity
 import org.tfyh.data.Config
 import org.tfyh.data.Findings
@@ -70,7 +70,7 @@ data class FormField (
     val item: Item // the item which holds the definition of the form fields data
     val label: String // the label to display
     val type: Type // the type of data of this field
-    var width: Dp // the width of this field. This will be deduced by the Stage width and the columns span
+    var width: Dp // the width of this field. This will be deduced by the Screen width and the columns span
     val options: MutableMap<String, Any> = mutableMapOf() // the set of options for select and autocomplete fields
     var preset: String = "" // the preset value as String
     var entered: String = "" // the entered value as String

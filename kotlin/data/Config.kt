@@ -14,6 +14,9 @@
 
 package org.tfyh.data
 
+import javafx.application.Platform
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import org.tfyh.control.Logger
 import org.tfyh.control.LoggerSeverity
 import org.tfyh.util.I18n
@@ -83,9 +86,10 @@ class Config private constructor() {
     private var language: Language = Language.EN
     internal val logger = Logger("config")
     private var localCache : LocalCacheIF? = null
+    var debug = false
 
     var appVersion: String = "0.0"
-    private var appName: String = ""
+    var appName: String = ""
     var appUrl: String = ""
 
     fun setLocalCache(localCache: LocalCacheIF) { this.localCache = localCache }
@@ -178,6 +182,7 @@ class Config private constructor() {
                 try {
                     lc.setItem(lcPath, resProvider.readBytes("files/Config/packaged/$settingsFile").decodeToString())
                 } catch (_: Exception) {
+                    currentCoroutineContext().ensureActive()
                     logger.log(LoggerSeverity.ERROR, "Config.load()", "Missing packaged settings file: $settingsFile")
                     lc.setItem(lcPath, "")
                 }
@@ -207,6 +212,9 @@ class Config private constructor() {
         appName = getItem(".framework.app.name").valueCsv()
         appUrl = getItem(".framework.app.url").valueCsv()
         appVersion = getItem(".framework.app.version").valueStr()
+        try {
+            debug = getItem(".app.operations.debug_on").value() as Boolean
+        } catch (_: Exception) {}
 
         // trigger the loading of the language resource file
         I18n.getInstance().loadResource(language, resProvider)
