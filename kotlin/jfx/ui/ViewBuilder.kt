@@ -15,27 +15,22 @@
 package org.tfyh.jfx.ui
 
 import javafx.application.Platform
-import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Insets
+import javafx.scene.Node
 import javafx.scene.Scene
-import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
-import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.Window
 import javafx.util.Builder
-import org.dilbo.core.EventHandler
 import org.tfyh.control.EventHandlerIF
+import org.tfyh.control.EventHandlerIF.EventType
 import org.tfyh.control.Logger
+import org.tfyh.control.LoggerSeverity
 import org.tfyh.data.Config
 import org.tfyh.data.DataBase
-import org.tfyh.data.NoZoneDateTime
 import org.tfyh.jfx.design.AppColours
-import org.tfyh.jfx.design.AppDimensions
-import org.tfyh.util.Language
-import org.tfyh.util.Timer
 
 /**
  * The ViewBuilder represents the screen in three layers: the main, the modal, and the dialogue. The
@@ -43,7 +38,7 @@ import org.tfyh.util.Timer
  * and the dialogue to call for user action e.g. in case of errors. The layout of the main is build
  * using Sectors hierarchically.
  */
-class ViewBuilder private constructor(): Builder<Region?>, EventHandlerIF {
+class ViewBuilder private constructor(): Builder<Pane?>, EventHandlerIF {
 
     companion object {
 
@@ -60,13 +55,14 @@ class ViewBuilder private constructor(): Builder<Region?>, EventHandlerIF {
         fun isPortrait() = widthPx < heightPx
     }
 
-    private lateinit var eventHandler: EventHandler
+    private lateinit var eventHandler: EventHandlerIF
     private lateinit var uiProviderFactory: UIProviderFactoryIF
     private var widthPx: Int = 400
     private var heightPx: Int = 400
     internal val logger = Logger("ui")
 
     private var layoutRoot: Sector? = null
+    private val registeredHandlers: MutableMap<EventHandlerIF, MutableList<EventType>> = mutableMapOf()
 
     class DialogOrModalStage(isModal: Boolean, owner: Window) : Stage() {
         init {
@@ -74,13 +70,36 @@ class ViewBuilder private constructor(): Builder<Region?>, EventHandlerIF {
             try {
                 initOwner(owner)
             } catch (_: IllegalStateException) {}
+            onCloseRequest = {
+                clearOnClose()
+                val sceneRoot = scene.root
+                if (sceneRoot is Pane)
+                    getInstance().removeHandlerByPane(sceneRoot)
+            }
+        }
+
+        fun removeContent(pane: Pane) {
+            val children = mutableListOf<Node>()
+            // copy the children to avoid a concurrent modification exception
+            pane.children.toCollection(children)
+            for (child in children) {
+                if (child is Pane)
+                    removeContent(child)
+                else pane.children.remove(child)
+            }
+        }
+        fun clearOnClose() {
+            val rootNode = scene.root
+            if (rootNode is Pane)
+                removeContent(rootNode)
         }
     }
 
     private val dialogInsets = Insets(30.0)
     private val modalInsets = Insets(20.0)
 
-    private lateinit var dialog: DialogOrModalStage
+    private lateinit var editDialogue: DialogOrModalStage
+    private lateinit var dialogue: DialogOrModalStage
     private lateinit var modal: DialogOrModalStage
 
     /**
@@ -90,12 +109,15 @@ class ViewBuilder private constructor(): Builder<Region?>, EventHandlerIF {
     var modalPopupActive = false
     private lateinit var main : Stage
 
-    fun init(eventHandler: EventHandler, uiProviderFactory: UIProviderFactoryIF, primaryStage: Stage, width: Int, height: Int) {
+    fun init(eventHandler: EventHandlerIF, uiProviderFactory: UIProviderFactoryIF, primaryStage: Stage, width: Int, height: Int) {
         this.eventHandler = eventHandler
         this.uiProviderFactory = uiProviderFactory
         this.main = primaryStage
-        this.modal = DialogOrModalStage(true, main)
-        this.dialog = DialogOrModalStage(false, modal)
+        this.modal = DialogOrModalStage(true, main).apply {
+            onCloseRequest = {  }
+        }
+        this.dialogue = DialogOrModalStage(false, modal)
+        this.editDialogue = DialogOrModalStage(false, modal)
         this.widthPx = width
         this.heightPx = height
     }
@@ -116,29 +138,76 @@ class ViewBuilder private constructor(): Builder<Region?>, EventHandlerIF {
     fun isPortrait() = ((widthPx.toDouble() / heightPx) < 0.8)
 
     /**
+     * Print the hierarchy of the content pane to the console
+     * For debugging purposes.
+     */
+    private fun printViewHierarchy(content: Pane, indent: String = "-> ") {
+        println("$indent$content")
+        val childIndent = "$indent  "
+        for (childContent in content.children)
+            if (childContent is Pane)
+                printViewHierarchy(childContent, childIndent)
+            else
+                println("$indent$childContent @ ${childContent.scene}")
+    }
+
+    /**
+     * Remove the event handlers which are displayed as UI-provider on a pane from the EventHandler registration.
+     */
+    private fun removeEventHandlers(pane: Pane) {
+        removeHandlerByPane(pane)
+        for (childPane in pane.children)
+            if (childPane is Pane)
+                removeEventHandlers(childPane)
+    }
+
+    /**
      * Show a text as dialogue. The text may have formatting information. Invoked using the Platform.runLater
      * thread shift mechanics.
      */
     fun showDialogue(text: String) {
         val formatted = StyledText.toAnnotatedString(text)
         Platform.runLater {
-            dialog.scene = Scene(VBox(10.0, formatted).apply {
+            dialogue.scene = Scene(VBox(10.0, formatted).apply {
                 padding = dialogInsets
-                if (Config.getInstance().debug) border = AppColours.borderTest()
+                if (Config.getInstance().debug)
+                    border = AppColours.borderTest()
             })
-            dialog.show()
+            dialogue.show()
         }
+    }
+
+    /**
+     * Show the translation suggestion edit dialogue. Invoked using the Platform.runLater thread shift mechanics.
+     */
+    fun showEditDialogue(content: Pane) {
+        editDialogue.scene = Scene(content.apply {
+            padding = modalInsets
+            if (Config.getInstance().debug)
+                border = AppColours.borderTest()
+        })
+        editDialogue.show()
     }
 
     /**
      * Show the modal. Must be invoked from the UI Thread.
      */
-    fun showModal(content: Region) {
+    fun showModal(content: Pane) {
         modal.scene = Scene(content.apply {
             padding = modalInsets
-            if (Config.getInstance().debug) border = AppColours.borderTest()
+            if (Config.getInstance().debug)
+                border = AppColours.borderTest()
         })
         modal.show()
+        // for debug purposes only
+        // printViewHierarchy(content)
+    }
+
+    /**
+     * Hide the edit dialogue. Must be invoked from the UI Thread.
+     */
+    fun hideEditDialogue() {
+        editDialogue.hide()
     }
 
     /**
@@ -149,16 +218,26 @@ class ViewBuilder private constructor(): Builder<Region?>, EventHandlerIF {
         modalPopupActive = false
     }
 
+    override var isDisplayedOn: Pane? = null
+        get() = field // Access the backing field
+        set(value) { field = value } // Modify the backing field
+
     override fun handleEvent(event: EventHandlerIF.Event): Boolean {
-        if (event.type == EventHandlerIF.EventType.DATA_EVENT) {
+
+        var isHandled = false
+        for (registeredHandler in registeredHandlers.keys)
+            if (registeredHandlers[registeredHandler]?.contains(event.type) ?: false)
+                isHandled = (registeredHandler.handleEvent(event) or isHandled)
+
+        if (event.type == EventType.DATA_EVENT) {
             val table = DataBase.getInstance().getTableOrNull(event.sourceItem.name()) ?: return false
             layoutRoot?.notifyChange(table, event.uid, event.name) ?: return false
             return true
         }
-        return false
+        return isHandled
     }
 
-    override fun build(): Region {
+    override fun build(): Pane {
         // the main will always show up in the background
         val config = Config.getInstance()
         val layoutName =
@@ -169,12 +248,37 @@ class ViewBuilder private constructor(): Builder<Region?>, EventHandlerIF {
         val uiItem = config.getItem(".ui.layouts.$layoutName")
         val layoutRoot = Sector(uiItem, uiProviderFactory, null)
         layoutRoot.setDimensions(widthPx, heightPx)
-        // the modal
-            // TODO
-        // the dialogue
-            // TODO
         this.layoutRoot = layoutRoot
-        return layoutRoot.build()
+        val main = layoutRoot.build()
+        // for debugging purposes only
+        // printViewHierarchy(main)
+        return main
+    }
+
+    fun registerHandler(eventHandler: EventHandlerIF, eventType: EventType) {
+        val registration = registeredHandlers[eventHandler] ?: mutableListOf()
+        registration.add(eventType)
+        registeredHandlers[eventHandler] = registration
+        Config.getInstance().logger.log(LoggerSeverity.DEBUG,"ViewBuilder.registerHandler()",
+            "Registered ${eventHandler}. All handlers size = " + registeredHandlers.size)
+    }
+
+    fun removeHandler(eventHandler: EventHandlerIF) {
+        registeredHandlers.remove(eventHandler)
+        Config.getInstance().logger.log(LoggerSeverity.DEBUG,"ViewBuilder.removeHandler()",
+            "Removed $eventHandler. " + registeredHandlers.size + " are left.")
+    }
+
+    fun removeHandlerByPane(isDisplayedOn: Pane?) {
+        if (isDisplayedOn == null)
+            return
+        // Collect all to remove and remove this collection to avoid concurrency violations
+        val toRemove = mutableListOf<EventHandlerIF>()
+        for (handler in registeredHandlers.keys)
+            if (handler.isDisplayedOn == isDisplayedOn)
+                toRemove.add(handler)
+        for (handler in toRemove)
+            removeHandler(handler)
     }
 
 }

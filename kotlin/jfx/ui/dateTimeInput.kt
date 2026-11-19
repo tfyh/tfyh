@@ -21,7 +21,6 @@ import javafx.scene.control.DatePicker
 import javafx.scene.control.TextField
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
-import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import org.tfyh.data.Formatter
 import org.tfyh.data.ParserName
@@ -33,8 +32,8 @@ import org.tfyh.jfx.design.AppDimensions
  */
 fun dateTimeInput(formField: FormField): Pane {
 
-    // The form may be re-built. Reuse the entered value then as preset. DateTime inputs habe no property binding between entered and text properties,
-    // because two input texts represent the single entered value
+    // The form may be re-built. Reuse the entered value then as preset. DateTime inputs have no property binding
+    // between entered and text properties, because two input texts represent the single entered value
     if (formField.entered.value.isNotEmpty())
         formField.preset = formField.entered.value
     if (formField.preset.isEmpty())
@@ -43,7 +42,7 @@ fun dateTimeInput(formField: FormField): Pane {
     val presetLocalTime = formField.preset.substring(11,16)
     val fieldWidthPx = formField.parentForm.getFieldWidth(formField.columnsSpan)
     val dateWidthPx = fieldWidthPx.toDouble() / 2
-    val timeWidthPx = dateWidthPx - AppDimensions.regularSpacing
+    val timeWidthPx = dateWidthPx - AppDimensions.REGULAR_SPACING
 
     val isImmutable = ((formField.modifierChar == "!") || formField.modifierChar == "~")
     val dateInput = DatePicker()
@@ -64,7 +63,7 @@ fun dateTimeInput(formField: FormField): Pane {
     }
     timeInput.prefWidth = timeWidthPx
 
-    val dateTimeInputControl = HBox(AppDimensions.regularSpacing,
+    val dateTimeInputControl = HBox(AppDimensions.REGULAR_SPACING,
         if (isImmutable) dateInputTextField else dateInput, timeInput)
-    return VBox(appLabel(formField.label), dateTimeInputControl)
+    return VBox(appLabel(formField.label, formField.item), dateTimeInputControl)
 }

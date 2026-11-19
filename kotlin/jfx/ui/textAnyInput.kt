@@ -33,7 +33,7 @@ fun textAnyInput(
     formField.initialiseTextInputControl(entryField)
 
     return VBox(
-        appLabel(formField.label), entryField
+        appLabel(formField.label, formField.item), entryField
     ).apply {
         if (Config.getInstance().debug)
             background = AppColours.backgroundTest()

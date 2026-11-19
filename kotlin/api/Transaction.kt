@@ -18,6 +18,7 @@ import org.tfyh.api.ApiHandler.Companion.MESSAGE_SEPARATOR_STRING
 import org.tfyh.api.ApiHandler.Companion.MS_REPLACEMENT_STRING
 import org.tfyh.control.LoggerSeverity
 import org.tfyh.data.Codec
+import org.tfyh.data.Config
 import org.tfyh.data.DataBase
 import org.tfyh.data.Ids
 import org.tfyh.data.SettingsLoader
@@ -249,11 +250,12 @@ data class Transaction(
             }
         }
         this.closedAt = Clock.System.now().toEpochMilliseconds()
-        apiHandler.log(
-            LoggerSeverity.INFO, "Transaction.processTransaction()",
-            "#$transactionId $type $tableName [${apiHandler.pendingQueueSize()}]: " +
-                    resultType.result.message
-        )
+        if (Config.getInstance().debug)
+            apiHandler.log(
+                LoggerSeverity.INFO, "Transaction.processTransaction()",
+                "#$transactionId $type $tableName [${apiHandler.pendingQueueSize()}]: " +
+                        resultType.result.message
+            )
         // delete the transaction from the pending queue
         apiHandler.removeTxFromPending(this)
         // add the transaction to the done queue

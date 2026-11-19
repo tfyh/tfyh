@@ -17,6 +17,7 @@ package org.tfyh.util
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.reflect.KSuspendFunction0
@@ -42,6 +43,7 @@ class Timer(private val updateInterface: KSuspendFunction0<Unit>) {
                     callback()
                     delay(millis.milliseconds)
                 } catch (_: Exception) {
+                    ensureActive()
                 }
             }
         }

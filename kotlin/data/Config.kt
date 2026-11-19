@@ -14,7 +14,6 @@
 
 package org.tfyh.data
 
-import javafx.application.Platform
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import org.tfyh.control.Logger
@@ -57,13 +56,13 @@ class Config private constructor() {
             "theme" // user interface font and colour settings
         )
 
-        private val rootItemDefinition = mapOf("_path" to "#none", "_name" to "root", "default_label" to "root", "value_type" to "none" )
-        private val defaultsRootItemDefinition = mapOf("_path" to "#none", "_name" to "defaultsRoot", "default_label" to "root", "value_type" to "none" )
+        private val rootItemDefinition = mapOf("_path" to "#none", "_name" to "root", "item_label" to "root", "value_type" to "none" )
+        private val defaultsRootItemDefinition = mapOf("_path" to "#none", "_name" to "defaultsRoot", "item_label" to "root", "value_type" to "none" )
         /**
          * The definition of the invalid item. This is a floating item, which is not part of the configuration tree. It
          * is used to represent the "null"-type item to avoid setting any item to null.
          */
-        private val invalidItemDefinition = mapOf("_path" to "#none", "default_label" to "invalid item", "value_type" to "none" )
+        private val invalidItemDefinition = mapOf("_path" to "#none", "_name" to "invalid", "item_label" to "invalid item", "value_type" to "none" )
         private val instance = Config()
 
         fun getInstance() = instance
@@ -180,7 +179,7 @@ class Config private constructor() {
             if (cachedFile.isEmpty() ||
                 SettingsLoader.invalidConfigurationFile(lcPath, cachedFile, lc))
                 try {
-                    lc.setItem(lcPath, resProvider.readBytes("files/Config/packaged/$settingsFile").decodeToString())
+                    lc.setItem(lcPath, resProvider.readBytes("Config/packaged/$settingsFile").decodeToString())
                 } catch (_: Exception) {
                     currentCoroutineContext().ensureActive()
                     logger.log(LoggerSeverity.ERROR, "Config.load()", "Missing packaged settings file: $settingsFile")
@@ -201,7 +200,7 @@ class Config private constructor() {
         Record.copyCommonFields()  // this loads the tables configuration branch
 
         // specific for the client implementation: read ui layouts and theme settings
-        getItem(".framework") // in PHP and JavaScript this is nott needed.
+        getItem(".framework") // in PHP and JavaScript this is not needed.
         getItem(".templates")
         getItem(".app")
         getItem(".ui")

@@ -42,6 +42,7 @@ class DataBase private constructor() {
     private var localCache : LocalCacheIF? = null
     fun tableOfFindBy() = _tableOfFindBy.record.item.name()
 
+    fun log(severity: LoggerSeverity, caller: String, message: String) = logger.log(severity, caller, message)
     fun setEventListener(eventListener : EventHandlerIF) { this.eventListener = eventListener }
     fun setListConditionsIF(listConditionsIF : ListConditionsIF) { this.listConditionsIF = listConditionsIF }
     fun setLocalCache(localCache : LocalCacheIF) { this.localCache = localCache }
@@ -93,14 +94,14 @@ class DataBase private constructor() {
         apiHandler.addNewTxToPending(Transaction.TxType.LIST, tableName,
                 mapOf("set" to "client", "modified_after" to modifiedAfter.toString())
                         + furtherConditions)
-        logger.log(LoggerSeverity.INFO, "Database.updateTable()", "requested update for $tableName")
+        logger.log(LoggerSeverity.DEBUG, "Database.updateTable()", "requested update for $tableName")
     }
 
     /**
      * Insert a row. row must have a field "uid" with a value that is not yet used.
      * The table row will have exactly the same values as row, no defaults are added or removed.
      */
-    fun insert(tableName: String, row: MutableMap<String, String>) {
+    fun insert(tableName: String, row: Map<String, String>) {
         val table = getTableOrNull(tableName) ?: return
         val changed = table.insert(row)
         if (changed)  {
@@ -116,7 +117,7 @@ class DataBase private constructor() {
      * The row-values will overwrite the current values of the table row, extra fields
      * of the table row will be kept.
      */
-    fun update(tableName: String, row: MutableMap<String, String>) {
+    fun update(tableName: String, row: Map<String, String>) {
         val table = getTableOrNull(tableName) ?: return
         val changed = table.update(row)
         if (changed)  {
@@ -143,7 +144,7 @@ class DataBase private constructor() {
     /**
      * Update a row. row must have a field "uid" with a value that is used.
      */
-    fun merge(tableName: String, row: MutableMap<String, String>) {
+    fun merge(tableName: String, row: Map<String, String>) {
         val table = getTableOrNull(tableName) ?: return
         val changed = table.merge(row)
         if (changed)  {
@@ -158,7 +159,7 @@ class DataBase private constructor() {
      * The value stored in the "modified" field indicates that the record was read from
      * the server.
      */
-    private fun isServerStored(row: MutableMap<String,String>): Boolean {
+    private fun isServerStored(row: Map<String,String>): Boolean {
         return (row["modified"]?.isNotEmpty() ?: false) // there is an entry
                 && ((row["modified"]?.toDouble() ?: 0.0) > 946684800) // and it is after the 1.1.2000
     }
@@ -189,7 +190,7 @@ class DataBase private constructor() {
     }
 
     fun notifyChange(uid: String, modification: String, table: Table) {
-        logger.log(LoggerSeverity.INFO, "DataBase.notifyChange()",
+        logger.log(LoggerSeverity.DEBUG, "DataBase.notifyChange()",
             modification + " in " + table.record.item.name())
         val event = EventHandlerIF.Event(EventHandlerIF.EventType.DATA_EVENT,
             modification, uid, table.record.item)

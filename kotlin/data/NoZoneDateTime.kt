@@ -53,13 +53,21 @@ data class NoZoneDateTime(val dateTimeCleansed: String = ""): Comparable<NoZoneD
             .replace("d", twoChars(day()))
     }
 
+    @Suppress("UNUSED")
     fun year() = try { parts[0].toInt() } catch (_: Exception) { 1970 }
+    @Suppress("UNUSED")
     fun month() = if (parts.size > 1) try { parts[1].toInt() } catch (_: Exception) { 1 } else 1
+    @Suppress("UNUSED")
     fun day() = if (parts.size > 2) try { parts[2].toInt() } catch (_: Exception) { 1 } else 1
+    @Suppress("UNUSED")
     fun hour() = if (parts.size > 3) try { parts[3].toInt() } catch (_: Exception) { 0 } else 0
+    @Suppress("UNUSED")
     fun minute() = if (parts.size > 4) try { parts[4].toInt() } catch (_: Exception) { 0 } else 0
+    @Suppress("UNUSED")
     fun second() = partialMillis / 1000
+    @Suppress("UNUSED")
     fun millis() : Long = epochMins * 60000L + partialMillis
+    @Suppress("UNUSED")
     fun microtime() = epochMins.toDouble() * 60.0 + partialMillis.toDouble() / 1000.0
 
     companion object {

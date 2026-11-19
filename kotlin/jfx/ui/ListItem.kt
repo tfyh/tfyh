@@ -23,11 +23,10 @@ import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.HBox
-import javafx.scene.layout.Region
-import javafx.scene.layout.StackPane
+import javafx.scene.layout.Pane
 import javafx.scene.paint.Paint
-import org.dilbo.core.EventHandler
 import org.tfyh.control.EventHandlerIF
+import org.tfyh.data.Config
 import org.tfyh.data.Item
 import org.tfyh.jfx.design.AppColours
 import org.tfyh.jfx.design.AppDimensions
@@ -38,14 +37,13 @@ data class ListItem (
     val icon: Image,
     val text: String,
     val providedByItem: Item,
+    val eventHandler: EventHandlerIF,
     val evenRow: Boolean = false,
     val headerRow: Boolean = false,
     var visible: Boolean = true
 ) {
 
-    private val eventHandler = EventHandler.getSingleton()
-
-    fun build(): Region {
+    fun build(): Pane {
         val backgroundDefault =
             if (headerRow) Background(
                     BackgroundFill(
@@ -58,16 +56,16 @@ data class ListItem (
                     CornerRadii(3.0), null))
             else
                 AppColours.backgroundTransparent()
-        val border = if (headerRow) AppColours.borderSolid(AppDimensions.smallSpacing, "FFFFFFFF") else AppColours.borderNone()
+        val border = if (headerRow) AppColours.borderSolid(AppDimensions.SMALL_SPACING, "FFFFFFFF") else AppColours.borderNone()
         if (visible) {
-            val clickEvent = EventHandlerIF.Event(EventHandlerIF.EventType.UI_EVENT, "doubleClick", uid, providedByItem)
+            val clickEventTemplate = EventHandlerIF.Event(EventHandlerIF.EventType.UI_EVENT, "doubleClick", uid, providedByItem)
             val imageView = ImageView(icon).apply {
                 fitWidth = 24.0 * ViewBuilder.fontZoom
                 isPreserveRatio = true
             }
-            val appLabel = if (headerRow) appLabel(text, AppFonts.h3, AppColours.text_h1_h3)
-                            else appLabel(text, AppFonts.p)
-            val listItem = HBox(AppDimensions.regularSpacing, imageView, appLabel).apply {
+            val appLabel = if (headerRow) appLabel(text, providedByItem, AppFonts.h3, AppColours.text_h1_h3)
+                            else appLabel(text, providedByItem, AppFonts.p)
+            val listItem = HBox(AppDimensions.REGULAR_SPACING, imageView, appLabel).apply {
                 background = backgroundDefault
                 this.border = border
                 onMouseEntered = { background = AppColours.background(AppColours.background_form_input_hover) }
@@ -75,28 +73,31 @@ data class ListItem (
                 if (headerRow)
                     onMouseClicked = { event ->
                         if (event.button.equals(MouseButton.PRIMARY)) {
-                            clickEvent.name = "collapse"
-                            eventHandler.handleEvent(clickEvent)
+                            eventHandler.handleEvent(clickEventTemplate.clone(name = "collapse"))
                         }
                     }
                 else
                     onMouseClicked = { event ->
-                        if (event.button.equals(MouseButton.PRIMARY)) {
-                            if (event.clickCount == 1)
-                                clickEvent.name = "click"
-                            if (event.clickCount == 2)
-                                clickEvent.name = "doubleClick"
-                        } else if (event.button.equals(MouseButton.SECONDARY))
-                            clickEvent.name = "rightClick"
-                        eventHandler.handleEvent(clickEvent)
+                        val name = if (event.button.equals(MouseButton.PRIMARY)) {
+                            when (event.clickCount) {
+                                1 -> "click"
+                                2 -> "doubleClick"
+                                else -> ""
+                            }
+                        } else {
+                            if (event.button.equals(MouseButton.SECONDARY)) "rightClick"
+                            else ""
+                        }
+                        if (name.isNotEmpty())
+                            eventHandler.handleEvent(clickEventTemplate.clone(name = name))
                     }
                 cursor = Cursor.HAND
                 padding =
-                    Insets(AppDimensions.smallSpacing, AppDimensions.smallSpacing, 0.0, AppDimensions.smallSpacing)
+                    Insets(AppDimensions.SMALL_SPACING, AppDimensions.SMALL_SPACING, 0.0, AppDimensions.SMALL_SPACING)
             }
             return listItem
         }
-        return Region()
+        return Pane()
     }
 }
 

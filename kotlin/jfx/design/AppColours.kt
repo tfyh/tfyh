@@ -111,12 +111,12 @@ object AppColours {
         }
     }
 
-    fun textBorderStroke(): BorderStroke = BorderStroke(Paint.valueOf(AppColours.hex(AppColours.border_form_input)),
+    fun textBorderStroke(): BorderStroke = BorderStroke(Paint.valueOf(hex(border_form_input)),
         BorderStrokeStyle(null, null, null, 10.0, 0.0, null),
         CornerRadii.EMPTY,
         BorderWidths(0.0,0.0,2.0, 0.0))
 
-    fun textNoBorderStroke(): BorderStroke = BorderStroke(Paint.valueOf(AppColours.hex(AppColours.border_form_input)),
+    fun textNoBorderStroke(): BorderStroke = BorderStroke(Paint.valueOf(hex(border_form_input)),
         BorderStrokeStyle(null, null, null, 10.0, 0.0, null),
         CornerRadii.EMPTY,
         BorderWidths(0.0,0.0,0.0, 0.0))
@@ -129,7 +129,7 @@ object AppColours {
     }
 
     /**
-     * A border to indicate the period check result of a autocompletion field
+     * A border to indicate the period check result of an autocompletion field
      */
     fun borderPeriodCheck(versionCheck: Record.VersionValidity): Border {
         val paintNone = Paint.valueOf("000000")
@@ -161,7 +161,7 @@ object AppColours {
     }
 
     fun textBackgroundFill(): BackgroundFill = BackgroundFill(
-        Paint.valueOf(AppColours.hex(AppColours.background_form_input)),
+        Paint.valueOf(hex(background_form_input)),
         CornerRadii(3.0), null)
 
     fun backgroundTest(): Background {
@@ -203,7 +203,7 @@ object AppColours {
 
     fun two(hex:String) = if (hex.length == 1) "0$hex" else hex
     /**
-     * get the hex String for a colour, without prefixes like 0x or #, eg FFFF0000 for full red.
+     * get the hex String for a colour, without prefixes like 0x or #, e.g. FFFF0000 for full red.
      */
     fun hex(colour: Color, withOpacity: Boolean = false) : String {
         val red = two((colour.red * 255.9999).toInt().toString(16))

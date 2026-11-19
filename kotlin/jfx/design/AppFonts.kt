@@ -36,7 +36,7 @@ object AppFonts {
     private const val H1_FONT_ZOOM = 1.5
 
     fun loadFont(resProvider: ResProviderIF, fileName: String) : Font {
-        val fontAsStream = ByteArrayInputStream(resProvider.getBytes("font/$fileName"))
+        val fontAsStream = ByteArrayInputStream(resProvider.getFont(fileName))
         return Font.loadFont(fontAsStream, 16.0) ?: defaultFont
     }
     

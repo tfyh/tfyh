@@ -480,6 +480,7 @@ class XmlTag {
          * avoid this check at all.
          * @param reportProgress   reports progress to the console, if true.
          */
+        @Suppress("UNUSED")
         fun getTree(xmlString: String, tagToTakeForText: List<String>, reportProgress: Boolean) : XmlTag {
             val xmlReader = XmlTag(null)
             xmlReader.readTag(xmlString, 0, tagToTakeForText)

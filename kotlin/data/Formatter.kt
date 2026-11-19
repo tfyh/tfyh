@@ -214,8 +214,8 @@ object Formatter {
         )
         // replace the html reserved characters
         var ret = text
-        for (pair in escapeHtmlMap)
-            ret = ret.replace(pair.key, pair.value)
+        for ((key, value) in escapeHtmlMap)
+            ret = ret.replace(key, value)
         return ret
     }
 

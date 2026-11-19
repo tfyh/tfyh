@@ -17,11 +17,10 @@ package org.tfyh.jfx.ui
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
-import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
-import javafx.scene.shape.Box
 import org.tfyh.api.ApiHandler
 import org.tfyh.api.Transaction
+import org.tfyh.control.EventHandlerIF
 import org.tfyh.data.*
 import org.tfyh.jfx.design.AppColours
 import org.tfyh.jfx.design.AppDimensions
@@ -149,9 +148,9 @@ class Form(
      * Get the width of a form field depending on its span.
      */
     fun getFieldWidth(columnsSpan: Int): Int {
-        val unitWidth = (widthPx - 2 * AppDimensions.regularSpacing) / formColumnsCount - AppDimensions.regularSpacing
+        val unitWidth = (widthPx - 2 * AppDimensions.REGULAR_SPACING) / formColumnsCount - AppDimensions.REGULAR_SPACING
         val spanWidth = unitWidth * columnsSpan
-        val additionalSpacing = AppDimensions.regularSpacing * (columnsSpan - 1)
+        val additionalSpacing = AppDimensions.REGULAR_SPACING * (columnsSpan - 1)
         return (spanWidth + additionalSpacing).toInt()
     }
 
@@ -160,12 +159,6 @@ class Form(
      */
     fun isValid() = this._recordItem.isValid()
 
-    /**
-     * Hide an input field
-     */
-    fun setVisible(fieldName: String, visible: Boolean) {
-        inputFields[fieldName]?.setVisibility(visible)
-    }
     /**
      * the form input field gathered focus. Notify the previous one about its focus losing.
      */
@@ -192,21 +185,21 @@ class Form(
     /**
      * compose the form based on the field set.
      */
-    override fun build (): Region {
+    override fun build (): Pane {
         // set headline and error message
         val headline = HBox(0.0,
-            appLabel(formHeadline.ifEmpty { _recordItem.label() }, AppFonts.h3))
+            appLabel(formHeadline.ifEmpty { _recordItem.label() }, Config.getInstance().invalidItem, AppFonts.h3))
         formRows.clear()
         formRows.add(headline)
         if (previousErrors.isNotEmpty())
-        formRows.add(HBox(appLabel(previousErrors,
+        formRows.add(HBox(appLabel(previousErrors, Config.getInstance().invalidItem,
             textColor = AppColours.all_form_input_invalid)))
         // build form
         val inputNames = inputFields.keys.toList()
         var index = 0
         // responsive layout. only one column of fields for small portrait screens
         val cCnt = formColumnsCount
-        var fieldsInRow = mutableListOf<Region?>()
+        var fieldsInRow = mutableListOf<Pane?>()
         var c = 0
         while (index < inputNames.size) {
             while ((index < inputNames.size) && (c < cCnt)) {
@@ -215,7 +208,7 @@ class Form(
                     // add a spacer for a detached row
                     if (ff?.rowTag == "R")
                         formRows.add(HBox().apply {
-                            prefHeight = AppDimensions.regularSpacing
+                            prefHeight = AppDimensions.REGULAR_SPACING
                             // border = AppColours.borderSpacer()
                         })
                     val ffUI = ff?.build().apply {
@@ -229,7 +222,7 @@ class Form(
                 if ((index >= inputNames.size) ||
                     (inputFields[inputNames[index]]?.rowTag != "") || (c == cCnt)) {
                     if (fieldsInRow.isNotEmpty()) {
-                        val row = HBox(AppDimensions.regularSpacing, *fieldsInRow.toTypedArray())
+                        val row = HBox(AppDimensions.REGULAR_SPACING, *fieldsInRow.toTypedArray())
                         formRows.add(row)
                         fieldsInRow = mutableListOf()
                         c = 0
@@ -237,7 +230,7 @@ class Form(
                 }
             }
         }
-        return VBox(AppDimensions.regularSpacing, *formRows.toTypedArray()).apply {
+        return VBox(AppDimensions.REGULAR_SPACING, *formRows.toTypedArray()).apply {
             onKeyPressed = {
                 key -> if (key.code == KeyCode.ENTER)
                     onSubmit()
@@ -247,9 +240,12 @@ class Form(
     }
 
     /**
-     * read all values entered.
+     * read and validate all values entered. Trigger a redo on validation errors.
+     * @param redoEvent the event passed on to the redo function
+     * @param redoFunction the redo function to call. Usually the "do"-form
+     * @return true, if the validation confirms changes of data
      */
-    fun validate (): Boolean {
+    fun validate(redoEvent: EventHandlerIF.Event, redoFunction: (event: EventHandlerIF.Event) -> Unit): Boolean {
         this.formErrors = ""
         var anyChange = false
         for (fieldName in inputFields.keys) {
@@ -262,15 +258,21 @@ class Form(
                 if (f.listPosition > 0) f.changed = false
             }
         }
-        return anyChange
+        if (formErrors.isEmpty())
+                return anyChange
+        previousErrors = formErrors
+        formErrors = ""
+        redoFunction(redoEvent)
+        // because the validation failed, this function will not record any change
+        return false
     }
 
     /**
-     * Submit the form to the API. This will insert the record. To update the record, set update
-     * true. In that case set uid to ensure that the correct record is updated. For update == false
-     * a new uid is generated.
+     * Submit the form to the API to insert or to update the record.
+     * @param uid set a valid uid to update and an empty uid for insert. For insert a new uid is generated.
+     * @return the API transaction for update or insert
      */
-    fun submit(update: Boolean, uid: String = ""): Transaction {
+    fun submit(uid: String = ""): Transaction {
         val record: MutableMap<String, String> = mutableMapOf()
         for (inputFieldName in inputFields.keys) {
             val inputField = inputFields[inputFieldName]
@@ -281,16 +283,29 @@ class Form(
                 record[inputFieldName] = Formatter.format(inputField.validated, inputField.type.parser(),
                     Language.CSV)
         }
-        if (! update)
+        val insert = uid.isEmpty()
+        if (insert)
             record["uid"] = Ids.generateUid(6)
         else
             record["uid"] = uid
+        // set modified = "0" to indicate that this transaction is not yet stored on the server
+        record["modified"] = "0"
         val apiHandler = ApiHandler.getInstance()
-        return apiHandler.addNewTxToPending(
-            txType = if (update) Transaction.TxType.UPDATE else Transaction.TxType.INSERT,
+        val tx = apiHandler.addNewTxToPending(
+            txType = if (insert) Transaction.TxType.INSERT else Transaction.TxType.UPDATE,
             tableName = _recordItem.name(),
             record = record
         )
+        // execute the change in the local database. After transaction execution this will then be
+        // confirmed by the server response and any changes made at the server are side then merged.
+        val db = DataBase.getInstance()
+        if (tx.type == Transaction.TxType.INSERT)
+            db.insert(tx.tableName, tx.record)
+        else if (tx.type == Transaction.TxType.UPDATE)
+            db.update(tx.tableName, tx.record)
+
+        // return the transaction to add the callback function
+        return tx
     }
 
 }

@@ -19,6 +19,7 @@ import org.tfyh.util.I18n
 import org.tfyh.util.Language
 import kotlin.math.abs
 
+@Suppress("UNUSED")
 class Item private constructor(parentItemSetter: Item?, definition: Map<String, String>,
                                private var source: String) {
 
@@ -235,6 +236,11 @@ class Item private constructor(parentItemSetter: Item?, definition: Map<String, 
         I18n.getInstance().t(properties[PropertyName.ITEM_LABEL] as String) else _type.typeLabel()
     fun description() = if (properties[PropertyName.ITEM_DESCRIPTION] != null)
         I18n.getInstance().t(properties[PropertyName.ITEM_DESCRIPTION] as String) else _type.typeDescription()
+    // get the token of a localised property for translation editing support
+    private fun getToken(resource: String?) = if ((resource != null) && (resource.length > 6) && (resource.substring(6,7) == "|"))
+            resource.substring(0, 6) else "000000"
+    fun labelToken() = getToken(properties[PropertyName.ITEM_LABEL] as String?)
+    fun descriptionToken() = getToken(properties[PropertyName.ITEM_DESCRIPTION] as String?)
 
 
     fun isOfAddableType(item: Item): Boolean {

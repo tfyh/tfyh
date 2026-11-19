@@ -21,6 +21,7 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import javafx.scene.layout.Pane
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -45,6 +46,10 @@ import kotlin.time.Clock
  */
 
 class ApiHandler private constructor(): EventHandlerIF {
+
+    enum class ApiStatusEnum {
+        IDLE, BUSY, ALERT
+    }
 
     companion object {
 
@@ -301,7 +306,7 @@ class ApiHandler private constructor(): EventHandlerIF {
         )
         pendingQueue.add(tx)
         tx.writeStored(CACHE_PATH_PENDING)
-        logger.log(LoggerSeverity.INFO, "ApiHandler.addNewTxToPending",
+        logger.log(LoggerSeverity.DEBUG, "ApiHandler.addNewTxToPending",
             "#${tx.transactionId} ${tx.type} ${tx.tableName}: Pending queue ++: " + pendingQueue.size)
         return tx
     }
@@ -512,6 +517,10 @@ class ApiHandler private constructor(): EventHandlerIF {
         // invalidate the container transactions and remove them to unlock the queue processing
         container.setFailedAndRemoveAllTransactions()
     }
+
+    override var isDisplayedOn: Pane? = null
+        get() = field // Access the backing field
+        set(value) { field = value } // Modify the backing field
 
     override fun handleEvent(event: EventHandlerIF.Event): Boolean {
         Looper.getSingleton().append(event)

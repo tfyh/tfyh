@@ -53,6 +53,10 @@ class Looper private constructor() {
         timer.cancel()
     }
 
-    fun append(event: EventHandlerIF.Event) { eventQueue.add(event) }
+    fun append(event: EventHandlerIF.Event) {
+        if (event.type == EventHandlerIF.EventType.API_EVENT)
+            println(event)
+        eventQueue.add(event)
+    }
 
 }

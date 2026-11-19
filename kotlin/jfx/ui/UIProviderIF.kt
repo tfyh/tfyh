@@ -14,7 +14,7 @@
 
 package org.tfyh.jfx.ui
 
-import javafx.scene.layout.Region
+import javafx.scene.layout.Pane
 
 /**
  * The fyh framework provides support for the UI composition and handles the screen layout
@@ -25,5 +25,5 @@ interface UIProviderIF {
     /**
      * The content building which will be part of the UI creation
      */
-    fun build(): Region
+    fun build(): Pane
 }

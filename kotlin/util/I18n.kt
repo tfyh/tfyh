@@ -23,10 +23,17 @@ class I18n private constructor() {
 
     // localization
     var map = mapOf<String, String>()
+    var mapDefaultLanguage = mapOf<String, String>()
     private var loaded = false
 
-    suspend fun loadResource(language: Language, resProvider: ResProviderIF) {
-        val i18nURI = "files/i18n/${language.code}.lrf"
+    private suspend fun loadDefaultResource(resProvider: ResProviderIF) {
+        loadResource(Language.EN, resProvider, true)
+    }
+
+    suspend fun loadResource(language: Language, resProvider: ResProviderIF, isDefault: Boolean = false) {
+        // before the resource is loaded, run this method once to load the default language
+        if (!isDefault) { loadDefaultResource(resProvider) }
+        val i18nURI = "i18n/${language.code}.lrf"
         val lrf = resProvider.readBytes(i18nURI).decodeToString()
         val lines = lrf.split("\n")
         var token = "-"
@@ -35,7 +42,10 @@ class I18n private constructor() {
             val pipeAt = line.indexOf("|")
             if (pipeAt == 6) {
                 if (token.length == 6) // new language resource. Store current.
-                    map = map.plus(Pair(token, text))
+                    if (isDefault)
+                        mapDefaultLanguage = mapDefaultLanguage.plus(Pair(token, text))
+                    else
+                        map = map.plus(Pair(token, text))
                 token = line.substring(0, 6)
                 text = line.substring(7)
             } else if (pipeAt == 0) { // continued multiline language resource text
@@ -44,8 +54,12 @@ class I18n private constructor() {
         }
         // add last entry
         if (token.isNotEmpty())
-            map = map.plus(Pair(token, text))
-        loaded = true
+            if (isDefault)
+                map = map.plus(Pair(token, text))
+            else
+                mapDefaultLanguage = mapDefaultLanguage.plus(Pair(token, text))
+        if (!isDefault)
+            loaded = true
     }
 
     @Suppress("Unused")
@@ -55,8 +69,11 @@ class I18n private constructor() {
                 loaded && (map[toCheck.substring(0,6)] != null)
     }
 
+    fun t(vararg args: String) = translate(false, *args)
+    fun tDefault(vararg args: String) = translate(true, *args)
+
     // translation and placeholder replacement
-    fun t(vararg args: String): String {
+    private fun translate(isDefault: Boolean, vararg args: String): String {
         if (args.isEmpty())
             return ""
         val i18nResource = args[0]
@@ -66,8 +83,12 @@ class I18n private constructor() {
         val text =
             if (!loaded)
                 i18nResource.substring(7)
-            else
-                map[token] ?: i18nResource.substring(7)
+            else {
+                if (isDefault)
+                    mapDefaultLanguage[token] ?: i18nResource.substring(7)
+                else
+                    map[token] ?: i18nResource.substring(7)
+            }
         if (text.isEmpty())
             return i18nResource.substring(7)
         else {

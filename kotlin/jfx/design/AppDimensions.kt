@@ -14,10 +14,11 @@
 
 package org.tfyh.jfx.design
 
+@Suppress("Unused")
 object AppDimensions {
-    val smallSpacing = 3.0
-    val regularSpacing = 12.0
-    val largeSpacing = 20.0
-    val textFieldHeight = 16.0
-    val pickerSize = textFieldHeight * 10
+    const val SMALL_SPACING = 3.0
+    const val REGULAR_SPACING = 12.0
+    const val LARGE_SPACING = 20.0
+    const val TEXT_FIELD_HEIGHT = 16.0
+    const val PICKER_SIZE = TEXT_FIELD_HEIGHT * 10
 }

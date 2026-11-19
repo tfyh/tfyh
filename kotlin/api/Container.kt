@@ -181,14 +181,14 @@ class Container private constructor() {
                 txPayload += ";" + key + ";" + Codec.encodeCsvEntry(value)
             }
             containerPayload += txHeader + txPayload + MESSAGE_SEPARATOR_STRING
-            // uncomment next statement for debugging and testing
-            println(txHeader + ": " + Codec.apiEncode(containerHeader + txHeader + txPayload))
+            apiHandler.log(LoggerSeverity.DEBUG, "tx content",
+                txHeader + ": " + Codec.apiEncode(containerHeader + txHeader + txPayload))
         }
         containerPayload = containerPayload.substring(0, containerPayload.length - MESSAGE_SEPARATOR_STRING.length)
         val base64api = Codec.apiEncode(containerHeader + containerPayload)
         apiHandler.log(
-            LoggerSeverity.INFO, "ApiHandler.buildContainer",
-            "Container built: " + transactions.size + " transactions in " + base64api.length + " base64 characters")
+            LoggerSeverity.DEBUG, "ApiHandler.buildContainer",
+             "Container built: " + transactions.size + " transactions in " + base64api.length + " base64 characters")
         return base64api
     }
 

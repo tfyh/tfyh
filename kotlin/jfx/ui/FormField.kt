@@ -11,6 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.tfyh.jfx.ui
 
 import javafx.beans.property.SimpleStringProperty
@@ -20,7 +21,6 @@ import javafx.scene.layout.Background
 import javafx.scene.layout.Border
 import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
-import org.dilbo.core.FormHandler
 import org.tfyh.control.LoggerSeverity
 import org.tfyh.data.*
 import org.tfyh.jfx.design.AppColours
@@ -47,6 +47,12 @@ data class FormField (
     val onSubmit: () -> Unit = {}, // the function to trigger, if the from field is clicked
     val columnsSpan: Int = 1 // the number of columns this form field shall span in the form
 ) {
+
+    data class FormFieldListener (
+        val onValueChange: (String) -> Unit = {},
+        val onFocusLost: (String) -> Unit = {}
+    )
+
     val name: String // the name of the field. For list fields this is without the list index
     val item: Item // the item which holds the definition of the form fields data
     val label: String // the label to display
@@ -169,6 +175,7 @@ data class FormField (
      * Returns true, if the fragment is contained in one of the options
      * or one of te options starts with it. Not case-sensitive.
       */
+    @Suppress("Unused")
     fun isMatchingFragment(fragment: String,  contained: Boolean) : Boolean {
         val fragmentToLower = fragment.lowercase()
         for (option in options.keys)
@@ -277,8 +284,8 @@ data class FormField (
                     isValid = true
             }
         }
-        if (changed && Config.getInstance().debug)
-            FormHandler.getInstance().logger.log(
+        if (changed)
+            Config.getInstance().logger.log(
                 LoggerSeverity.DEBUG, "formField.validate()", this.name
                     + " changed to " + (if (type == Type["password"]) "********" else this.entered) +
                         ", i.e. " + (if (type == Type["password"]) "********" else this.validated.toString()) +
@@ -317,6 +324,7 @@ data class FormField (
 
     // before submitting a form any change can be used programmatically by implementing listeners
     fun addListener(listener: FormFieldListener) { listeners.add(listener) }
+    @Suppress("Unused")
     fun onFocusChanged(isFocused: Boolean) { if (isFocused) parentForm.moveFocus(this) }
     fun notifyOnFocusLost() {
         val entered = this.entered.value.ifEmpty { this.preset }
@@ -347,9 +355,9 @@ data class FormField (
             FormFieldType.AUTOSELECT -> textAutoCompleteInput(this)
             FormFieldType.SUBMIT ->  submitButton(label, onSubmit)
             FormFieldType.NONE -> Pane()
-            FormFieldType.CHECKBOX -> VBox(appLabel("TODO: checkbox"))
-            FormFieldType.TIME -> VBox(appLabel("TODO: time"))
-            FormFieldType.RADIO -> VBox(appLabel("TODO: radio button"))
+            FormFieldType.CHECKBOX -> VBox(appLabel("TODO: checkbox", Config.getInstance().invalidItem))
+            FormFieldType.TIME -> VBox(appLabel("TODO: time", Config.getInstance().invalidItem))
+            FormFieldType.RADIO -> VBox(appLabel("TODO: radio button", Config.getInstance().invalidItem))
         }.apply {
             prefWidth = formFieldWidth
             minWidth = formFieldWidth

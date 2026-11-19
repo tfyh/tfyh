@@ -14,6 +14,7 @@
 
 package org.tfyh.control
 
+import javafx.scene.layout.Pane
 import org.tfyh.data.Config
 import org.tfyh.data.Item
 
@@ -35,23 +36,36 @@ interface EventHandlerIF {
         /**
          * A String providing the event name
          */
-        var name: String,
+        val name: String,
         /**
          * If the event is linked to a record, provide the records uid
          */
-        var uid: String = "",
+        val uid: String = "",
         /**
          * If the event is either linked to or a configuration item, provide the item.
          */
-        var sourceItem: Item = Config.getInstance().invalidItem,
+        val sourceItem: Item = Config.getInstance().invalidItem,
         /**
          * An optional String providing the event message
          */
-        var message: String = "")
+        val message: String = "")
         {
+            /**
+             * create a clone event. Every which is not given will be cloned. Change a property by calling the function
+             * with a value for the property to change, usually the name.
+             */
+            fun clone(type: EventType = this.type, name: String = this.name, uid: String = this.uid,
+                      sourceItem: Item = this.sourceItem, message: String = this.message) =
+                Event(type, name, uid, sourceItem, message)
+
             override fun toString() = "$type - $name: ${sourceItem.fullPath()} -> uid=$uid ($message)"
         }
 
+    /**
+     * the pane on which this event handling UI-element is displayed. Used to remove the Eventhandler registration when
+     * the pane is destroyed
+     */
+    var isDisplayedOn: Pane?
     /**
      * Handle the Event. Return true if handled, false on no relevance or all errors.
      */

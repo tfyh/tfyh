@@ -56,7 +56,7 @@ fun textAutoCompleteInput(formField: FormField, allowFreeText: Boolean = true): 
         }
     }
 
-    return VBox(appLabel(formField.label), input).apply {
+    return VBox(appLabel(formField.label, formField.item), input).apply {
         if (Config.getInstance().debug)
             background = AppColours.backgroundTest()
     }

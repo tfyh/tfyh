@@ -14,15 +14,25 @@
 
 package org.tfyh.jfx.ui
 
-import javafx.scene.layout.Region
+import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.text.Font
+import org.tfyh.control.EventHandlerIF
 import org.tfyh.data.Config
+import org.tfyh.data.Item
 import org.tfyh.jfx.design.AppColours
 import org.tfyh.jfx.design.AppFonts
 
-fun appLabel(contents: String, font: Font = AppFonts.p, textColor: Color? = null): Region {
+fun appLabel(contents: String, item: Item, font: Font = AppFonts.p, textColor: Color? = null): Pane {
     val label = StyledText.toAnnotatedString(contents, font, textColor)
-    if (Config.getInstance().debug) label.border = AppColours.borderTest()
+    if (Config.getInstance().debug)
+        label.border = AppColours.borderTest()
+    label.onMouseClicked = { e ->
+        if (e.isAltDown && e.isShiftDown) {
+            println("<Shift>+<Alt>-Click on '${item.label()}'")
+            val clickEvent = EventHandlerIF.Event(EventHandlerIF.EventType.UI_EVENT, "suggestText", "",item, "")
+            Looper.getSingleton().append(clickEvent)
+        }
+    }
     return label
 }

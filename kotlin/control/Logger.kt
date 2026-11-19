@@ -15,15 +15,12 @@
 package org.tfyh.control
 
 import org.tfyh.data.Config
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import org.tfyh.data.Formatter
 import org.tfyh.data.ParserName
 import org.tfyh.util.Language
-import org.tfyh.data.LocalCacheIF
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-
-@OptIn(ExperimentalTime::class)
 class Logger(
     private val logName: String) {
 
@@ -35,6 +32,8 @@ class Logger(
     private var log: MutableList<String> = mutableListOf()
 
     fun log(severity: LoggerSeverity, caller: String, message: String) {
+        if (severity == LoggerSeverity.DEBUG && !Config.getInstance().debug)
+            return
         val now = Clock.System.now()
         val logLine = Formatter.format(now, ParserName.DATETIME, Language.EN) +
                 "- $severity by $caller: $message"

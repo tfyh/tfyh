@@ -20,11 +20,6 @@ package org.tfyh.util
 interface ResProviderIF {
 
     /**
-     * The list of available resource directories
-     */
-    val directories: List<String>
-
-    /**
      * Read a resource into a ByteArray. This is an asynchronous getter.
      */
     suspend fun readBytes(path: String): ByteArray
@@ -32,17 +27,21 @@ interface ResProviderIF {
     /**
      * Read all resources into memory to avoid suspend calls during UI composition
      */
-    suspend fun init()
+    suspend fun initDrawablesAndFonts()
 
     /**
-     * Get a resource as ByteArray (usually images). This is a synchronous getter and requires an init call to read the resources
-     * into memory. Must return an empty ByteArray, if no drawable resource of the given name was found.
+     * Get a drawable resource as ByteArray. This is a synchronous getter and requires an initDrawablesAndFonts() call to read the
+     * all files within the drawables resource directory into memory. Must return an empty ByteArray, if no drawable
+     * resource of the given name was found.
+     * @param fileName the file name of the drawable, e.g. app_logo.png
      */
-    fun getBytes(path: String): ByteArray
+    fun getDrawable(fileName: String): ByteArray
 
     /**
-     * Get a string resource. This is a synchronous getter and requires an init call to read the resources
-     * into memory. Must return an empty String, if no string resource of the given name was found.
+     * Get a Font resource as ByteArray. This is a synchronous getter and requires an initDrawablesAndFonts() call to read the
+     * all files within the fonts resource directory into memory. Must return an empty ByteArray, if no font
+     * resource of the given name was found.
+     * @param fileName the file name of the font, e.g. arial.ttf
      */
-    fun getString(path: String): String
+    fun getFont(fileName: String): ByteArray
 }

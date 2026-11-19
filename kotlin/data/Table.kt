@@ -14,6 +14,8 @@
 
 package org.tfyh.data
 
+import org.dilbo.core.UIProviderFactory.Companion.fill
+import org.tfyh.control.LoggerSeverity
 import org.tfyh.util.Language
 import kotlin.math.floor
 
@@ -235,7 +237,7 @@ class Table internal constructor(private val recordItem: Item) {
     /**
      * merge a single row into the table, i.e. update if existing or insert if missing.
      */
-    internal fun merge(row: MutableMap<String, String>) : Boolean {
+    internal fun merge(row: Map<String, String>) : Boolean {
         // check for the uid. It must be present
         val uid = row["uid"] ?: return false
         // get the tableRow with the respective uid
@@ -248,12 +250,16 @@ class Table internal constructor(private val recordItem: Item) {
      * The table row will have exactly the same values as row, no defaults are added or removed.
      * The name index is updated.
      */
-    internal fun insert(row: MutableMap<String, String>) : Boolean {
+    internal fun insert(row: Map<String, String>) : Boolean {
         val uid = row["uid"]
         // the uid must be given and be unique
         if ((uid == null) || (rows[uid] != null)) return false
         // create the new tableRow
         rows[uid] = mutableMapOf()
+        // add it to the index
+        val uuid = row["uuid"] ?: ""
+        val name = record.rowToTemplate("name", row)
+        Indices.getInstance().add(uid, uuid, "", recordItem.name(), name)
         // put the values
         return update(row)
     }
@@ -263,7 +269,7 @@ class Table internal constructor(private val recordItem: Item) {
      * The row-values will overwrite the current values of the table row, extra fields
      * of the table row will be kept. The name index is updated.
      */
-    internal fun update(row: MutableMap<String, String>) : Boolean {
+    internal fun update(row: Map<String, String>) : Boolean {
         val uid = row["uid"] ?: return false
         // get the tableRow with the respective uid
         val tableRow = rows[uid] ?: return false
@@ -330,6 +336,9 @@ class Table internal constructor(private val recordItem: Item) {
     internal fun mergeTable(csv: String) : Boolean {
         // read the rows
         val tableRows = Codec.csvToMap(csv)
+        DataBase.getInstance().log(
+            LoggerSeverity.DEBUG, "Table.mergeTable()",
+                "Merging ${tableRows.size} rows into ${this.recordItem.name()}")
         var changed = false
         // insert or update the rows one by one
         for (row in tableRows) {

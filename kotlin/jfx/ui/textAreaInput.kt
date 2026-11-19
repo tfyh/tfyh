@@ -26,7 +26,7 @@ fun textAreaInput(
     formField.initialiseTextInputControl(textArea)
     textArea.isWrapText = true
     return VBox(
-        appLabel(formField.label), textArea
+        appLabel(formField.label, formField.item), textArea
     ).apply {
         if (Config.getInstance().debug)
             background = AppColours.backgroundTest()

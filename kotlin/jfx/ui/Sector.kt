@@ -24,7 +24,6 @@ import javafx.scene.layout.BorderWidths
 import javafx.scene.layout.CornerRadii
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
-import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import org.tfyh.control.EventHandlerIF
 import org.tfyh.data.Config
@@ -127,7 +126,7 @@ class Sector(val item: Item, private val uiProviderFactory: UIProviderFactoryIF,
      * the composition only the leaf layer is drawn. Call it with stage width and height in dp, the offset
      * of the stage is always [0, 0]
      */
-    internal fun buildSector(): List<Region> {
+    internal fun buildSector(): List<Pane> {
         var sumWeight = 0.0
         // compute sum of weight
         for (child in item.getChildren()) {
@@ -140,7 +139,7 @@ class Sector(val item: Item, private val uiProviderFactory: UIProviderFactoryIF,
         }
 
         if (childSectors.isEmpty())
-            return listOf(HBox(uiProvider?.build() ?: appLabel(this.toString())).apply {
+            return listOf(HBox(uiProvider?.build() ?: appLabel(this.toString(), item)).apply {
                 border = sectorBorder
                 background = sectorBackground
                 setPrefSize(w.toDouble(), h.toDouble())
@@ -199,7 +198,7 @@ class Sector(val item: Item, private val uiProviderFactory: UIProviderFactoryIF,
         }
 
         // drill down. Dimension of the child were already set.
-        val panes = mutableListOf<Region>()
+        val panes = mutableListOf<Pane>()
         for (sector in childSectors)
              panes.add(sector.build())
         return panes
@@ -208,7 +207,7 @@ class Sector(val item: Item, private val uiProviderFactory: UIProviderFactoryIF,
     /**
      * build the sector.
      */
-    fun build(): Region {
+    fun build(): Pane {
         pane = if (horizontal) HBox(0.0, *buildSector().toTypedArray())
                    else VBox(0.0, *buildSector().toTypedArray()).apply {
             setPrefSize(w.toDouble(), h.toDouble())
@@ -243,7 +242,7 @@ class Sector(val item: Item, private val uiProviderFactory: UIProviderFactoryIF,
 
     companion object {
 
-        val sectorInsets = Insets(AppDimensions.smallSpacing)
+        val sectorInsets = Insets(AppDimensions.SMALL_SPACING)
         val sectorBackground = Background(BackgroundFill(
             AppColours.background_body, CornerRadii.EMPTY, sectorInsets
         ))
